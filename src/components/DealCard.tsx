@@ -61,8 +61,16 @@ export function DealCard({ deal }: { deal: Deal }) {
             src={deal.imageUrl}
             alt={deal.title}
             loading="lazy"
+            onError={(e) => {
+              const t = e.currentTarget;
+              t.style.display = "none";
+              t.parentElement?.classList.add("img-fallback");
+            }}
             className="size-full object-contain p-6 transition-transform duration-500 group-hover:scale-[1.03]"
           />
+          <div className="pointer-events-none absolute inset-0 hidden items-center justify-center text-[10px] uppercase tracking-[0.2em] text-zinc-600 [.img-fallback_&]:flex">
+            {deal.brand}
+          </div>
           {!deal.inStock && (
             <div className="absolute inset-x-0 bottom-0 bg-zinc-950/80 py-1 text-center text-[11px] uppercase tracking-wider text-zinc-400">
               Aktuell vergriffen
