@@ -114,7 +114,7 @@ export function PriceHistoryModal({
                     fontSize: 12,
                   }}
                   labelStyle={{ color: "var(--muted-foreground)" }}
-                  formatter={(v: number) => [`€${v.toFixed(2).replace(".", ",")}`, "Preis"]}
+                  formatter={(v) => [`€${Number(v).toFixed(2).replace(".", ",")}`, "Preis"]}
                 />
                 <Area
                   type="monotone"
