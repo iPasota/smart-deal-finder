@@ -57,42 +57,42 @@
 :root {
   --radius: 0.5rem;
 
-  /* zinc-950 / zinc-900 stack */
-  --background: oklch(0.16 0.005 270);
-  --foreground: oklch(0.97 0.005 270);
+  /* Paper & ink — light editorial */
+  --background: oklch(0.985 0.004 90);
+  --foreground: oklch(0.18 0.01 270);
 
-  --surface: oklch(0.205 0.006 270);      /* zinc-900-ish card */
-  --surface-2: oklch(0.24 0.007 270);      /* hovered/raised */
-  --hairline: oklch(1 0 0 / 8%);
+  --surface: oklch(1 0 0);                  /* card */
+  --surface-2: oklch(0.965 0.005 90);       /* hovered/raised */
+  --hairline: oklch(0.18 0.01 270 / 10%);
 
   --card: var(--surface);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.19 0.006 270);
+  --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.97 0.005 270);
-  --primary-foreground: oklch(0.16 0.005 270);
+  --primary: oklch(0.18 0.01 270);
+  --primary-foreground: oklch(0.99 0.004 90);
 
-  --secondary: oklch(0.26 0.007 270);
-  --secondary-foreground: oklch(0.97 0.005 270);
+  --secondary: oklch(0.95 0.005 90);
+  --secondary-foreground: oklch(0.18 0.01 270);
 
-  --muted: oklch(0.24 0.007 270);
-  --muted-foreground: oklch(0.68 0.012 270);
+  --muted: oklch(0.95 0.005 90);
+  --muted-foreground: oklch(0.48 0.012 270);
 
-  --accent: oklch(0.28 0.008 270);
-  --accent-foreground: oklch(0.97 0.005 270);
+  --accent: oklch(0.93 0.008 90);
+  --accent-foreground: oklch(0.18 0.01 270);
 
-  --destructive: oklch(0.62 0.21 25);
+  --destructive: oklch(0.58 0.21 25);
   --destructive-foreground: oklch(0.99 0.005 270);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.72 0.17 158);
+  --border: oklch(0.18 0.01 270 / 10%);
+  --input: oklch(0.18 0.01 270 / 14%);
+  --ring: oklch(0.58 0.16 158);
 
   /* Emerald accent — the brand color */
-  --emerald: oklch(0.76 0.17 158);
-  --emerald-foreground: oklch(0.16 0.05 158);
-  --emerald-soft: oklch(0.76 0.17 158 / 14%);
+  --emerald: oklch(0.58 0.16 158);
+  --emerald-foreground: oklch(0.99 0.005 158);
+  --emerald-soft: oklch(0.58 0.16 158 / 12%);
 
   --chart-1: oklch(0.76 0.17 158);
   --chart-2: oklch(0.7 0.12 200);
