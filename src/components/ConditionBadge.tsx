@@ -2,9 +2,9 @@ import { CONDITION_LABEL, type Condition } from "@/lib/mock-deals";
 
 const STYLES: Record<Condition, string> = {
   like_new: "border-emerald/40 text-emerald bg-emerald-soft",
-  very_good: "border-sky-400/30 text-sky-300 bg-sky-400/10",
-  good: "border-amber-400/30 text-amber-200 bg-amber-400/10",
-  acceptable: "border-zinc-400/30 text-zinc-300 bg-zinc-400/10",
+  very_good: "border-sky-600/30 text-sky-700 bg-sky-500/10",
+  good: "border-amber-600/30 text-amber-700 bg-amber-500/10",
+  acceptable: "border-zinc-500/30 text-zinc-600 bg-zinc-500/10",
 };
 
 export function ConditionBadge({ condition }: { condition: Condition }) {
