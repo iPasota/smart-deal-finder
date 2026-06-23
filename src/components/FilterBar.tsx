@@ -38,40 +38,38 @@ export function FilterBar({
   };
 
   return (
-    <div className="sticky top-0 z-30 border-b border-hairline bg-background/85 backdrop-blur-lg">
+    <div className="sticky top-[73px] z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
       <div className="mx-auto max-w-7xl px-4 py-3 lg:px-6">
-        {/* Top row: search + sort + count */}
+        {/* Top row: search + sort */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={filters.search}
               onChange={(e) => onChange({ ...filters, search: e.target.value })}
               placeholder="Suchen — Marke, Modell, ASIN…"
-              className="h-10 w-full rounded-lg border border-hairline bg-surface pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald/40 focus:outline-none focus:ring-1 focus:ring-emerald/40"
+              className="h-11 w-full rounded-xl border border-hairline bg-surface-2 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald focus:bg-surface focus:outline-none focus:ring-2 focus:ring-emerald-soft"
             />
           </div>
           <select
             value={filters.sort}
             onChange={(e) => onChange({ ...filters, sort: e.target.value as SortKey })}
-            className="h-10 rounded-lg border border-hairline bg-surface px-3 text-sm text-foreground focus:border-emerald/40 focus:outline-none focus:ring-1 focus:ring-emerald/40"
+            className="h-11 rounded-xl border border-hairline bg-surface px-3 text-sm font-semibold text-foreground focus:border-emerald focus:outline-none focus:ring-2 focus:ring-emerald-soft"
           >
             <option value="discount">Größter Rabatt</option>
             <option value="newest">Neueste Deals</option>
-            <option value="price_asc">Preis aufsteigend</option>
-            <option value="price_desc">Preis absteigend</option>
+            <option value="price_asc">Preis ↑</option>
+            <option value="price_desc">Preis ↓</option>
           </select>
         </div>
 
-        {/* Chips row */}
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-            Kategorie
-          </span>
+        {/* Category chips */}
+        <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
           {CATEGORIES.map((c) => (
             <Chip
               key={c}
               active={filters.category === c}
+              tone="emerald"
               onClick={() => onChange({ ...filters, category: c })}
             >
               {c}
@@ -79,34 +77,39 @@ export function FilterBar({
           ))}
         </div>
 
+        {/* Condition + discount + count */}
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <span className="mr-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Zustand
           </span>
           {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => (
             <Chip
               key={c}
               active={filters.conditions.includes(c)}
+              tone="emerald"
+              size="sm"
               onClick={() => toggleCondition(c)}
             >
               {CONDITION_LABEL[c]}
             </Chip>
           ))}
 
-          <span className="ml-3 mr-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-            Min. Rabatt
+          <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-widest text-amber-ink">
+            Rabatt
           </span>
           {[0, 10, 20, 30, 40].map((d) => (
             <Chip
               key={d}
               active={filters.minDiscount === d}
+              tone="amber"
+              size="sm"
               onClick={() => onChange({ ...filters, minDiscount: d })}
             >
               {d === 0 ? "Alle" : `${d}%+`}
             </Chip>
           ))}
 
-          <span className="font-mono-tabular ml-auto text-[11px] text-muted-foreground">
+          <span className="font-mono-tabular ml-auto rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
             {count} Deals
           </span>
         </div>
@@ -119,19 +122,28 @@ function Chip({
   children,
   active,
   onClick,
+  tone = "emerald",
+  size = "md",
 }: {
   children: React.ReactNode;
   active: boolean;
   onClick: () => void;
+  tone?: "emerald" | "amber";
+  size?: "sm" | "md";
 }) {
+  const sizing = size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3.5 py-1.5 text-xs";
+  const activeCls =
+    tone === "amber"
+      ? "border-amber bg-amber text-amber-foreground shadow-sm"
+      : "border-emerald bg-emerald text-emerald-foreground shadow-sm";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+      className={`whitespace-nowrap rounded-lg border font-bold uppercase tracking-tight transition-all ${sizing} ${
         active
-          ? "border-emerald bg-emerald text-emerald-foreground"
-          : "border-hairline bg-surface text-muted-foreground hover:border-emerald/40 hover:text-foreground"
+          ? activeCls
+          : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
       }`}
     >
       {children}
