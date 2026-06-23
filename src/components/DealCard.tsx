@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { buildDeeplink, trackClick } from "@/lib/affiliate";
 import { discountPct, formatEUR, type Deal } from "@/lib/mock-deals";
 import { ConditionBadge } from "./ConditionBadge";
-import { DiscountBadge } from "./DiscountBadge";
 import { PriceHistoryModal } from "./PriceHistoryModal";
 import { PriceAlertModal } from "./PriceAlertModal";
 
@@ -21,29 +20,19 @@ export function DealCard({ deal }: { deal: Deal }) {
 
   return (
     <>
-      <motion.div
+      <motion.article
         whileHover={{ y: -2 }}
         transition={{ type: "spring", stiffness: 280, damping: 24 }}
-        className="group relative flex flex-col overflow-hidden rounded-xl border border-hairline bg-surface shadow-sm transition-colors hover:border-emerald/50"
+        className="group relative flex flex-col overflow-hidden rounded-2xl border border-hairline bg-surface shadow-sm transition-colors hover:border-emerald/40"
       >
-        {/* Secondary actions */}
-        <div className="absolute right-2 top-2 z-10 flex gap-1">
-          <IconButton label="Preisverlauf" onClick={() => setHistoryOpen(true)}>
-            <LineChart className="size-3.5" />
-          </IconButton>
-          <IconButton label="Preiswecker" onClick={() => setAlertOpen(true)}>
-            <Bell className="size-3.5" />
-          </IconButton>
-        </div>
-
-        {/* Image — linked */}
+        {/* Image */}
         <a
           href={href}
           target="_blank"
           rel="noopener sponsored"
           onClick={handleClick}
           aria-label={deal.title}
-          className="relative block aspect-square w-full overflow-hidden bg-surface-2"
+          className="relative block aspect-square w-full overflow-hidden bg-surface-2 p-6"
         >
           <img
             src={deal.imageUrl}
@@ -54,11 +43,26 @@ export function DealCard({ deal }: { deal: Deal }) {
               t.style.display = "none";
               t.parentElement?.classList.add("img-fallback");
             }}
-            className="size-full object-contain p-6 transition-transform duration-500 group-hover:scale-[1.03]"
+            className="size-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
           />
           <div className="pointer-events-none absolute inset-0 hidden items-center justify-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground [.img-fallback_&]:flex">
             {deal.brand}
           </div>
+
+          {/* Condition pill — top-left */}
+          <div className="absolute left-3 top-3">
+            <ConditionBadge condition={deal.condition} />
+          </div>
+
+          {/* Discount badge — top-right, amber accent */}
+          {pct > 0 && (
+            <div className="absolute right-3 top-3">
+              <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-2 py-1 text-xs font-bold text-amber-foreground shadow-sm">
+                −{pct}%
+              </span>
+            </div>
+          )}
+
           {!deal.inStock && (
             <div className="absolute inset-x-0 bottom-0 bg-foreground/85 py-1 text-center text-[11px] uppercase tracking-wider text-background">
               Aktuell vergriffen
@@ -69,10 +73,10 @@ export function DealCard({ deal }: { deal: Deal }) {
         {/* Body */}
         <div className="flex flex-1 flex-col gap-3 p-4">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               {deal.brand}
             </span>
-            <ConditionBadge condition={deal.condition} />
+            <span className="size-1.5 rounded-full bg-emerald" aria-hidden />
           </div>
 
           <a
@@ -80,47 +84,53 @@ export function DealCard({ deal }: { deal: Deal }) {
             target="_blank"
             rel="noopener sponsored"
             onClick={handleClick}
-            className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug text-foreground hover:text-emerald"
+            className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground hover:text-emerald-ink"
           >
             {deal.title}
           </a>
 
-          <div className="mt-auto pt-1">
-            <div className="flex items-baseline gap-2">
-              <span className="font-mono-tabular text-2xl font-semibold tracking-tight text-foreground">
+          {/* Price block with amber left border accent */}
+          <div className="mt-auto flex items-center gap-3 rounded-xl border border-hairline bg-surface-2/60 p-3 pl-3.5 [border-left:3px_solid_var(--amber)]">
+            <div className="flex flex-col">
+              <span className="font-mono-tabular text-[10px] text-muted-foreground line-through">
+                {formatEUR(deal.newPriceCents)}
+              </span>
+              <span className="font-mono-tabular text-xl font-extrabold leading-none tracking-tight text-foreground">
                 {formatEUR(deal.priceCents)}
               </span>
-              <DiscountBadge pct={pct} />
             </div>
-            <div className="font-mono-tabular mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              <span className="line-through">{formatEUR(deal.newPriceCents)}</span>
-              <span>·</span>
-              <span className="text-emerald">du sparst {formatEUR(savings)}</span>
+            <div className="h-8 w-px bg-hairline" />
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-ink">
+                Ersparnis
+              </span>
+              <span className="font-mono-tabular text-sm font-bold text-amber-ink">
+                −{formatEUR(savings)}
+              </span>
             </div>
           </div>
 
-          {/* Primary CTA */}
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener sponsored"
-            onClick={handleClick}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-lg bg-emerald px-4 py-2.5 text-sm font-semibold text-emerald-foreground shadow-sm transition-all hover:brightness-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-          >
-            Bei Amazon ansehen
-            <ArrowUpRight className="size-4" />
-          </a>
-
-          <button
-            type="button"
-            onClick={() => setHistoryOpen(true)}
-            className="-mb-1 inline-flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground"
-          >
-            <LineChart className="size-3" />
-            Preisverlauf ansehen
-          </button>
+          {/* CTA row: primary Amazon + 2 icon actions */}
+          <div className="flex gap-2">
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener sponsored"
+              onClick={handleClick}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-emerald-foreground shadow-sm shadow-emerald/20 transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            >
+              Bei Amazon
+              <ArrowUpRight className="size-4" strokeWidth={2.5} />
+            </a>
+            <IconAction label="Preisverlauf" onClick={() => setHistoryOpen(true)}>
+              <LineChart className="size-4" strokeWidth={2.25} />
+            </IconAction>
+            <IconAction label="Preiswecker" onClick={() => setAlertOpen(true)}>
+              <Bell className="size-4" strokeWidth={2.25} />
+            </IconAction>
+          </div>
         </div>
-      </motion.div>
+      </motion.article>
 
       <PriceHistoryModal deal={deal} open={historyOpen} onOpenChange={setHistoryOpen} />
       <PriceAlertModal deal={deal} open={alertOpen} onOpenChange={setAlertOpen} />
@@ -128,7 +138,7 @@ export function DealCard({ deal }: { deal: Deal }) {
   );
 }
 
-function IconButton({
+function IconAction({
   children,
   label,
   onClick,
@@ -143,7 +153,7 @@ function IconButton({
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="grid size-7 place-items-center rounded-md border border-hairline bg-surface/90 text-muted-foreground backdrop-blur transition-colors hover:border-emerald/50 hover:bg-surface hover:text-emerald"
+      className="grid size-11 shrink-0 place-items-center rounded-xl border-2 border-hairline bg-surface text-muted-foreground transition-colors hover:border-amber hover:bg-amber-soft hover:text-amber-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
     >
       {children}
     </button>

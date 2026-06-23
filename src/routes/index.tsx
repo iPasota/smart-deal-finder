@@ -65,11 +65,15 @@ function Index() {
       <Header />
 
       {/* Hero strip */}
-      <section className="border-b border-hairline">
+      <section className="border-b border-hairline bg-gradient-to-b from-amber-soft/40 to-transparent">
         <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6 lg:py-14">
-          <h1 className="font-display text-4xl leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Amazon Warehouse
-            <span className="text-emerald">.</span> schöner. schneller. sortiert.
+          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-amber-ink">
+            <span className="size-1.5 rounded-full bg-amber" />
+            Tägliches Update · {new Date().toLocaleDateString("de-DE")}
+          </div>
+          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            Amazon Warehouse<span className="text-emerald">.</span><br className="hidden sm:block" />
+            schöner sortiert.
           </h1>
           <p className="mt-4 max-w-2xl text-base text-muted-foreground">
             Alle aktuellen Warehouse-Angebote in Elektronik — mit Preisverlauf, Preiswecker
@@ -82,9 +86,9 @@ function Index() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
         {deals.length === 0 ? (
-          <div className="grid place-items-center rounded-xl border border-dashed border-hairline py-24 text-center">
+          <div className="grid place-items-center rounded-2xl border border-dashed border-hairline py-24 text-center">
             <div>
-              <div className="font-display text-2xl">Keine Deals gefunden</div>
+              <div className="font-display text-2xl font-extrabold">Keine Deals gefunden</div>
               <p className="mt-2 text-sm text-muted-foreground">
                 Filter lockern oder andere Kategorie wählen.
               </p>
@@ -103,7 +107,7 @@ function Index() {
         <div className="mx-auto max-w-7xl px-4 py-10 text-xs text-muted-foreground lg:px-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <span className="font-display text-lg text-foreground">warehaus.de</span>
+              <span className="font-display text-lg font-extrabold text-foreground">warehaus.de</span>
               <span className="ml-2">— inoffiziell. Wir sind kein Teil von Amazon.</span>
             </div>
             <div className="flex gap-4">

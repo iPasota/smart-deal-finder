@@ -2,8 +2,17 @@
 @source "../src";
 @import "tw-animate-css";
 
-/* Tech Editorial — dark zinc / emerald
- * Display: Instrument Serif. Body: Inter. Mono (prices): JetBrains Mono.
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/inter/800.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/700.css";
+
+/* Warehaus — light paper, emerald primary, amber accent.
+ * Type: Inter (UI) + JetBrains Mono (prices, percentages, ASIN).
+ * No serif.
  */
 
 @theme inline {
@@ -38,6 +47,16 @@
   --color-emerald: var(--emerald);
   --color-emerald-foreground: var(--emerald-foreground);
   --color-emerald-soft: var(--emerald-soft);
+  --color-emerald-ink: var(--emerald-ink);
+
+  --color-amber: var(--amber);
+  --color-amber-foreground: var(--amber-foreground);
+  --color-amber-soft: var(--amber-soft);
+  --color-amber-ink: var(--amber-ink);
+
+  --color-indigo-accent: var(--indigo-accent);
+  --color-indigo-soft: var(--indigo-soft);
+
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-hairline: var(--hairline);
@@ -48,57 +67,69 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
   --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display:
     "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 
-  /* Paper & ink — light editorial */
-  --background: oklch(0.985 0.004 90);
-  --foreground: oklch(0.18 0.01 270);
+  /* Paper & ink */
+  --background: oklch(0.985 0.004 90);       /* #FDFDFB */
+  --foreground: oklch(0.18 0.012 60);        /* #1A1A17 */
 
-  --surface: oklch(1 0 0);                  /* card */
-  --surface-2: oklch(0.965 0.005 90);       /* hovered/raised */
-  --hairline: oklch(0.18 0.01 270 / 10%);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.005 85);        /* #F5F5F0 / soft sand */
+  --hairline: oklch(0.18 0.012 60 / 11%);
 
   --card: var(--surface);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.18 0.01 270);
+  --primary: oklch(0.18 0.012 60);
   --primary-foreground: oklch(0.99 0.004 90);
 
-  --secondary: oklch(0.95 0.005 90);
-  --secondary-foreground: oklch(0.18 0.01 270);
+  --secondary: oklch(0.95 0.005 85);
+  --secondary-foreground: oklch(0.18 0.012 60);
 
-  --muted: oklch(0.95 0.005 90);
-  --muted-foreground: oklch(0.48 0.012 270);
+  --muted: oklch(0.95 0.005 85);
+  --muted-foreground: oklch(0.52 0.012 70);
 
-  --accent: oklch(0.93 0.008 90);
-  --accent-foreground: oklch(0.18 0.01 270);
+  --accent: oklch(0.93 0.008 85);
+  --accent-foreground: oklch(0.18 0.012 60);
 
   --destructive: oklch(0.58 0.21 25);
   --destructive-foreground: oklch(0.99 0.005 270);
 
-  --border: oklch(0.18 0.01 270 / 10%);
-  --input: oklch(0.18 0.01 270 / 14%);
+  --border: oklch(0.18 0.012 60 / 11%);
+  --input: oklch(0.18 0.012 60 / 14%);
   --ring: oklch(0.58 0.16 158);
 
-  /* Emerald accent — the brand color */
+  /* Primary action — emerald 600 */
   --emerald: oklch(0.58 0.16 158);
   --emerald-foreground: oklch(0.99 0.005 158);
-  --emerald-soft: oklch(0.58 0.16 158 / 12%);
+  --emerald-soft: oklch(0.58 0.16 158 / 10%);
+  --emerald-ink: oklch(0.32 0.09 158);
 
-  --chart-1: oklch(0.76 0.17 158);
-  --chart-2: oklch(0.7 0.12 200);
-  --chart-3: oklch(0.78 0.15 85);
-  --chart-4: oklch(0.65 0.2 30);
-  --chart-5: oklch(0.6 0.18 300);
+  /* Secondary accent — warm amber 400/500 */
+  --amber: oklch(0.83 0.16 82);
+  --amber-foreground: oklch(0.22 0.04 70);
+  --amber-soft: oklch(0.83 0.16 82 / 18%);
+  --amber-ink: oklch(0.55 0.14 70);
+
+  /* Tertiary subtle — indigo for chart/info accents */
+  --indigo-accent: oklch(0.55 0.18 270);
+  --indigo-soft: oklch(0.55 0.18 270 / 10%);
+
+  --chart-1: oklch(0.58 0.16 158);
+  --chart-2: oklch(0.83 0.16 82);
+  --chart-3: oklch(0.55 0.18 270);
+  --chart-4: oklch(0.7 0.12 200);
+  --chart-5: oklch(0.65 0.2 30);
 }
 
 @layer base {
@@ -117,18 +148,25 @@
   }
 
   ::selection {
-    background: var(--emerald-soft);
+    background: var(--amber-soft);
     color: var(--foreground);
   }
 }
 
 @utility font-display {
   font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 @utility font-mono-tabular {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
