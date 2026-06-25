@@ -64,24 +64,6 @@ function Index() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero strip */}
-      <section className="border-b border-hairline bg-gradient-to-b from-amber-soft/40 to-transparent">
-        <div className="mx-auto max-w-7xl px-4 py-10 lg:px-6 lg:py-14">
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-amber-ink">
-            <span className="size-1.5 rounded-full bg-amber" />
-            Tägliches Update · {new Date().toLocaleDateString("de-DE")}
-          </div>
-          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Amazon Warehouse<span className="text-emerald">.</span><br className="hidden sm:block" />
-            schöner sortiert.
-          </h1>
-          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-            Alle aktuellen Warehouse-Angebote in Elektronik — mit Preisverlauf, Preiswecker
-            und einem Klick direkt zum Deal.
-          </p>
-        </div>
-      </section>
-
       <FilterBar filters={filters} onChange={setFilters} count={deals.length} />
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
