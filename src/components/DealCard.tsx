@@ -32,7 +32,7 @@ export function DealCard({ deal }: { deal: Deal }) {
           rel="noopener sponsored"
           onClick={handleClick}
           aria-label={deal.title}
-          className="relative block aspect-square w-full overflow-hidden bg-surface-2 p-6"
+          className="relative block aspect-square w-full overflow-hidden bg-white p-6"
         >
           <img
             src={deal.imageUrl}
