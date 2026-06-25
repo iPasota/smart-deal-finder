@@ -49,20 +49,6 @@ export function DealCard({ deal }: { deal: Deal }) {
             {deal.brand}
           </div>
 
-          {/* Condition pill — top-left */}
-          <div className="absolute left-3 top-3">
-            <ConditionBadge condition={deal.condition} />
-          </div>
-
-          {/* Discount badge — top-right, amber accent */}
-          {pct > 0 && (
-            <div className="absolute right-3 top-3">
-              <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-2 py-1 text-xs font-bold text-amber-foreground shadow-sm">
-                −{pct}%
-              </span>
-            </div>
-          )}
-
           {!deal.inStock && (
             <div className="absolute inset-x-0 bottom-0 bg-foreground/85 py-1 text-center text-[11px] uppercase tracking-wider text-background">
               Aktuell vergriffen
@@ -72,6 +58,15 @@ export function DealCard({ deal }: { deal: Deal }) {
 
         {/* Body */}
         <div className="flex flex-1 flex-col gap-3 p-4">
+          <div className="flex items-center justify-between gap-2">
+            <ConditionBadge condition={deal.condition} />
+            {pct > 0 && (
+              <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-2 py-0.5 text-xs font-bold text-amber-foreground">
+                −{pct}%
+              </span>
+            )}
+          </div>
+
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               {deal.brand}
