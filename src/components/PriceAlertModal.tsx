@@ -65,7 +65,7 @@ export function PriceAlertModal({
                 <img
                   src={deal.imageUrl}
                   alt=""
-                  className="size-12 rounded object-contain"
+                  className="size-12 rounded bg-white object-contain"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-xs text-muted-foreground">{deal.brand}</div>
