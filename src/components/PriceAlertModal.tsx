@@ -34,7 +34,7 @@ export function PriceAlertModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) setSent(false); }}>
-      <DialogContent className="max-w-md border-hairline bg-popover">
+      <DialogContent className="max-w-md border-hairline bg-surface-2">
         <DialogHeader>
           <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-emerald-soft text-emerald">
             <Bell className="size-5" />
@@ -46,7 +46,7 @@ export function PriceAlertModal({
         </DialogHeader>
 
         {sent ? (
-          <div className="mt-2 flex flex-col items-center gap-3 py-6 text-center">
+          <div className="mt-2 flex flex-col items-center gap-3 rounded-lg border border-hairline bg-white py-6 text-center">
             <div className="grid size-12 place-items-center rounded-full bg-emerald-soft text-emerald">
               <Check className="size-6" />
             </div>
@@ -60,7 +60,7 @@ export function PriceAlertModal({
           </div>
         ) : (
           <form onSubmit={submit} className="mt-2 space-y-4">
-            <div className="rounded-lg border border-hairline bg-surface-2 p-3">
+            <div className="rounded-lg border border-hairline bg-white p-3">
               <div className="flex items-center gap-3">
                 <img
                   src={deal.imageUrl}
@@ -91,7 +91,7 @@ export function PriceAlertModal({
                   min="0"
                   value={target}
                   onChange={(e) => setTarget(parseFloat(e.target.value))}
-                  className="font-mono-tabular border-hairline bg-surface-2 pl-7 text-base"
+                  className="font-mono-tabular border-hairline bg-white pl-7 text-base"
                   required
                 />
               </div>
@@ -106,7 +106,7 @@ export function PriceAlertModal({
                 placeholder="du@beispiel.de"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="border-hairline bg-surface-2"
+                className="border-hairline bg-white"
                 required
               />
             </div>
@@ -123,7 +123,7 @@ export function PriceAlertModal({
                 <div className="w-full border-t border-hairline" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-popover px-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <span className="bg-surface-2 px-2 text-[10px] uppercase tracking-wider text-muted-foreground">
                   oder anmelden &amp; alle Wecker verwalten
                 </span>
               </div>
@@ -144,6 +144,7 @@ export function PriceAlertModal({
             </a>
           </form>
         )}
+
       </DialogContent>
     </Dialog>
   );
@@ -155,7 +156,7 @@ function SocialBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
       type="button"
       disabled
       title="In Phase 2 verfügbar"
-      className="flex items-center justify-center gap-2 rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-emerald/40 disabled:opacity-60"
+      className="flex items-center justify-center gap-2 rounded-lg border border-hairline bg-white px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-emerald/40 disabled:opacity-60"
     >
       {icon}
       {label}
