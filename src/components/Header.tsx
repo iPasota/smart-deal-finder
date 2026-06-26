@@ -13,7 +13,7 @@ export function Header() {
             <Bell className="size-4" strokeWidth={2.5} />
           </span>
           <span className="text-lg font-extrabold uppercase tracking-tight text-foreground">
-            WHD<font className="text-emerald">FINDER - GEBRAUCHT. WIE NEU. BESSER.</font>
+            WHD<span className="text-emerald">FINDER - GEBRAUCHT. WIE NEU. BESSER.</span>
           </span>
           <span className="ml-1 hidden font-mono-tabular text-[10px] font-bold uppercase tracking-[0.2em] text-amber-ink sm:inline">
             {"\n"}

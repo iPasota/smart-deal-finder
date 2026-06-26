@@ -9,13 +9,13 @@ import { discountPct, MOCK_DEALS } from "@/lib/mock-deals";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "warehaus.de — Amazon Warehouse Deals, schön sortiert" },
+      { title: "whdfinder.de — Amazon Warehouse Deals, schön sortiert" },
       {
         name: "description",
         content:
           "Die beste Übersicht über Amazon Warehouse Angebote. Mit Preisverlauf, Preiswecker und übersichtlichen Filtern.",
       },
-      { property: "og:title", content: "warehaus.de — Amazon Warehouse Deals" },
+      { property: "og:title", content: "whdfinder.de — Amazon Warehouse Deals" },
       {
         property: "og:description",
         content: "Alle Amazon Warehouse Deals auf einen Blick — mit Preisverlauf und Preiswecker.",
