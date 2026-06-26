@@ -89,7 +89,7 @@ function Index() {
         <div className="mx-auto max-w-7xl px-4 py-10 text-xs text-muted-foreground lg:px-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <span className="font-display text-lg font-extrabold text-foreground">warehaus.de</span>
+              <span className="font-display text-lg font-extrabold text-foreground">whdfinder.de</span>
               <span className="ml-2">— inoffiziell. Wir sind kein Teil von Amazon.</span>
             </div>
             <div className="flex gap-4">
