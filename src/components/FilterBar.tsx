@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { CATEGORIES, CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
 
 export type SortKey = "discount" | "newest" | "price_asc" | "price_desc";
@@ -51,16 +51,19 @@ export function FilterBar({
               className="h-12 w-full rounded-xl border-2 border-foreground/15 bg-white pl-11 pr-3 text-sm font-medium text-foreground shadow-sm placeholder:font-normal placeholder:text-muted-foreground focus:border-emerald focus:outline-none focus:ring-4 focus:ring-emerald-soft"
             />
           </div>
-          <select
-            value={filters.sort}
-            onChange={(e) => onChange({ ...filters, sort: e.target.value as SortKey })}
-            className="h-12 rounded-xl border-2 border-foreground bg-foreground pl-4 pr-6 text-sm font-bold text-background focus:outline-none focus:ring-4 focus:ring-foreground/20"
-          >
-            <option value="discount">Größter Rabatt</option>
-            <option value="newest">Neueste Deals</option>
-            <option value="price_asc">Preis ↑</option>
-            <option value="price_desc">Preis ↓</option>
-          </select>
+          <div className="relative shrink-0">
+            <select
+              value={filters.sort}
+              onChange={(e) => onChange({ ...filters, sort: e.target.value as SortKey })}
+              className="h-12 appearance-none rounded-xl border-2 border-foreground bg-foreground pl-4 pr-11 text-sm font-bold text-background focus:outline-none focus:ring-4 focus:ring-foreground/20"
+            >
+              <option value="discount">Größter Rabatt</option>
+              <option value="newest">Neueste Deals</option>
+              <option value="price_asc">Preis ↑</option>
+              <option value="price_desc">Preis ↓</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 size-5 -translate-y-1/2 text-background" strokeWidth={3} />
+          </div>
         </div>
 
 
