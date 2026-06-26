@@ -79,8 +79,9 @@ export function FilterBar({
         </div>
 
         {/* Condition + discount + count */}
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+            <span className="inline-block h-3.5 w-1 rounded-full bg-emerald" />
             Zustand
           </span>
           {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => (
@@ -95,7 +96,8 @@ export function FilterBar({
             </Chip>
           ))}
 
-          <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-widest text-amber-ink">
+          <span className="ml-4 mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+            <span className="inline-block h-3.5 w-1 rounded-full bg-amber" />
             Rabatt
           </span>
           {[0, 10, 20, 30, 40].map((d) => (
@@ -110,7 +112,7 @@ export function FilterBar({
             </Chip>
           ))}
 
-          <span className="font-mono-tabular ml-auto rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
+          <span className="font-mono-tabular ml-auto rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-bold text-muted-foreground">
             {count} Deals
           </span>
         </div>
