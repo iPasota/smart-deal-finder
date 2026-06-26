@@ -54,7 +54,7 @@ export function FilterBar({
           <select
             value={filters.sort}
             onChange={(e) => onChange({ ...filters, sort: e.target.value as SortKey })}
-            className="h-12 rounded-xl border-2 border-foreground bg-foreground px-3 text-sm font-bold text-background focus:outline-none focus:ring-4 focus:ring-foreground/20"
+            className="h-12 rounded-xl border-2 border-foreground bg-foreground pl-4 pr-6 text-sm font-bold text-background focus:outline-none focus:ring-4 focus:ring-foreground/20"
           >
             <option value="discount">Größter Rabatt</option>
             <option value="newest">Neueste Deals</option>
