@@ -134,6 +134,9 @@ function Index() {
         )}
       </main>
 
+      <SeoContent />
+
+
       <footer className="mt-16 border-t border-hairline">
         <div className="mx-auto max-w-7xl px-4 py-10 text-xs text-muted-foreground lg:px-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
