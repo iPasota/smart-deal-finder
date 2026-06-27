@@ -112,10 +112,10 @@ export function SeoContent() {
                   Was kostet whdfinder.de?
                 </dt>
                 <dd className="mt-1 text-muted-foreground whitespace-pre-line">
-                  Nichts. Die Nutzung inklusive Preiswecker ist komplett kostenlos.{" "}
-                  Diese Website nimmt am Partnerprogramm von Amazon EU teil. Dieses
-                  Programm wurde entwickelt, um Websites die Möglichkeit zu geben, durch
-                  die Platzierung von Werbung und Links zu Amazon.de
+                  Nichts. Die Nutzung inklusive Preiswecker ist komplett
+                  kostenlos.{"\u00a0"}Diese Website nimmt am Partnerprogramm von Amazon EU
+                  teil. Dieses Programm wurde entwickelt, um Websites die Möglichkeit zu
+                  geben, durch die Platzierung von Werbung und Links zu Amazon.de
                   Werbekostenerstattungen (Provisionen) zu verdienen.
                   {"\n"}Als Amazon-Partner verdienen wir an qualifizierten Verkäufen. Für
                   Sie als Nutzer entstehen dabei selbstverständlich keine zusätzlichen
