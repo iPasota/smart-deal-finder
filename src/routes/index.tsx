@@ -4,23 +4,72 @@ import { useMemo, useState } from "react";
 import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { DEFAULT_FILTERS, FilterBar, type Filters } from "@/components/FilterBar";
+import { SeoContent } from "@/components/SeoContent";
 import { discountPct, MOCK_DEALS } from "@/lib/mock-deals";
+
+const FAQ_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Was sind Amazon Warehouse Deals?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Amazon Warehouse (auch Amazon Outlet) verkauft geprüfte Retouren, Lagerbestände mit Verpackungsschäden und Vorführgeräte als B-Ware — mit voller Garantie und Rückgaberecht, oft 20–60 % günstiger als Neuware.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Sind Amazon Warehouse Deals sicher?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Ja. Du kaufst direkt bei Amazon mit voller Garantie und 30-tägigem Rückgaberecht.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Was kostet whdfinder.de?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Die Nutzung von whdfinder.de inklusive Preisverlauf und Preiswecker ist komplett kostenlos.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Was bedeutet der Zustand 'Wie neu'?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Die Originalverpackung kann leicht beschädigt sein, das Produkt selbst ist unbenutzt und in einwandfreiem Zustand.",
+      },
+    },
+  ],
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "whdfinder.de — Amazon Warehouse Deals, schön sortiert" },
+      { title: "Amazon Warehouse Deals & B-Ware kaufen | whdfinder.de" },
       {
         name: "description",
         content:
-          "Die beste Übersicht über Amazon Warehouse Angebote. Mit Preisverlauf, Preiswecker und übersichtlichen Filtern.",
+          "Amazon Warehouse Deals, Retouren & refurbished kaufen — bis zu 60 % günstiger. Mit Preisverlauf, kostenlosem Preiswecker und Filter nach Zustand & Kategorie.",
       },
-      { property: "og:title", content: "whdfinder.de — Amazon Warehouse Deals" },
+      { property: "og:title", content: "Amazon Warehouse Deals & B-Ware kaufen | whdfinder.de" },
       {
         property: "og:description",
-        content: "Alle Amazon Warehouse Deals auf einen Blick — mit Preisverlauf und Preiswecker.",
+        content:
+          "Alle Amazon Warehouse Angebote auf einen Blick — mit Preisverlauf und Preiswecker. B-Ware, Retouren und refurbished Produkte clever kaufen.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "/" },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(FAQ_JSONLD),
+      },
     ],
   }),
   component: Index,
@@ -84,6 +133,9 @@ function Index() {
           </div>
         )}
       </main>
+
+      <SeoContent />
+
 
       <footer className="mt-16 border-t border-hairline">
         <div className="mx-auto max-w-7xl px-4 py-10 text-xs text-muted-foreground lg:px-6">
