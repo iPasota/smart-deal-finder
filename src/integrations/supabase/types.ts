@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      watches: {
+        Row: {
+          active: boolean
+          asin: string
+          condition: string
+          created_at: string
+          current_price_cents: number | null
+          id: string
+          last_triggered_at: string | null
+          product_brand: string | null
+          product_image_url: string | null
+          product_title: string
+          target_price_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          asin: string
+          condition?: string
+          created_at?: string
+          current_price_cents?: number | null
+          id?: string
+          last_triggered_at?: string | null
+          product_brand?: string | null
+          product_image_url?: string | null
+          product_title: string
+          target_price_cents: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          asin?: string
+          condition?: string
+          created_at?: string
+          current_price_cents?: number | null
+          id?: string
+          last_triggered_at?: string | null
+          product_brand?: string | null
+          product_image_url?: string | null
+          product_title?: string
+          target_price_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
