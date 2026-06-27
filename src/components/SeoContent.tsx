@@ -111,8 +111,16 @@ export function SeoContent() {
                 <dt className="font-semibold text-foreground">
                   Was kostet whdfinder.de?
                 </dt>
-                <dd className="mt-1 text-muted-foreground">
-                  Nichts. Die Nutzung inklusive Preiswecker ist komplett kostenlos.
+                <dd className="mt-1 text-muted-foreground whitespace-pre-line">
+                  Nichts. Die Nutzung inklusive Preiswecker ist komplett kostenlos.{" "}
+                  Diese Website nimmt am Partnerprogramm von Amazon EU teil. Dieses
+                  Programm wurde entwickelt, um Websites die Möglichkeit zu geben, durch
+                  die Platzierung von Werbung und Links zu Amazon.de
+                  Werbekostenerstattungen (Provisionen) zu verdienen.
+                  {"\n"}Als Amazon-Partner verdienen wir an qualifizierten Verkäufen. Für
+                  Sie als Nutzer entstehen dabei selbstverständlich keine zusätzlichen
+                  Kosten. Die Provisionen helfen dabei, diese Website zu betreiben und
+                  Ihnen weiterhin nützliche Inhalte anbieten zu können.
                 </dd>
               </div>
               <div>
@@ -121,7 +129,9 @@ export function SeoContent() {
                 </dt>
                 <dd className="mt-1 text-muted-foreground">
                   Wir aktualisieren Top-Deals mehrmals täglich. Verfügbarkeit prüfst du
-                  final auf Amazon.
+                  final auf Amazon. Allerdings können wir nicht garantieren immer den
+                  aktuellesten Preis anzuzeigen. Aber ein Klick genügt und du sie den
+                  aktuell Preis direkt bei Amazon.
                 </dd>
               </div>
             </dl>
