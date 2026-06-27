@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Bell, Check, ExternalLink } from "lucide-react";
+import { Bell, Check, ExternalLink, BookmarkCheck } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -12,6 +14,9 @@ import { Input } from "@/components/ui/input";
 import { buildDeeplink } from "@/lib/affiliate";
 import { formatEUR, type Deal } from "@/lib/mock-deals";
 import { GoogleIcon, AppleIcon } from "./BrandIcons";
+import { useAuth } from "@/hooks/use-auth";
+import { lovable } from "@/integrations/lovable/index";
+import { createWatch } from "@/lib/api/watches.functions";
 
 export function PriceAlertModal({
   deal,
@@ -22,18 +27,61 @@ export function PriceAlertModal({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const { user } = useAuth();
+  const createWatchFn = useServerFn(createWatch);
+  const qc = useQueryClient();
+
   const [email, setEmail] = useState("");
   const [target, setTarget] = useState(Math.round(deal.priceCents * 0.9) / 100);
   const [sent, setSent] = useState(false);
+  const [savedAuth, setSavedAuth] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  const submit = (e: React.FormEvent) => {
+  const reset = () => {
+    setSent(false);
+    setSavedAuth(false);
+    setErr(null);
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Phase 1 stub. Phase 5: createEmailWatch + Double-Opt-In Mail.
-    setSent(true);
+    setErr(null);
+    setSubmitting(true);
+    try {
+      if (user) {
+        await createWatchFn({
+          data: {
+            asin: deal.asin,
+            productTitle: deal.title,
+            productImageUrl: deal.imageUrl,
+            productBrand: deal.brand,
+            targetPriceCents: Math.round(target * 100),
+            currentPriceCents: deal.priceCents,
+            condition: deal.condition,
+          },
+        });
+        qc.invalidateQueries({ queryKey: ["watches"] });
+        setSavedAuth(true);
+      } else {
+        // Phase 5: createEmailWatch + Double-Opt-In Mail
+        setSent(true);
+      }
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Konnte Wecker nicht speichern");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const signIn = async (provider: "google" | "apple") => {
+    await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin + "/auth",
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) setSent(false); }}>
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
       <DialogContent className="max-w-md border-hairline bg-surface-2">
         <DialogHeader>
           <div className="mb-2 flex size-10 items-center justify-center rounded-full bg-emerald-soft text-emerald">
@@ -45,28 +93,36 @@ export function PriceAlertModal({
           </DialogDescription>
         </DialogHeader>
 
-        {sent ? (
+        {savedAuth ? (
+          <div className="mt-2 flex flex-col items-center gap-3 rounded-lg border border-hairline bg-white py-6 text-center">
+            <div className="grid size-12 place-items-center rounded-full bg-emerald-soft text-emerald">
+              <BookmarkCheck className="size-6" />
+            </div>
+            <p className="text-sm text-foreground">
+              Wecker aktiv — Ziel{" "}
+              <span className="font-mono-tabular font-semibold text-emerald">{formatEUR(Math.round(target * 100))}</span>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Verwalte alle Wecker in deiner Watchlist.
+            </p>
+          </div>
+        ) : sent ? (
           <div className="mt-2 flex flex-col items-center gap-3 rounded-lg border border-hairline bg-white py-6 text-center">
             <div className="grid size-12 place-items-center rounded-full bg-emerald-soft text-emerald">
               <Check className="size-6" />
             </div>
             <p className="text-sm text-foreground">
-              Fast geschafft — wir haben dir eine Bestätigungsmail an{" "}
-              <span className="text-emerald">{email}</span> geschickt.
+              Fast geschafft — wir mailen dich an <span className="text-emerald">{email}</span>.
             </p>
             <p className="text-xs text-muted-foreground">
-              Klick den Link in der Mail, um den Wecker zu aktivieren.
+              Bestätigungs-Mail folgt sobald wir Mail-Versand aktivieren.
             </p>
           </div>
         ) : (
           <form onSubmit={submit} className="mt-2 space-y-4">
             <div className="rounded-lg border border-hairline bg-white p-3">
               <div className="flex items-center gap-3">
-                <img
-                  src={deal.imageUrl}
-                  alt=""
-                  className="size-12 rounded bg-white object-contain"
-                />
+                <img src={deal.imageUrl} alt="" className="size-12 rounded bg-white object-contain" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-xs text-muted-foreground">{deal.brand}</div>
                   <div className="truncate text-sm">{deal.title}</div>
@@ -82,9 +138,7 @@ export function PriceAlertModal({
                 Ziel-Preis
               </label>
               <div className="relative">
-                <span className="font-mono-tabular pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  €
-                </span>
+                <span className="font-mono-tabular pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
                 <Input
                   type="number"
                   step="0.01"
@@ -97,42 +151,73 @@ export function PriceAlertModal({
               </div>
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-muted-foreground">
-                E-Mail
-              </label>
-              <Input
-                type="email"
-                placeholder="du@beispiel.de"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border-hairline bg-white"
-                required
-              />
-            </div>
+            {!user && (
+              <div>
+                <label className="mb-1.5 block text-[11px] uppercase tracking-wider text-muted-foreground">
+                  E-Mail
+                </label>
+                <Input
+                  type="email"
+                  placeholder="du@beispiel.de"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="border-hairline bg-white"
+                  required
+                />
+              </div>
+            )}
+
+            {user && (
+              <p className="rounded-lg bg-emerald-soft px-3 py-2 text-xs text-emerald-ink">
+                Eingeloggt als {user.email} — Wecker landet in deiner Watchlist.
+              </p>
+            )}
+
+            {err && (
+              <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                {err}
+              </p>
+            )}
 
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald px-4 py-2.5 text-sm font-semibold text-emerald-foreground transition-transform hover:scale-[1.01]"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald px-4 py-2.5 text-sm font-semibold text-emerald-foreground transition-transform hover:scale-[1.01] disabled:opacity-60"
             >
-              Wecker stellen
+              {submitting ? "Speichere…" : "Wecker stellen"}
             </button>
 
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-hairline" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-surface-2 px-2 text-[10px] uppercase tracking-wider text-muted-foreground">
-                  oder anmelden &amp; alle Wecker verwalten
-                </span>
-              </div>
-            </div>
+            {!user && (
+              <>
+                <div className="relative my-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-hairline" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-surface-2 px-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      oder anmelden &amp; alle Wecker verwalten
+                    </span>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <SocialBtn icon={<GoogleIcon className="size-4" />} label="Google" />
-              <SocialBtn icon={<AppleIcon className="size-4" />} label="Apple" />
-            </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => signIn("google")}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-hairline bg-white px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-emerald/40"
+                  >
+                    <GoogleIcon className="size-4" /> Google
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => signIn("apple")}
+                    className="flex items-center justify-center gap-2 rounded-lg border border-hairline bg-white px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-emerald/40"
+                  >
+                    <AppleIcon className="size-4" /> Apple
+                  </button>
+                </div>
+              </>
+            )}
 
             <a
               href={buildDeeplink(deal.asin)}
@@ -144,22 +229,7 @@ export function PriceAlertModal({
             </a>
           </form>
         )}
-
       </DialogContent>
     </Dialog>
-  );
-}
-
-function SocialBtn({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button
-      type="button"
-      disabled
-      title="In Phase 2 verfügbar"
-      className="flex items-center justify-center gap-2 rounded-lg border border-hairline bg-white px-3 py-2 text-xs font-medium text-foreground transition-colors hover:border-emerald/40 disabled:opacity-60"
-    >
-      {icon}
-      {label}
-    </button>
   );
 }
