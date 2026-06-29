@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Bell, LineChart, ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { buildDeeplink, trackClick } from "@/lib/affiliate";
+import { trackClick } from "@/lib/affiliate";
 import { discountPct, formatEUR, type Deal } from "@/lib/mock-deals";
+import { SHOPS } from "@/lib/shops";
 import { ConditionBadge } from "./ConditionBadge";
+import { ShopBadge } from "./ShopBadge";
+import { AlsoAvailableAt } from "./AlsoAvailableAt";
 import { PriceHistoryModal } from "./PriceHistoryModal";
 import { PriceAlertModal } from "./PriceAlertModal";
 
