@@ -86,7 +86,7 @@ export function DealCard({ deal }: { deal: Deal }) {
           <a
             href={href}
             target="_blank"
-            rel="noopener sponsored"
+            rel={shop.linkRel}
             onClick={handleClick}
             className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground hover:text-emerald-ink"
           >
@@ -114,16 +114,21 @@ export function DealCard({ deal }: { deal: Deal }) {
             </div>
           </div>
 
-          {/* CTA row: primary Amazon + 2 icon actions */}
+          {/* "Auch bei" teaser — günstigste Alternativen aus anderen Shops */}
+          {deal.alternatives.length > 0 && (
+            <AlsoAvailableAt offers={deal.alternatives} dealId={deal.id} />
+          )}
+
+          {/* CTA row: primary shop link + 2 icon actions */}
           <div className="flex gap-2">
             <a
               href={href}
               target="_blank"
-              rel="noopener sponsored"
+              rel={shop.linkRel}
               onClick={handleClick}
               className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-emerald-foreground shadow-sm shadow-emerald/20 transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
-              Bei Amazon
+              Bei {shop.shortName}
               <ArrowUpRight className="size-4" strokeWidth={2.5} />
             </a>
             <IconAction label="Preisverlauf" onClick={() => setHistoryOpen(true)}>
