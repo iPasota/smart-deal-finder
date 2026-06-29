@@ -81,6 +81,7 @@ function Index() {
   const deals = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
     const filtered = MOCK_DEALS.filter((d) => {
+      if (filters.shops.length && !filters.shops.includes(d.shop)) return false;
       if (filters.category !== "Alle" && d.category !== filters.category) return false;
       if (filters.conditions.length && !filters.conditions.includes(d.condition)) return false;
       if (discountPct(d) < filters.minDiscount) return false;

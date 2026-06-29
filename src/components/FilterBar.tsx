@@ -1,11 +1,13 @@
 import { ChevronDown, Search } from "lucide-react";
 import { CATEGORIES, CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
+import { SHOP_LIST, type ShopSlug } from "@/lib/shops";
 
 export type SortKey = "discount" | "newest" | "price_asc" | "price_desc";
 
 export type Filters = {
   category: Category;
   conditions: Condition[];
+  shops: ShopSlug[];
   minDiscount: number;
   maxPrice: number;
   search: string;
@@ -15,6 +17,7 @@ export type Filters = {
 export const DEFAULT_FILTERS: Filters = {
   category: "Alle",
   conditions: [],
+  shops: ["amazon-warehouse"],
   minDiscount: 0,
   maxPrice: 5000,
   search: "",
@@ -35,6 +38,13 @@ export function FilterBar({
       ? filters.conditions.filter((x) => x !== c)
       : [...filters.conditions, c];
     onChange({ ...filters, conditions: next });
+  };
+
+  const toggleShop = (s: ShopSlug) => {
+    const next = filters.shops.includes(s)
+      ? filters.shops.filter((x) => x !== s)
+      : [...filters.shops, s];
+    onChange({ ...filters, shops: next });
   };
 
   return (
@@ -80,6 +90,46 @@ export function FilterBar({
             </Chip>
           ))}
         </div>
+
+        {/* Shop chips — MVP: nur Amazon aktiv, Rest disabled ("kommt bald") */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+            <span className="inline-block h-3.5 w-1 rounded-full bg-foreground" />
+            Shop
+          </span>
+          {SHOP_LIST.map((s) => {
+            const active = filters.shops.includes(s.slug);
+            if (!s.active) {
+              return (
+                <span
+                  key={s.slug}
+                  title="Bald verfügbar"
+                  className="inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap rounded-lg border border-dashed border-hairline bg-surface/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight text-muted-foreground/60"
+                >
+                  <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                  {s.shortName}
+                  <span className="ml-0.5 rounded-sm bg-muted px-1 text-[9px] font-bold text-muted-foreground">bald</span>
+                </span>
+              );
+            }
+            return (
+              <button
+                key={s.slug}
+                type="button"
+                onClick={() => toggleShop(s.slug)}
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight transition-all ${
+                  active
+                    ? "border-foreground bg-foreground text-background shadow-sm"
+                    : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                }`}
+              >
+                <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                {s.shortName}
+              </button>
+            );
+          })}
+        </div>
+
 
         {/* Condition + discount + count */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">

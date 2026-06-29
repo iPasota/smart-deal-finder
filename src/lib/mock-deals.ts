@@ -1,3 +1,6 @@
+import type { ShopSlug } from "@/lib/shops";
+import type { AlternativeOffer } from "@/components/AlsoAvailableAt";
+
 export type Condition = "like_new" | "very_good" | "good" | "acceptable";
 
 export type Deal = {
@@ -14,6 +17,9 @@ export type Deal = {
   currency: "EUR";
   inStock: boolean;
   firstSeenAt: string;
+  shop: ShopSlug;
+  countryCode: "DE";
+  alternatives: AlternativeOffer[];
   // Last 90 days of warehouse prices, oldest first.
   history: { t: string; p: number }[];
 };
@@ -56,7 +62,7 @@ function genHistory(seed: number, end: number, daysBack = 90): { t: string; p: n
   return out;
 }
 
-const base: Omit<Deal, "history">[] = [
+const base: Omit<Deal, "history" | "shop" | "countryCode" | "alternatives">[] = [
   {
     id: "1",
     asin: "B0CHX1W1XY",
@@ -284,8 +290,36 @@ const base: Omit<Deal, "history">[] = [
   },
 ];
 
+// Deterministic synthetic alternative offers for ~30 % of deals — gives the
+// "Auch bei: …" teaser realistic coverage without overloading every card.
+// Real data will come from feed adapters; structure mirrors the offers table.
+const ALT_SHOPS: Array<"backmarket" | "rebuy" | "refurbed"> = ["backmarket", "rebuy", "refurbed"];
+
+function altsFor(d: Omit<Deal, "history" | "shop" | "countryCode" | "alternatives">, i: number): AlternativeOffer[] {
+  // Only some deals have alternatives (every 3rd, plus a couple specific ones).
+  if (i % 3 !== 0 && i !== 1 && i !== 6) return [];
+  const count = (i % 3) + 1; // 1–3 alternatives
+  const out: AlternativeOffer[] = [];
+  for (let k = 0; k < count; k++) {
+    const shop = ALT_SHOPS[(i + k) % ALT_SHOPS.length];
+    // Alternatives vary ±12 % around the WHD price.
+    const factor = 1 + (((i * 7 + k * 13) % 25) - 12) / 100;
+    const price = Math.round(d.priceCents * factor);
+    out.push({
+      shop,
+      externalId: `${shop}-${d.asin}-${k}`,
+      priceCents: price,
+      currency: "EUR",
+    });
+  }
+  return out;
+}
+
 export const MOCK_DEALS: Deal[] = base.map((d, i) => ({
   ...d,
+  shop: "amazon-warehouse",
+  countryCode: "DE",
+  alternatives: altsFor(d, i),
   history: genHistory(i + 1, d.priceCents),
 }));
 

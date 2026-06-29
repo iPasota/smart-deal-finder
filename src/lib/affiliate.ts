@@ -1,6 +1,6 @@
 // Affiliate deeplink builder. Tag comes from a server-injected env later;
 // for Phase 1 we use a placeholder so links work in mock mode.
-const DEFAULT_TAG = "warehauspreview-21";
+const DEFAULT_TAG = "whdfinder-21";
 
 export function buildDeeplink(asin: string, tag: string = DEFAULT_TAG): string {
   // Amazon Warehouse listing for a specific ASIN. `psc=1` lands directly on the

@@ -6,6 +6,7 @@ import { GoogleIcon, AppleIcon } from "./BrandIcons";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { MARKETPLACE_LIST } from "@/lib/marketplace";
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -47,6 +48,27 @@ export function Header() {
             <Link to="/watchlist" className="hover:text-foreground">Watchlist</Link>
           )}
         </nav>
+
+        {/* Country / Marketplace switcher — MVP: nur DE aktiv */}
+        <div className="ml-auto mr-2 hidden items-center gap-1 rounded-lg border border-hairline bg-surface p-1 md:flex">
+          {MARKETPLACE_LIST.map((m) => (
+            <button
+              key={m.code}
+              type="button"
+              disabled={!m.active}
+              title={m.active ? m.label : `${m.label} – bald verfügbar`}
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold uppercase tracking-wider transition-colors ${
+                m.active
+                  ? "bg-foreground text-background"
+                  : "cursor-not-allowed text-muted-foreground/50"
+              }`}
+            >
+              <span aria-hidden>{m.flag}</span>
+              {m.code}
+            </button>
+          ))}
+        </div>
+
 
         {user ? (
           <div className="flex items-center gap-2">
