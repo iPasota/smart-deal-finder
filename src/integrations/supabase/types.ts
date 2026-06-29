@@ -14,6 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_tags: {
+        Row: {
+          country_code: string
+          created_at: string
+          deeplink_pattern: string
+          id: string
+          shop_id: string
+          tag: string
+          updated_at: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          deeplink_pattern: string
+          id?: string
+          shop_id: string
+          tag: string
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          deeplink_pattern?: string
+          id?: string
+          shop_id?: string
+          tag?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_tags_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          affiliate_tag_override: string | null
+          condition: string
+          country_code: string
+          created_at: string
+          currency: string
+          deeplink_template: string | null
+          external_id: string
+          first_seen_at: string
+          id: string
+          in_stock: boolean
+          last_seen_at: string
+          list_price_cents: number | null
+          price_cents: number
+          product_id: string
+          ships_to: string[]
+          shop_id: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_tag_override?: string | null
+          condition: string
+          country_code: string
+          created_at?: string
+          currency?: string
+          deeplink_template?: string | null
+          external_id: string
+          first_seen_at?: string
+          id?: string
+          in_stock?: boolean
+          last_seen_at?: string
+          list_price_cents?: number | null
+          price_cents: number
+          product_id: string
+          ships_to?: string[]
+          shop_id: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_tag_override?: string | null
+          condition?: string
+          country_code?: string
+          created_at?: string
+          currency?: string
+          deeplink_template?: string | null
+          external_id?: string
+          first_seen_at?: string
+          id?: string
+          in_stock?: boolean
+          last_seen_at?: string
+          list_price_cents?: number | null
+          price_cents?: number
+          product_id?: string
+          ships_to?: string[]
+          shop_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_history: {
+        Row: {
+          id: number
+          observed_at: string
+          offer_id: string
+          price_cents: number
+        }
+        Insert: {
+          id?: number
+          observed_at?: string
+          offer_id: string
+          price_cents: number
+        }
+        Update: {
+          id?: number
+          observed_at?: string
+          offer_id?: string
+          price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          brand: string | null
+          category: string | null
+          created_at: string
+          gtin: string | null
+          id: string
+          image_url: string | null
+          mpn: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          category?: string | null
+          created_at?: string
+          gtin?: string | null
+          id?: string
+          image_url?: string | null
+          mpn?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string | null
+          created_at?: string
+          gtin?: string | null
+          id?: string
+          image_url?: string | null
+          mpn?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -37,6 +215,42 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shops: {
+        Row: {
+          active: boolean
+          color: string | null
+          created_at: string
+          display_name: string
+          id: string
+          link_rel: string
+          logo_url: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          color?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          link_rel?: string
+          logo_url?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          color?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          link_rel?: string
+          logo_url?: string | null
+          slug?: string
           updated_at?: string
         }
         Relationships: []
