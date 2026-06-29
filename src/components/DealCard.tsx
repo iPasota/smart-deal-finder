@@ -68,48 +68,47 @@ export function DealCard({ deal }: { deal: Deal }) {
             <ConditionBadge condition={deal.condition} />
           </div>
 
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-0.5">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               {deal.brand}
             </span>
-            <span className="size-1.5 rounded-full bg-emerald" aria-hidden />
+            <a
+              href={href}
+              target="_blank"
+              rel={shop.linkRel}
+              onClick={handleClick}
+              className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug text-foreground hover:text-emerald-ink"
+            >
+              {deal.title}
+            </a>
           </div>
 
-          <a
-            href={href}
-            target="_blank"
-            rel={shop.linkRel}
-            onClick={handleClick}
-            className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-foreground hover:text-emerald-ink"
-          >
-            {deal.title}
-          </a>
-
-          {/* Price block with amber left border accent — discount integrated */}
+          {/* Price block — amber-left accent, savings box right with €  |  % */}
           <div className="mt-auto flex items-center gap-3 rounded-xl border border-hairline bg-surface-2/60 p-3 pl-3.5 [border-left:3px_solid_var(--amber)]">
             <div className="flex flex-col">
               <span className="font-mono-tabular text-[10px] text-muted-foreground line-through">
                 {formatEUR(deal.newPriceCents)}
               </span>
-              <div className="flex items-baseline gap-2">
-                <span className="font-mono-tabular text-xl font-extrabold leading-none tracking-tight text-foreground">
-                  {formatEUR(deal.priceCents)}
+              <span className="font-mono-tabular text-xl font-extrabold leading-none tracking-tight text-foreground">
+                {formatEUR(deal.priceCents)}
+              </span>
+            </div>
+            {pct > 0 && (
+              <div className="ml-auto flex flex-col items-center gap-0.5 rounded-lg border border-amber/40 bg-amber-soft px-2.5 py-1">
+                <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-ink">
+                  Ersparnis
                 </span>
-                {pct > 0 && (
-                  <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-1.5 py-0.5 text-[10px] font-bold leading-none text-amber-foreground">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="font-mono-tabular text-sm font-extrabold text-amber-ink">
+                    {formatEUR(savings)}
+                  </span>
+                  <span className="text-amber-ink/45" aria-hidden>|</span>
+                  <span className="font-mono-tabular text-xs font-bold text-amber-ink">
                     −{pct}%
                   </span>
-                )}
+                </div>
               </div>
-            </div>
-            <div className="ml-auto flex flex-col items-end">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-ink">
-                Ersparnis
-              </span>
-              <span className="font-mono-tabular text-sm font-bold text-amber-ink">
-                −{formatEUR(savings)}
-              </span>
-            </div>
+            )}
           </div>
 
           {/* "Auch bei" teaser — günstigste Alternativen aus anderen Shops */}
