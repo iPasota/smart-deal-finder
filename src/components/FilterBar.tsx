@@ -91,6 +91,46 @@ export function FilterBar({
           ))}
         </div>
 
+        {/* Shop chips — MVP: nur Amazon aktiv, Rest disabled ("kommt bald") */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+            <span className="inline-block h-3.5 w-1 rounded-full bg-foreground" />
+            Shop
+          </span>
+          {SHOP_LIST.map((s) => {
+            const active = filters.shops.includes(s.slug);
+            if (!s.active) {
+              return (
+                <span
+                  key={s.slug}
+                  title="Bald verfügbar"
+                  className="inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap rounded-lg border border-dashed border-hairline bg-surface/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight text-muted-foreground/60"
+                >
+                  <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                  {s.shortName}
+                  <span className="ml-0.5 rounded-sm bg-muted px-1 text-[9px] font-bold text-muted-foreground">bald</span>
+                </span>
+              );
+            }
+            return (
+              <button
+                key={s.slug}
+                type="button"
+                onClick={() => toggleShop(s.slug)}
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight transition-all ${
+                  active
+                    ? "border-foreground bg-foreground text-background shadow-sm"
+                    : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                }`}
+              >
+                <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                {s.shortName}
+              </button>
+            );
+          })}
+        </div>
+
+
         {/* Condition + discount + count */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
           <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
