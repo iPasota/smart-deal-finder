@@ -9,11 +9,11 @@ export function ShopBadge({ shop, size = "md" }: { shop: ShopSlug; size?: "sm" |
   return (
     <span
       title={s.name}
-      className={`inline-flex items-center gap-1 rounded-md border font-bold uppercase tracking-wider ${cls}`}
+      className={`inline-flex items-center gap-1 rounded-md border font-bold uppercase tracking-wider shadow-sm ${cls}`}
       style={{
-        borderColor: s.color + "CC",
-        backgroundColor: s.color + "40",
-        color: "var(--foreground)",
+        borderColor: s.color,
+        backgroundColor: `color-mix(in srgb, ${s.color} 18%, white)`,
+        color: `color-mix(in srgb, ${s.color} 70%, black)`,
       }}
     >
       <span
