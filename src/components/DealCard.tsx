@@ -38,11 +38,6 @@ export function DealCard({ deal }: { deal: Deal }) {
           aria-label={deal.title}
           className="relative block aspect-square w-full overflow-hidden bg-white p-6"
         >
-          {/* Shop badge — top left, indicates source */}
-          <div className="absolute left-3 top-3 z-10">
-            <ShopBadge shop={deal.shop} />
-          </div>
-
           <img
             src={deal.imageUrl}
             alt={deal.title}
@@ -67,13 +62,10 @@ export function DealCard({ deal }: { deal: Deal }) {
 
         {/* Body */}
         <div className="flex flex-1 flex-col gap-3 p-4">
-          <div className="flex items-center justify-between gap-2">
+          {/* Bundled info row — shop + condition, same height */}
+          <div className="flex items-center gap-2">
+            <ShopBadge shop={deal.shop} />
             <ConditionBadge condition={deal.condition} />
-            {pct > 0 && (
-              <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-2 py-0.5 text-xs font-bold text-amber-foreground">
-                −{pct}%
-              </span>
-            )}
           </div>
 
           <div className="flex items-center justify-between gap-2">
@@ -93,18 +85,24 @@ export function DealCard({ deal }: { deal: Deal }) {
             {deal.title}
           </a>
 
-          {/* Price block with amber left border accent */}
+          {/* Price block with amber left border accent — discount integrated */}
           <div className="mt-auto flex items-center gap-3 rounded-xl border border-hairline bg-surface-2/60 p-3 pl-3.5 [border-left:3px_solid_var(--amber)]">
             <div className="flex flex-col">
               <span className="font-mono-tabular text-[10px] text-muted-foreground line-through">
                 {formatEUR(deal.newPriceCents)}
               </span>
-              <span className="font-mono-tabular text-xl font-extrabold leading-none tracking-tight text-foreground">
-                {formatEUR(deal.priceCents)}
-              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="font-mono-tabular text-xl font-extrabold leading-none tracking-tight text-foreground">
+                  {formatEUR(deal.priceCents)}
+                </span>
+                {pct > 0 && (
+                  <span className="font-mono-tabular inline-flex items-center rounded-md border border-amber/40 bg-amber px-1.5 py-0.5 text-[10px] font-bold leading-none text-amber-foreground">
+                    −{pct}%
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="h-8 w-px bg-hairline" />
-            <div className="flex flex-col">
+            <div className="ml-auto flex flex-col items-end">
               <span className="text-[9px] font-bold uppercase tracking-wider text-amber-ink">
                 Ersparnis
               </span>
