@@ -11,8 +11,8 @@ export function ShopBadge({ shop, size = "md" }: { shop: ShopSlug; size?: "sm" |
       title={s.name}
       className={`inline-flex items-center gap-1 rounded-md border font-bold uppercase tracking-wider ${cls}`}
       style={{
-        borderColor: s.color + "55",
-        backgroundColor: s.color + "1A",
+        borderColor: s.color + "CC",
+        backgroundColor: s.color + "40",
         color: "var(--foreground)",
       }}
     >
