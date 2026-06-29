@@ -17,7 +17,7 @@ export type Filters = {
 export const DEFAULT_FILTERS: Filters = {
   category: "Alle",
   conditions: [],
-  shops: ["amazon-warehouse"],
+  shops: ["amazon-warehouse", "backmarket", "rebuy", "refurbed"],
   minDiscount: 0,
   maxPrice: 5000,
   search: "",
