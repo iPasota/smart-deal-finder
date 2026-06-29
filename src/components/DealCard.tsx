@@ -38,6 +38,11 @@ export function DealCard({ deal }: { deal: Deal }) {
           aria-label={deal.title}
           className="relative block aspect-square w-full overflow-hidden bg-white p-6"
         >
+          {/* Shop badge — top left, indicates source */}
+          <div className="absolute left-3 top-3 z-10">
+            <ShopBadge shop={deal.shop} />
+          </div>
+
           <img
             src={deal.imageUrl}
             alt={deal.title}
