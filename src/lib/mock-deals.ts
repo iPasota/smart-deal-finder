@@ -293,15 +293,243 @@ const base: BaseDeal[] = [
     inStock: true,
     firstSeenAt: "2025-06-01",
   },
+
+  // === Showcase: verschiedene Shop-Konstellationen ===
+
+  // 16: Amazon only, KEINE Alternativen (Standardfall)
+  {
+    id: "16",
+    asin: "B0CRDCXTQ4",
+    title: "Anker Soundcore Liberty 4 NC In-Ear Kopfhörer",
+    brand: "Anker",
+    category: "Kopfhörer",
+    imageUrl: "https://m.media-amazon.com/images/I/61TBkjqQX5L._AC_SL1500_.jpg",
+    condition: "very_good",
+    priceCents: 5499,
+    newPriceCents: 7999,
+    msrpCents: 9999,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-22",
+    shop: "amazon-warehouse",
+    alternatives: [],
+  },
+
+  // 17: reBuy-only — kein Amazon, kein Alternativ-Teaser
+  {
+    id: "17",
+    asin: "REBUY-IPH14-001",
+    title: "Apple iPhone 14 128GB Mitternacht",
+    brand: "Apple",
+    category: "Smartphones",
+    imageUrl: "https://m.media-amazon.com/images/I/61iN13L5b8L._AC_SL1500_.jpg",
+    condition: "good",
+    priceCents: 48900,
+    newPriceCents: 69900,
+    msrpCents: 79900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-23",
+    shop: "rebuy",
+    alternatives: [],
+  },
+
+  // 18: Back Market only
+  {
+    id: "18",
+    asin: "BM-MBA-M2-256",
+    title: 'Apple MacBook Air 13" M2 8GB 256GB (Generalüberholt)',
+    brand: "Apple",
+    category: "Laptops",
+    imageUrl: "https://m.media-amazon.com/images/I/71vFKBpKakL._AC_SL1500_.jpg",
+    condition: "very_good",
+    priceCents: 79900,
+    newPriceCents: 119900,
+    msrpCents: 129900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-21",
+    shop: "backmarket",
+    alternatives: [],
+  },
+
+  // 19: refurbed only
+  {
+    id: "19",
+    asin: "RF-S23-128",
+    title: "Samsung Galaxy S23 128GB Phantom Black (refurbished)",
+    brand: "Samsung",
+    category: "Smartphones",
+    imageUrl: "https://m.media-amazon.com/images/I/61imIzqMrLL._AC_SL1500_.jpg",
+    condition: "like_new",
+    priceCents: 41900,
+    newPriceCents: 64900,
+    msrpCents: 84900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-24",
+    shop: "refurbed",
+    alternatives: [],
+  },
+
+  // 20: Amazon + GENAU 1 Alternative (reBuy)
+  {
+    id: "20",
+    asin: "B0BCH7L9YT",
+    title: "GoPro HERO12 Black Action Cam",
+    brand: "GoPro",
+    category: "Kameras",
+    imageUrl: "https://m.media-amazon.com/images/I/61X-+S4eUOL._AC_SL1500_.jpg",
+    condition: "like_new",
+    priceCents: 32900,
+    newPriceCents: 39900,
+    msrpCents: 44900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-25",
+    shop: "amazon-warehouse",
+    alternatives: [
+      { shop: "rebuy", externalId: "rebuy-hero12-001", priceCents: 35900, currency: "EUR" },
+    ],
+  },
+
+  // 21: Amazon + 2 Alternativen (eine günstiger als Amazon!)
+  {
+    id: "21",
+    asin: "B09G3HRMVB",
+    title: "Apple Watch Series 9 GPS 45mm Aluminium",
+    brand: "Apple",
+    category: "Smart Home",
+    imageUrl: "https://m.media-amazon.com/images/I/71sRYZbo3xL._AC_SL1500_.jpg",
+    condition: "very_good",
+    priceCents: 34900,
+    newPriceCents: 44900,
+    msrpCents: 49900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-26",
+    shop: "amazon-warehouse",
+    alternatives: [
+      { shop: "backmarket", externalId: "bm-aw9-001", priceCents: 31900, currency: "EUR" },
+      { shop: "refurbed",   externalId: "rf-aw9-001", priceCents: 36500, currency: "EUR" },
+    ],
+  },
+
+  // 22: Amazon + ALLE 3 Alternativen — maximaler Vergleich
+  {
+    id: "22",
+    asin: "B0CHX3QBCH",
+    title: "Apple iPad Air 11 (M2) WiFi 128GB Space Grau",
+    brand: "Apple",
+    category: "Laptops",
+    imageUrl: "https://m.media-amazon.com/images/I/61bw7g9enrL._AC_SL1500_.jpg",
+    condition: "like_new",
+    priceCents: 62900,
+    newPriceCents: 79900,
+    msrpCents: 84900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-27",
+    shop: "amazon-warehouse",
+    alternatives: [
+      { shop: "backmarket", externalId: "bm-ipa-m2-001", priceCents: 64900, currency: "EUR" },
+      { shop: "rebuy",      externalId: "rebuy-ipa-001", priceCents: 59900, currency: "EUR" },
+      { shop: "refurbed",   externalId: "rf-ipa-001",    priceCents: 66900, currency: "EUR" },
+    ],
+  },
+
+  // 23: reBuy + Alternative bei Back Market (kein Amazon)
+  {
+    id: "23",
+    asin: "REBUY-PIXEL8-128",
+    title: "Google Pixel 8 128GB Obsidian",
+    brand: "Google",
+    category: "Smartphones",
+    imageUrl: "https://m.media-amazon.com/images/I/71jq6xfP4xL._AC_SL1500_.jpg",
+    condition: "very_good",
+    priceCents: 38900,
+    newPriceCents: 54900,
+    msrpCents: 79900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-19",
+    shop: "rebuy",
+    alternatives: [
+      { shop: "backmarket", externalId: "bm-pixel8-001", priceCents: 41900, currency: "EUR" },
+    ],
+  },
+
+  // 24: refurbed + 2 Alternativen (Back Market + reBuy)
+  {
+    id: "24",
+    asin: "RF-MBP-M3-512",
+    title: 'Apple MacBook Pro 14" M3 18GB 512GB (refurbished)',
+    brand: "Apple",
+    category: "Laptops",
+    imageUrl: "https://m.media-amazon.com/images/I/61RJn0ofUgL._AC_SL1500_.jpg",
+    condition: "very_good",
+    priceCents: 149900,
+    newPriceCents: 199900,
+    msrpCents: 229900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-26",
+    shop: "refurbed",
+    alternatives: [
+      { shop: "backmarket", externalId: "bm-mbp-m3-001", priceCents: 154900, currency: "EUR" },
+      { shop: "rebuy",      externalId: "rebuy-mbp-001", priceCents: 147900, currency: "EUR" },
+    ],
+  },
+
+  // 25: Back Market + Amazon-Alternative + refurbed (vergriffen bei Back Market)
+  {
+    id: "25",
+    asin: "BM-S24-256",
+    title: "Samsung Galaxy S24 256GB Onyx Black (Generalüberholt)",
+    brand: "Samsung",
+    category: "Smartphones",
+    imageUrl: "https://m.media-amazon.com/images/I/61imIzqMrLL._AC_SL1500_.jpg",
+    condition: "like_new",
+    priceCents: 56900,
+    newPriceCents: 89900,
+    msrpCents: 99900,
+    currency: "EUR",
+    inStock: false,
+    firstSeenAt: "2025-06-20",
+    shop: "backmarket",
+    alternatives: [
+      { shop: "amazon-warehouse", externalId: "B0CV2DCK68", priceCents: 59900, currency: "EUR" },
+      { shop: "refurbed",         externalId: "rf-s24-001", priceCents: 58900, currency: "EUR" },
+    ],
+  },
+
+  // 26: Amazon-only, mega Rabatt
+  {
+    id: "26",
+    asin: "B0CGY7K7HQ",
+    title: "DJI Mini 4 Pro Fly More Combo Plus",
+    brand: "DJI",
+    category: "Kameras",
+    imageUrl: "https://m.media-amazon.com/images/I/61EpgIYqWmL._AC_SL1500_.jpg",
+    condition: "like_new",
+    priceCents: 89900,
+    newPriceCents: 159900,
+    msrpCents: 169900,
+    currency: "EUR",
+    inStock: true,
+    firstSeenAt: "2025-06-28",
+    shop: "amazon-warehouse",
+    alternatives: [],
+  },
 ];
 
-// Deterministic synthetic alternative offers for ~30 % of deals — gives the
-// "Auch bei: …" teaser realistic coverage without overloading every card.
+// Deterministic synthetic alternative offers for entries that don't define
+// their own alternatives array — keeps showroom-style variety in the listing.
 // Real data will come from feed adapters; structure mirrors the offers table.
 const ALT_SHOPS: Array<"backmarket" | "rebuy" | "refurbed"> = ["backmarket", "rebuy", "refurbed"];
 
-function altsFor(d: Omit<Deal, "history" | "shop" | "countryCode" | "alternatives">, i: number): AlternativeOffer[] {
-  // Only some deals have alternatives (every 3rd, plus a couple specific ones).
+function autoAltsFor(d: BaseDeal, i: number): AlternativeOffer[] {
+  // Only some deals get auto-alternatives (every 3rd, plus a couple specific ones).
   if (i % 3 !== 0 && i !== 1 && i !== 6) return [];
   const count = (i % 3) + 1; // 1–3 alternatives
   const out: AlternativeOffer[] = [];
@@ -322,11 +550,12 @@ function altsFor(d: Omit<Deal, "history" | "shop" | "countryCode" | "alternative
 
 export const MOCK_DEALS: Deal[] = base.map((d, i) => ({
   ...d,
-  shop: "amazon-warehouse",
+  shop: d.shop ?? "amazon-warehouse",
   countryCode: "DE",
-  alternatives: altsFor(d, i),
+  alternatives: d.alternatives ?? autoAltsFor(d, i),
   history: genHistory(i + 1, d.priceCents),
 }));
+
 
 export function discountPct(d: Pick<Deal, "priceCents" | "newPriceCents">): number {
   return Math.round((1 - d.priceCents / d.newPriceCents) * 100);
