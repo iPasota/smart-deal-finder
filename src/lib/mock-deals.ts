@@ -62,7 +62,7 @@ function genHistory(seed: number, end: number, daysBack = 90): { t: string; p: n
   return out;
 }
 
-const base: Omit<Deal, "history">[] = [
+const base: Omit<Deal, "history" | "shop" | "countryCode" | "alternatives">[] = [
   {
     id: "1",
     asin: "B0CHX1W1XY",
