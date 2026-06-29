@@ -62,7 +62,8 @@ function genHistory(seed: number, end: number, daysBack = 90): { t: string; p: n
   return out;
 }
 
-type BaseDeal = Omit<Deal, "history" | "countryCode" | "alternatives"> & {
+type BaseDeal = Omit<Deal, "history" | "countryCode" | "alternatives" | "shop"> & {
+  shop?: Deal["shop"];
   alternatives?: AlternativeOffer[];
 };
 
