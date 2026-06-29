@@ -6,6 +6,7 @@ import { GoogleIcon, AppleIcon } from "./BrandIcons";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { MARKETPLACE_LIST } from "@/lib/marketplace";
 
 export function Header() {
   const [open, setOpen] = useState(false);
