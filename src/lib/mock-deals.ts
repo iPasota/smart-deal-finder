@@ -1,3 +1,6 @@
+import type { ShopSlug } from "@/lib/shops";
+import type { AlternativeOffer } from "@/components/AlsoAvailableAt";
+
 export type Condition = "like_new" | "very_good" | "good" | "acceptable";
 
 export type Deal = {
@@ -14,6 +17,9 @@ export type Deal = {
   currency: "EUR";
   inStock: boolean;
   firstSeenAt: string;
+  shop: ShopSlug;
+  countryCode: "DE";
+  alternatives: AlternativeOffer[];
   // Last 90 days of warehouse prices, oldest first.
   history: { t: string; p: number }[];
 };
