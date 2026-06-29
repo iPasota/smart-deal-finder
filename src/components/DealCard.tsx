@@ -15,7 +15,8 @@ export function DealCard({ deal }: { deal: Deal }) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const href = buildDeeplink(deal.asin);
+  const shop = SHOPS[deal.shop];
+  const href = shop.buildDeeplink(deal.asin);
   const pct = discountPct(deal);
   const savings = deal.newPriceCents - deal.priceCents;
 
