@@ -33,7 +33,7 @@ export function DealCard({ deal }: { deal: Deal }) {
         <a
           href={href}
           target="_blank"
-          rel="noopener sponsored"
+          rel={shop.linkRel}
           onClick={handleClick}
           aria-label={deal.title}
           className="relative block aspect-square w-full overflow-hidden bg-white p-6"
