@@ -548,8 +548,62 @@ function autoAltsFor(d: BaseDeal, i: number): AlternativeOffer[] {
   return out;
 }
 
+// Reliable product imagery per category (Unsplash). Amazon's media CDN
+// hotlinks are flaky in mock mode (many SKUs 404), so we override imageUrl
+// deterministically by id+category until the real feed lands.
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  "Kopfhörer": [
+    "photo-1505740420928-5e560c06d30e",
+    "photo-1583394838336-acd977736f90",
+    "photo-1546435770-a3e426bf472b",
+  ],
+  "Smartphones": [
+    "photo-1511707171634-5f897ff02aa9",
+    "photo-1592750475338-74b7b21085ab",
+    "photo-1565849904461-04a58ad377e0",
+  ],
+  "Laptops": [
+    "photo-1496181133206-80ce9b88a853",
+    "photo-1517336714731-489689fd1ca8",
+    "photo-1611186871348-b1ce696e52c9",
+  ],
+  "Monitore": [
+    "photo-1547119957-637f8679db1e",
+    "photo-1593640408182-31c70c8268f5",
+    "photo-1527443224154-c4a3942d3acf",
+  ],
+  "Kameras": [
+    "photo-1502920917128-1aa500764cbd",
+    "photo-1516035069371-29a1b244cc32",
+    "photo-1606986628253-7ddf2c1c2c61",
+  ],
+  "TV & Audio": [
+    "photo-1593359677879-a4bb92f829d1",
+    "photo-1461151304267-38535e780c79",
+    "photo-1542751371-adc38448a05e",
+  ],
+  "Konsolen": [
+    "photo-1606144042614-b2417e99c4e3",
+    "photo-1612287230202-1ff1d85d1bdf",
+    "photo-1621259182978-fbf93132d53d",
+  ],
+  "Smart Home": [
+    "photo-1558002038-1055907df827",
+    "photo-1567925086230-3b8b8a3b8e1a",
+    "photo-1585399000684-d2f72660f092",
+  ],
+};
+
+function pickImage(category: string, id: string): string {
+  const pool = CATEGORY_IMAGES[category] ?? CATEGORY_IMAGES["Smart Home"];
+  const hash = [...id].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const photo = pool[hash % pool.length];
+  return `https://images.unsplash.com/${photo}?w=800&q=80&auto=format&fit=crop`;
+}
+
 export const MOCK_DEALS: Deal[] = base.map((d, i) => ({
   ...d,
+  imageUrl: pickImage(d.category, d.id),
   shop: d.shop ?? "amazon-warehouse",
   countryCode: "DE",
   alternatives: d.alternatives ?? autoAltsFor(d, i),
