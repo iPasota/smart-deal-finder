@@ -40,6 +40,13 @@ export function FilterBar({
     onChange({ ...filters, conditions: next });
   };
 
+  const toggleShop = (s: ShopSlug) => {
+    const next = filters.shops.includes(s)
+      ? filters.shops.filter((x) => x !== s)
+      : [...filters.shops, s];
+    onChange({ ...filters, shops: next });
+  };
+
   return (
     <div className="sticky top-[73px] z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
       <div className="mx-auto max-w-7xl px-4 py-3 lg:px-6">
