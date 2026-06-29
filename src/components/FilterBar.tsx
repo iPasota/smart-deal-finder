@@ -1,11 +1,13 @@
 import { ChevronDown, Search } from "lucide-react";
 import { CATEGORIES, CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
+import { SHOP_LIST, type ShopSlug } from "@/lib/shops";
 
 export type SortKey = "discount" | "newest" | "price_asc" | "price_desc";
 
 export type Filters = {
   category: Category;
   conditions: Condition[];
+  shops: ShopSlug[];
   minDiscount: number;
   maxPrice: number;
   search: string;
@@ -15,6 +17,7 @@ export type Filters = {
 export const DEFAULT_FILTERS: Filters = {
   category: "Alle",
   conditions: [],
+  shops: ["amazon-warehouse"],
   minDiscount: 0,
   maxPrice: 5000,
   search: "",
