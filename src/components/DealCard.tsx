@@ -115,9 +115,11 @@ export function DealCard({ deal }: { deal: Deal }) {
           </div>
 
           {/* "Auch bei" teaser — günstigste Alternativen aus anderen Shops */}
-          {deal.alternatives.length > 0 && (
-            <AlsoAvailableAt offers={deal.alternatives} dealId={deal.id} />
-          )}
+          <div className="min-h-[1.25rem]">
+            {deal.alternatives.length > 0 && (
+              <AlsoAvailableAt offers={deal.alternatives} dealId={deal.id} />
+            )}
+          </div>
 
           {/* CTA row: primary shop link + 2 icon actions */}
           <div className="flex gap-2">
