@@ -127,10 +127,7 @@ export function DealCard({ deal }: { deal: Deal }) {
               onClick={handleClick}
               className="flex h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald px-2 text-emerald-foreground shadow-sm shadow-emerald/20 transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
-              <span className="flex flex-col items-center justify-center leading-[1.05] text-center">
-                <span className="text-[9px] font-bold uppercase tracking-[0.14em] opacity-80">Zu</span>
-                <span className="text-[11px] font-extrabold uppercase tracking-tight">{shop.name}</span>
-              </span>
+              <span className="text-center text-xs font-bold uppercase tracking-tight">Zu {shop.name}</span>
               <ArrowUpRight className="size-4 shrink-0" strokeWidth={2.5} />
             </a>
             <IconAction label="Preisverlauf" onClick={() => setHistoryOpen(true)}>
