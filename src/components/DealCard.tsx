@@ -125,10 +125,10 @@ export function DealCard({ deal }: { deal: Deal }) {
               target="_blank"
               rel={shop.linkRel}
               onClick={handleClick}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald px-4 py-3 text-xs font-extrabold uppercase tracking-wider text-emerald-foreground shadow-sm shadow-emerald/20 transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              className="flex h-11 min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald px-3 text-xs font-extrabold uppercase tracking-wider text-emerald-foreground shadow-sm shadow-emerald/20 transition-all hover:brightness-110 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
             >
-              Bei {shop.shortName}
-              <ArrowUpRight className="size-4" strokeWidth={2.5} />
+              <span className="truncate">Bei {shop.shortName}</span>
+              <ArrowUpRight className="size-4 shrink-0" strokeWidth={2.5} />
             </a>
             <IconAction label="Preisverlauf" onClick={() => setHistoryOpen(true)}>
               <LineChart className="size-4" strokeWidth={2.25} />
