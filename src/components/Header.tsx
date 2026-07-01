@@ -43,7 +43,7 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
-          <Link to="/" className="hover:text-foreground">Deals</Link>
+          <Link to="/" className="hover:text-foreground">{"\n"}</Link>
           {user && (
             <Link to="/watchlist" className="hover:text-foreground">Watchlist</Link>
           )}
