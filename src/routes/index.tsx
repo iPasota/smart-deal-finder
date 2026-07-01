@@ -94,6 +94,13 @@ function Index() {
       return true;
     });
 
+    const conditionRank: Record<Condition, number> = {
+      like_new: 0,
+      very_good: 1,
+      good: 2,
+      acceptable: 3,
+    };
+
     switch (filters.sort) {
       case "discount":
         filtered.sort((a, b) => discountPct(b) - discountPct(a));
@@ -106,6 +113,12 @@ function Index() {
         break;
       case "price_desc":
         filtered.sort((a, b) => b.priceCents - a.priceCents);
+        break;
+      case "shop":
+        filtered.sort((a, b) => SHOPS[a.shop].name.localeCompare(SHOPS[b.shop].name));
+        break;
+      case "condition":
+        filtered.sort((a, b) => conditionRank[a.condition] - conditionRank[b.condition]);
         break;
     }
     return filtered;
