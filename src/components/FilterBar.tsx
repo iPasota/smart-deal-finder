@@ -67,10 +67,12 @@ export function FilterBar({
               onChange={(e) => onChange({ ...filters, sort: e.target.value as SortKey })}
               className="h-12 appearance-none rounded-xl border-2 border-foreground bg-foreground pl-4 pr-11 text-sm font-bold text-background focus:outline-none focus:ring-4 focus:ring-foreground/20"
             >
-              <option value="discount">Größter Rabatt</option>
+              <option value="discount">Ersparnis</option>
               <option value="newest">Neueste Deals</option>
-              <option value="price_asc">Preis ↑</option>
-              <option value="price_desc">Preis ↓</option>
+              <option value="price_asc">Günstigste</option>
+              <option value="price_desc">Teuerste</option>
+              <option value="shop">Shop</option>
+              <option value="condition">Zustand</option>
             </select>
             <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 size-5 -translate-y-1/2 text-background" strokeWidth={3} />
           </div>
