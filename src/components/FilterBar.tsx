@@ -48,7 +48,7 @@ export function FilterBar({
   };
 
   return (
-    <div className="sticky top-[73px] z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
+    <div className="border-b border-hairline bg-background/92 backdrop-blur-lg">
       <div className="mx-auto max-w-7xl px-4 py-3 lg:px-6">
         {/* Top row: search + sort */}
         <div className="flex items-center gap-2">
