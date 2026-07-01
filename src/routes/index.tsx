@@ -5,7 +5,8 @@ import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { DEFAULT_FILTERS, FilterBar, type Filters } from "@/components/FilterBar";
 import { SeoContent } from "@/components/SeoContent";
-import { discountPct, MOCK_DEALS } from "@/lib/mock-deals";
+import { discountPct, MOCK_DEALS, type Condition } from "@/lib/mock-deals";
+import { SHOPS } from "@/lib/shops";
 
 const FAQ_JSONLD = {
   "@context": "https://schema.org",
