@@ -2,7 +2,7 @@ import { ChevronDown, Search } from "lucide-react";
 import { CATEGORIES, CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
 import { SHOP_LIST, type ShopSlug } from "@/lib/shops";
 
-export type SortKey = "discount" | "newest" | "price_asc" | "price_desc";
+export type SortKey = "discount" | "newest" | "price_asc" | "price_desc" | "shop" | "condition";
 
 export type Filters = {
   category: Category;
