@@ -82,18 +82,76 @@ export type Database = {
           },
         ]
       }
+      keepa_sync_log: {
+        Row: {
+          deals_fetched: number | null
+          duration_ms: number | null
+          errors: Json | null
+          finished_at: string | null
+          id: string
+          offers_upserted: number | null
+          price_history_rows: number | null
+          products_inserted: number | null
+          refill_rate: number | null
+          started_at: string
+          status: string
+          sync_type: string
+          tokens_consumed: number | null
+          tokens_left: number | null
+          triggered_by: string
+        }
+        Insert: {
+          deals_fetched?: number | null
+          duration_ms?: number | null
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          offers_upserted?: number | null
+          price_history_rows?: number | null
+          products_inserted?: number | null
+          refill_rate?: number | null
+          started_at?: string
+          status?: string
+          sync_type?: string
+          tokens_consumed?: number | null
+          tokens_left?: number | null
+          triggered_by?: string
+        }
+        Update: {
+          deals_fetched?: number | null
+          duration_ms?: number | null
+          errors?: Json | null
+          finished_at?: string | null
+          id?: string
+          offers_upserted?: number | null
+          price_history_rows?: number | null
+          products_inserted?: number | null
+          refill_rate?: number | null
+          started_at?: string
+          status?: string
+          sync_type?: string
+          tokens_consumed?: number | null
+          tokens_left?: number | null
+          triggered_by?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           affiliate_tag_override: string | null
+          avg_price_30d_cents: number | null
+          avg_price_90d_cents: number | null
           condition: string
           country_code: string
           created_at: string
           currency: string
           deeplink_template: string | null
+          discount_percent: number | null
           external_id: string
           first_seen_at: string
           id: string
           in_stock: boolean
+          keepa_domain_id: number | null
           last_seen_at: string
           list_price_cents: number | null
           price_cents: number
@@ -104,15 +162,19 @@ export type Database = {
         }
         Insert: {
           affiliate_tag_override?: string | null
+          avg_price_30d_cents?: number | null
+          avg_price_90d_cents?: number | null
           condition: string
           country_code: string
           created_at?: string
           currency?: string
           deeplink_template?: string | null
+          discount_percent?: number | null
           external_id: string
           first_seen_at?: string
           id?: string
           in_stock?: boolean
+          keepa_domain_id?: number | null
           last_seen_at?: string
           list_price_cents?: number | null
           price_cents: number
@@ -123,15 +185,19 @@ export type Database = {
         }
         Update: {
           affiliate_tag_override?: string | null
+          avg_price_30d_cents?: number | null
+          avg_price_90d_cents?: number | null
           condition?: string
           country_code?: string
           created_at?: string
           currency?: string
           deeplink_template?: string | null
+          discount_percent?: number | null
           external_id?: string
           first_seen_at?: string
           id?: string
           in_stock?: boolean
+          keepa_domain_id?: number | null
           last_seen_at?: string
           list_price_cents?: number | null
           price_cents?: number
@@ -188,35 +254,47 @@ export type Database = {
       }
       products: {
         Row: {
+          asin: string | null
           brand: string | null
           category: string | null
           created_at: string
           gtin: string | null
           id: string
           image_url: string | null
+          keepa_category_id: number | null
+          keepa_last_refreshed_at: string | null
           mpn: string | null
+          sales_rank: number | null
           title: string
           updated_at: string
         }
         Insert: {
+          asin?: string | null
           brand?: string | null
           category?: string | null
           created_at?: string
           gtin?: string | null
           id?: string
           image_url?: string | null
+          keepa_category_id?: number | null
+          keepa_last_refreshed_at?: string | null
           mpn?: string | null
+          sales_rank?: number | null
           title: string
           updated_at?: string
         }
         Update: {
+          asin?: string | null
           brand?: string | null
           category?: string | null
           created_at?: string
           gtin?: string | null
           id?: string
           image_url?: string | null
+          keepa_category_id?: number | null
+          keepa_last_refreshed_at?: string | null
           mpn?: string | null
+          sales_rank?: number | null
           title?: string
           updated_at?: string
         }

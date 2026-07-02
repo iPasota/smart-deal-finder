@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
+import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -39,18 +40,25 @@ const ApiPublicTrackClickRoute = ApiPublicTrackClickRouteImport.update({
   path: '/api/public/track-click',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksKeepaSyncRoute = ApiPublicHooksKeepaSyncRouteImport.update({
+  id: '/api/public/hooks/keepa-sync',
+  path: '/api/public/hooks/keepa-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,23 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/watchlist' | '/api/public/track-click'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/watchlist'
+    | '/api/public/track-click'
+    | '/api/public/hooks/keepa-sync'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/watchlist' | '/api/public/track-click'
+  to:
+    | '/'
+    | '/auth'
+    | '/watchlist'
+    | '/api/public/track-click'
+    | '/api/public/hooks/keepa-sync'
   id:
     | '__root__'
     | '/'
@@ -72,6 +91,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/watchlist'
     | '/api/public/track-click'
+    | '/api/public/hooks/keepa-sync'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -79,6 +99,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
+  ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -118,6 +139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackClickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/keepa-sync': {
+      id: '/api/public/hooks/keepa-sync'
+      path: '/api/public/hooks/keepa-sync'
+      fullPath: '/api/public/hooks/keepa-sync'
+      preLoaderRoute: typeof ApiPublicHooksKeepaSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -137,17 +165,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
+  ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
