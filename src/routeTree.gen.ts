@@ -12,8 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KategorieParentRouteImport } from './routes/kategorie.$parent'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
+import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 
 const AuthRoute = AuthRouteImport.update({
@@ -30,16 +33,32 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KategorieParentRoute = KategorieParentRouteImport.update({
+  id: '/kategorie/$parent',
+  path: '/kategorie/$parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const KategorieParentChildRoute = KategorieParentChildRouteImport.update({
+  id: '/$child',
+  path: '/$child',
+  getParentRoute: () => KategorieParentRoute,
 } as any)
 const ApiPublicTrackClickRoute = ApiPublicTrackClickRouteImport.update({
   id: '/api/public/track-click',
   path: '/api/public/track-click',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/admin/categories',
+    path: '/admin/categories',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicHooksKeepaSyncRoute = ApiPublicHooksKeepaSyncRouteImport.update({
   id: '/api/public/hooks/keepa-sync',
   path: '/api/public/hooks/keepa-sync',
@@ -50,14 +69,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/kategorie/$parent': typeof KategorieParentRouteWithChildren
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/kategorie/$parent': typeof KategorieParentRouteWithChildren
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesById {
@@ -66,7 +91,10 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
+  '/kategorie/$parent': typeof KategorieParentRouteWithChildren
+  '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
+  '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRouteTypes {
@@ -75,14 +103,20 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/watchlist'
+    | '/kategorie/$parent'
+    | '/admin/categories'
     | '/api/public/track-click'
+    | '/kategorie/$parent/$child'
     | '/api/public/hooks/keepa-sync'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/watchlist'
+    | '/kategorie/$parent'
+    | '/admin/categories'
     | '/api/public/track-click'
+    | '/kategorie/$parent/$child'
     | '/api/public/hooks/keepa-sync'
   id:
     | '__root__'
@@ -90,7 +124,10 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/watchlist'
+    | '/kategorie/$parent'
+    | '/_authenticated/admin/categories'
     | '/api/public/track-click'
+    | '/kategorie/$parent/$child'
     | '/api/public/hooks/keepa-sync'
   fileRoutesById: FileRoutesById
 }
@@ -98,6 +135,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
 }
@@ -125,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kategorie/$parent': {
+      id: '/kategorie/$parent'
+      path: '/kategorie/$parent'
+      fullPath: '/kategorie/$parent'
+      preLoaderRoute: typeof KategorieParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/watchlist': {
       id: '/_authenticated/watchlist'
       path: '/watchlist'
@@ -132,12 +177,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWatchlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/kategorie/$parent/$child': {
+      id: '/kategorie/$parent/$child'
+      path: '/$child'
+      fullPath: '/kategorie/$parent/$child'
+      preLoaderRoute: typeof KategorieParentChildRouteImport
+      parentRoute: typeof KategorieParentRoute
+    }
     '/api/public/track-click': {
       id: '/api/public/track-click'
       path: '/api/public/track-click'
       fullPath: '/api/public/track-click'
       preLoaderRoute: typeof ApiPublicTrackClickRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/admin/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/hooks/keepa-sync': {
       id: '/api/public/hooks/keepa-sync'
@@ -151,19 +210,34 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
+  AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
+  AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface KategorieParentRouteChildren {
+  KategorieParentChildRoute: typeof KategorieParentChildRoute
+}
+
+const KategorieParentRouteChildren: KategorieParentRouteChildren = {
+  KategorieParentChildRoute: KategorieParentChildRoute,
+}
+
+const KategorieParentRouteWithChildren = KategorieParentRoute._addFileChildren(
+  KategorieParentRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
 }
