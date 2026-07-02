@@ -22,7 +22,9 @@ const DE_DOMAIN = 3;
 export type KeepaDealRecord = {
   asin: string;
   title?: string;
-  image?: string | null;
+  // Keepa returns `image` as an array of UTF-8 byte codes representing the
+  // Amazon image filename (occasionally serialized as a comma string).
+  image?: number[] | string | null;
   rootCategory?: number;
   categoryTree?: Array<{ catId: number; name: string }>;
   current?: number[];
@@ -220,4 +222,35 @@ export function keepaMinutesToDate(km: number): Date {
 export function keepaPrice(n: number | undefined | null): number | null {
   if (n === undefined || n === null || n < 0) return null;
   return n;
+}
+
+// Keepa returns `image` as an array of UTF-8 byte codes (occasionally serialized
+// as a comma-separated string) that decode into the Amazon image filename
+// (e.g. "41xs8nV8hHL.jpg"). Returns the full CDN URL or null when malformed.
+export function keepaImageUrl(image: number[] | string | null | undefined): string | null {
+  if (image == null) return null;
+
+  let bytes: number[] | null = null;
+  if (Array.isArray(image)) {
+    bytes = image.map((n) => Number(n));
+  } else if (typeof image === "string") {
+    if (image.length === 0) return null;
+    if (image.includes(",")) {
+      bytes = image.split(",").map((s) => Number(s.trim()));
+    } else if (/^[A-Za-z0-9+_-]+\.(jpg|jpeg|png|webp)$/i.test(image)) {
+      // Already a plain filename.
+      return `https://images-na.ssl-images-amazon.com/images/I/${image}`;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+
+  if (!bytes.length || bytes.some((n) => !Number.isFinite(n) || n < 0 || n > 255)) {
+    return null;
+  }
+  const filename = String.fromCharCode(...bytes);
+  if (!/\.(jpg|jpeg|png|webp)$/i.test(filename)) return null;
+  return `https://images-na.ssl-images-amazon.com/images/I/${filename}`;
 }
