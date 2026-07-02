@@ -147,6 +147,41 @@ function Index() {
     return filtered;
   }, [filters, allDeals]);
 
+  // Zähle mögliche Ergebnisse pro Filteroption – jede Dimension ignoriert sich selbst,
+  // damit man nicht in eine leere Auswahl klickt.
+  const availability = useMemo(() => {
+    const q = filters.search.trim().toLowerCase();
+    const base = (d: Deal, opts: { skipShop?: boolean; skipCategory?: boolean; skipCondition?: boolean; skipDiscount?: boolean }) => {
+      if (!opts.skipShop && filters.shops.length && !filters.shops.includes(d.shop)) return false;
+      if (!opts.skipCategory && filters.category !== "Alle" && d.category !== filters.category) return false;
+      if (!opts.skipCondition && filters.conditions.length && !filters.conditions.includes(d.condition)) return false;
+      if (!opts.skipDiscount && discountPct(d) < filters.minDiscount) return false;
+      if (d.priceCents > filters.maxPrice * 100) return false;
+      if (q) {
+        const hay = `${d.brand} ${d.title} ${d.asin}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    };
+    const categories: Record<string, number> = {};
+    const conditions: Record<string, number> = {};
+    const shops: Record<string, number> = {};
+    const discounts: Record<number, number> = { 0: 0, 10: 0, 20: 0, 30: 0, 40: 0 };
+    for (const d of allDeals) {
+      if (base(d, { skipCategory: true })) categories[d.category] = (categories[d.category] ?? 0) + 1;
+      if (base(d, { skipCondition: true })) conditions[d.condition] = (conditions[d.condition] ?? 0) + 1;
+      if (base(d, { skipShop: true })) shops[d.shop] = (shops[d.shop] ?? 0) + 1;
+      if (base(d, { skipDiscount: true })) {
+        const p = discountPct(d);
+        for (const t of [0, 10, 20, 30, 40]) if (p >= t) discounts[t] = (discounts[t] ?? 0) + 1;
+      }
+    }
+    // "Alle" bekommt die Summe über alle Kategorien (unter aktuellen sonstigen Filtern)
+    categories["Alle"] = Object.values(categories).reduce((a, b) => a + b, 0);
+    return { categories, conditions, shops, discounts };
+  }, [filters, allDeals]);
+
+
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-40">
