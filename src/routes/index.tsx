@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -9,11 +9,18 @@ import { SeoContent } from "@/components/SeoContent";
 import { discountPct, type Condition, type Deal } from "@/lib/mock-deals";
 import { SHOPS } from "@/lib/shops";
 import { getPublicDeals } from "@/lib/deals.functions";
+import { getTopCategoryLinks } from "@/lib/categories.functions";
 
 const dealsQuery = {
   queryKey: ["deals", "public"] as const,
   queryFn: () => getPublicDeals(),
   staleTime: 60_000,
+};
+
+const topCategoriesQuery = {
+  queryKey: ["top-categories"] as const,
+  queryFn: () => getTopCategoryLinks(),
+  staleTime: 5 * 60_000,
 };
 
 const FAQ_JSONLD = {
@@ -81,7 +88,12 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(dealsQuery),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(dealsQuery),
+      context.queryClient.ensureQueryData(topCategoriesQuery),
+    ]);
+  },
   component: Index,
   errorComponent: ({ error, reset }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
@@ -100,6 +112,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data: allDeals } = useSuspenseQuery(dealsQuery);
+  const { data: topCategories } = useSuspenseQuery(topCategoriesQuery);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const deals = useMemo(() => {
