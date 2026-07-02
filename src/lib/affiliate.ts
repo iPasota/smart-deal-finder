@@ -1,8 +1,9 @@
-// Affiliate deeplink builder. Tag comes from a server-injected env later;
-// for Phase 1 we use a placeholder so links work in mock mode.
-const DEFAULT_TAG = "whdfinder-21";
+// Affiliate deeplink builder. Central Amazon PartnerNet tag — override via
+// VITE_AMAZON_TAG at build time to swap without touching code.
+export const AMAZON_TAG =
+  (import.meta.env.VITE_AMAZON_TAG as string | undefined) || "whdfinder-21";
 
-export function buildDeeplink(asin: string, tag: string = DEFAULT_TAG): string {
+export function buildDeeplink(asin: string, tag: string = AMAZON_TAG): string {
   // Amazon Warehouse listing for a specific ASIN. `psc=1` lands directly on the
   // Warehouse offer when available. We add `tag=` so the affiliate cookie is set
   // server-side by Amazon on first hit — no redirect hop on our side.
