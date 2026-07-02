@@ -263,23 +263,10 @@ type LogUpdate = {
   refill_rate?: number;
 };
 
-async function finishLog(
-  admin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server").supabaseAdmin.from>>["_" & keyof never] extends never
-    ? never
-    : never,
-  _logId: string,
-  _startedAt: Date,
-  _update: LogUpdate,
-): Promise<void>;
-async function finishLog(
-  admin: unknown,
-  logId: string,
-  startedAt: Date,
-  update: LogUpdate,
-): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function finishLog(admin: any, logId: string, startedAt: Date, update: LogUpdate): Promise<void> {
   const finishedAt = new Date();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (admin as any)
+  await admin
     .from("keepa_sync_log")
     .update({
       ...update,
