@@ -82,6 +82,59 @@ export type Database = {
           },
         ]
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          intro_md: string | null
+          keepa_category_id: number | null
+          name: string
+          outro_md: string | null
+          parent_id: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intro_md?: string | null
+          keepa_category_id?: number | null
+          name: string
+          outro_md?: string | null
+          parent_id?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intro_md?: string | null
+          keepa_category_id?: number | null
+          name?: string
+          outro_md?: string | null
+          parent_id?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       keepa_sync_log: {
         Row: {
           deals_fetched: number | null
@@ -257,6 +310,7 @@ export type Database = {
           asin: string | null
           brand: string | null
           category: string | null
+          category_id: string | null
           created_at: string
           gtin: string | null
           id: string
@@ -272,6 +326,7 @@ export type Database = {
           asin?: string | null
           brand?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           gtin?: string | null
           id?: string
@@ -287,6 +342,7 @@ export type Database = {
           asin?: string | null
           brand?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string
           gtin?: string | null
           id?: string
@@ -298,7 +354,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -363,6 +427,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       watches: {
         Row: {
           active: boolean
@@ -416,10 +501,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -546,6 +637,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
