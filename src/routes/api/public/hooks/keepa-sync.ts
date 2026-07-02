@@ -95,14 +95,17 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
 
         // 5) Fetch deal pages
         const errors: Array<{ page?: number; msg: string }> = [];
-        const dealsByAsin = new Map<string, KeepaDealsResponse["dr"][number]>();
+        const dealsByAsin = new Map<string, KeepaDealRecord>();
 
         for (let page = 0; page < opts.maxPages; page++) {
           try {
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
             });
-            const rows = res.dr ?? [];
+            const rows = res.deals?.dr ?? res.dr ?? [];
+            if (page === 0) {
+              console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
+            }
             for (const row of rows) {
               if (!dealsByAsin.has(row.asin)) dealsByAsin.set(row.asin, row);
             }
