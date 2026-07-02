@@ -186,7 +186,7 @@ function Index() {
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-40">
         <Header />
-        <FilterBar filters={filters} onChange={setFilters} count={deals.length} />
+        <FilterBar filters={filters} onChange={setFilters} count={deals.length} availability={availability} />
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
