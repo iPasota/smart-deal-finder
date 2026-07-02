@@ -21,7 +21,7 @@ export function AlsoAvailableAt({
 
   return (
     <div className="-mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-      <span className="shrink-0 font-semibold uppercase tracking-wider text-foreground/60">Auch zu:</span>
+      <span className="shrink-0 font-semibold uppercase tracking-wider text-foreground/60">Auch bei:</span>
       <div className="relative min-w-0 flex-1">
         <div className="flex items-center gap-1 overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {top.map((o) => {
