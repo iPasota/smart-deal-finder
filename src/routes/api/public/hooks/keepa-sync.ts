@@ -12,7 +12,7 @@ import {
   fetchProducts,
   keepaPrice,
   tokenStatus,
-  type KeepaDealsResponse,
+  type KeepaDealRecord,
 } from "@/lib/keepa.server";
 
 const BodySchema = z
