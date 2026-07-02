@@ -1,10 +1,9 @@
 // Keepa sync endpoint. Called by pg_cron and by admin trigger button.
 // Route: /api/public/hooks/keepa-sync
 //
-// Security: bypasses Lovable-published auth (public prefix), so we verify
-// the caller ourselves with a shared secret in the Authorization header.
-// Cron uses the Supabase anon key (apikey header) plus a bearer token from
-// the KEEPA_SYNC_SECRET env var.
+// Security: bypasses Lovable-published auth (public prefix). Callers must
+// present the Supabase publishable key in the `apikey` header (canonical
+// pg_cron pattern) OR the KEEPA_SYNC_SECRET as a Bearer token.
 
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
@@ -27,24 +26,23 @@ const BodySchema = z
   .default({});
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
-
-// Map Keepa condition code → our internal condition label.
-// Keepa /deal warehouse rows don't split by condition directly — we use
-// the returned condition from the offers if available; default to "Used - Very Good".
 const CONDITION_LABEL = "Used - Very Good";
 
 export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // 1) Auth guard
-        const expected = process.env.KEEPA_SYNC_SECRET;
-        if (!expected) {
-          return json({ error: "KEEPA_SYNC_SECRET not configured" }, 500);
-        }
+        // 1) Auth guard — accept EITHER the publishable key in apikey header
+        //    (pg_cron) OR the shared bearer secret (manual/admin trigger).
+        const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+        const bearerSecret = process.env.KEEPA_SYNC_SECRET;
+        const apiKeyHeader = request.headers.get("apikey");
         const auth = request.headers.get("authorization") ?? "";
-        const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-        if (token !== expected) {
+        const bearerToken = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+
+        const apiKeyOk = !!publishableKey && apiKeyHeader === publishableKey;
+        const bearerOk = !!bearerSecret && bearerToken === bearerSecret;
+        if (!apiKeyOk && !bearerOk) {
           return json({ error: "unauthorized" }, 401);
         }
 
