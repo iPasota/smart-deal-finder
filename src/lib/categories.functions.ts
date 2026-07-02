@@ -36,6 +36,47 @@ export const getAllCategories = createServerFn({ method: "GET" }).handler(
   },
 );
 
+// Lightweight fn for the homepage: only top-level categories with product counts,
+// used to render an internal-linking strip.
+export type TopCategoryLink = { slug: string; name: string; count: number };
+
+export const getTopCategoryLinks = createServerFn({ method: "GET" }).handler(
+  async (): Promise<TopCategoryLink[]> => {
+    const supabase = anonClient();
+    const { data: cats, error } = await supabase
+      .from("categories")
+      .select("id, slug, name, sort")
+      .is("parent_id", null)
+      .order("sort")
+      .order("name");
+    if (error) throw new Error(error.message);
+    const rows = (cats ?? []) as Array<{ id: string; slug: string; name: string; sort: number }>;
+    if (rows.length === 0) return [];
+    // Gather category_ids of each top's subtree (top + children).
+    const { data: subs } = await supabase
+      .from("categories")
+      .select("id, parent_id")
+      .in("parent_id", rows.map((r) => r.id));
+    const subsByParent = new Map<string, string[]>();
+    for (const s of subs ?? []) {
+      const arr = subsByParent.get(s.parent_id as string) ?? [];
+      arr.push(s.id as string);
+      subsByParent.set(s.parent_id as string, arr);
+    }
+    const results: TopCategoryLink[] = [];
+    for (const r of rows) {
+      const ids = [r.id, ...(subsByParent.get(r.id) ?? [])];
+      const { count } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .in("category_id", ids);
+      if ((count ?? 0) === 0) continue;
+      results.push({ slug: r.slug, name: r.name, count: count ?? 0 });
+    }
+    return results;
+  },
+);
+
 // Look up a category by its slug path (["elektronik"] or ["elektronik","smartphones"])
 // and return the row + its ancestor breadcrumb.
 export type CategoryPage = {
