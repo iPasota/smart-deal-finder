@@ -1,6 +1,8 @@
 // Shop registry. Each shop knows how to render and how to build a deeplink.
 // New shops are added by extending SHOPS — UI and filters pick them up automatically.
 
+import { AMAZON_TAG } from "./affiliate";
+
 export type ShopSlug = "amazon-warehouse" | "backmarket" | "rebuy" | "refurbed";
 
 export type Shop = {
@@ -22,7 +24,7 @@ export const SHOPS: Record<ShopSlug, Shop> = {
     color: "#FF9900",
     linkRel: "sponsored nofollow noopener",
     active: true,
-    buildDeeplink: (asin, tag = "whdfinder-21") => {
+    buildDeeplink: (asin, tag = AMAZON_TAG) => {
       const p = new URLSearchParams({ tag, linkCode: "ll1", psc: "1", th: "1" });
       return `https://www.amazon.de/dp/${asin}?${p.toString()}`;
     },
