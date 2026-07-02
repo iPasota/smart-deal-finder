@@ -15,6 +15,83 @@ import {
   tokenStatus,
   type KeepaDealRecord,
 } from "@/lib/keepa.server";
+import { slugify } from "@/lib/categories";
+
+// In-memory cache for the duration of one sync run: keepaCatId → categoryId.
+type CatCache = Map<number, string>;
+
+async function upsertCategoryPath(
+  supabaseAdmin: Awaited<ReturnType<typeof loadAdmin>>,
+  tree: Array<{ catId: number; name: string }> | undefined,
+  cache: CatCache,
+): Promise<string | null> {
+  if (!tree || tree.length === 0) return null;
+  // Take at most 2 levels: top + first sub.
+  const top = tree[0];
+  const sub = tree.length > 1 ? tree[1] : null;
+
+  const ensure = async (
+    entry: { catId: number; name: string },
+    parentId: string | null,
+  ): Promise<string> => {
+    const cached = cache.get(entry.catId);
+    if (cached) return cached;
+    // 1) Try by keepa_category_id
+    const { data: byKeepa } = await supabaseAdmin
+      .from("categories")
+      .select("id")
+      .eq("keepa_category_id", entry.catId)
+      .maybeSingle();
+    if (byKeepa?.id) {
+      cache.set(entry.catId, byKeepa.id);
+      return byKeepa.id;
+    }
+    // 2) Try by (parent_id, slug)
+    const slug = slugify(entry.name);
+    const parentFilter = parentId
+      ? { column: "parent_id" as const, value: parentId }
+      : null;
+    let q = supabaseAdmin.from("categories").select("id").eq("slug", slug);
+    q = parentFilter ? q.eq("parent_id", parentFilter.value) : q.is("parent_id", null);
+    const { data: bySlug } = await q.maybeSingle();
+    if (bySlug?.id) {
+      // Backfill keepa id for future lookups
+      await supabaseAdmin
+        .from("categories")
+        .update({ keepa_category_id: entry.catId })
+        .eq("id", bySlug.id);
+      cache.set(entry.catId, bySlug.id);
+      return bySlug.id;
+    }
+    // 3) Insert new
+    const { data: inserted, error } = await supabaseAdmin
+      .from("categories")
+      .insert({
+        parent_id: parentId,
+        slug,
+        name: entry.name,
+        keepa_category_id: entry.catId,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(`category upsert ${entry.name}: ${error.message}`);
+    cache.set(entry.catId, inserted.id);
+    return inserted.id;
+  };
+
+  const topId = await ensure(top, null);
+  if (!sub) return topId;
+  try {
+    return await ensure(sub, topId);
+  } catch {
+    return topId;
+  }
+}
+
+async function loadAdmin() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
 
 const BodySchema = z
   .object({
