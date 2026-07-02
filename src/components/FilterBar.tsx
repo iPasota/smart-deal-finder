@@ -94,19 +94,24 @@ export function FilterBar({
         </div>
 
 
-        {/* Category chips */}
+        {/* Category chips – leere Kategorien werden ausgeblendet */}
         <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
-          {CATEGORIES.map((c) => (
-            <Chip
-              key={c}
-              active={filters.category === c}
-              tone="emerald"
-              onClick={() => onChange({ ...filters, category: c })}
-            >
-              {c}
-            </Chip>
-          ))}
+          {CATEGORIES.map((c) => {
+            const active = filters.category === c;
+            if (!active && catCount(c) === 0) return null;
+            return (
+              <Chip
+                key={c}
+                active={active}
+                tone="emerald"
+                onClick={() => onChange({ ...filters, category: c })}
+              >
+                {c}
+              </Chip>
+            );
+          })}
         </div>
+
 
         {/* Shop chips — MVP: nur Amazon aktiv, Rest disabled ("kommt bald") */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
