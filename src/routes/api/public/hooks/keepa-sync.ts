@@ -137,7 +137,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         }
         const opts = parsed.data;
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const supabaseAdmin = await loadAdmin();
+        const catCache: CatCache = new Map();
 
         // 3) Start log row
         const startedAt = new Date();
@@ -220,6 +221,14 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
           const categoryName =
             deal.categoryTree?.[deal.categoryTree.length - 1]?.name ?? null;
 
+          // Resolve/insert category hierarchy (2 levels) and get leaf id.
+          let categoryId: string | null = null;
+          try {
+            categoryId = await upsertCategoryPath(supabaseAdmin, deal.categoryTree, catCache);
+          } catch (err) {
+            errors.push({ msg: err instanceof Error ? err.message : String(err) });
+          }
+
           let productId = productByAsin.get(asin)?.id as string | undefined;
           if (!productId) {
             const { data: inserted, error } = await supabaseAdmin
@@ -230,6 +239,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
                 image_url: imageUrl,
                 keepa_category_id: deal.rootCategory ?? null,
                 category: categoryName,
+                category_id: categoryId,
               })
               .select("id")
               .single();
@@ -240,15 +250,16 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             productId = inserted.id;
             productsInserted++;
             newAsinsForEnrichment.push(asin);
-          } else if (imageUrl) {
+          } else {
             // Refresh title/image/category for existing products so broken rows
             // from earlier sync attempts self-heal on the next scan.
             await supabaseAdmin
               .from("products")
               .update({
                 title: deal.title ?? undefined,
-                image_url: imageUrl,
+                image_url: imageUrl ?? undefined,
                 category: categoryName ?? undefined,
+                category_id: categoryId ?? undefined,
               })
               .eq("id", productId);
           }
