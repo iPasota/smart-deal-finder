@@ -35,7 +35,7 @@ export const SHOPS: Record<ShopSlug, Shop> = {
     shortName: "Back Market",
     color: "#7ED957",
     linkRel: "sponsored nofollow noopener",
-    active: true,
+    active: false,
     buildDeeplink: (id) => `https://www.backmarket.de/p/${id}`,
   },
   rebuy: {
@@ -44,7 +44,7 @@ export const SHOPS: Record<ShopSlug, Shop> = {
     shortName: "reBuy",
     color: "#FF6B00",
     linkRel: "sponsored nofollow noopener",
-    active: true,
+    active: false,
     buildDeeplink: (id) => `https://www.rebuy.de/i,${id}.html`,
   },
   refurbed: {
@@ -53,7 +53,7 @@ export const SHOPS: Record<ShopSlug, Shop> = {
     shortName: "refurbed",
     color: "#00C896",
     linkRel: "sponsored nofollow noopener",
-    active: true,
+    active: false,
     buildDeeplink: (id) => `https://www.refurbed.de/p/${id}`,
   },
 };
