@@ -97,7 +97,7 @@ class KeepaTokenBucket {
   private projectedTokens(): number {
     // Interpolate refill since last response.
     const minutesSince = (Date.now() - this.lastRefillCheck) / 60000;
-    return Math.min(this.refillRate * 4, this.tokensLeft + minutesSince * this.refillRate);
+    return Math.min(this.refillRate * 60, this.tokensLeft + minutesSince * this.refillRate);
   }
 
   async reserve(cost: number): Promise<void> {
@@ -167,7 +167,7 @@ export async function fetchWarehouseDealsPage(
   const selection: DealSelection = {
     page,
     domainId: DE_DOMAIN,
-    priceTypes: [7], // Warehouse Deals
+    priceTypes: [9], // 9 = Warehouse Deals
     deltaPercentRange: [10, 100],
     isRangeEnabled: true,
     isFilterEnabled: true,

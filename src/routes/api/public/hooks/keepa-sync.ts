@@ -129,11 +129,11 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         );
 
         for (const [asin, deal] of dealsByAsin) {
-          const whdPrice = keepaPrice(deal.current?.[7]);
+          const whdPrice = keepaPrice(deal.current?.[9]);
           const listPrice = keepaPrice(deal.current?.[4]) ?? keepaPrice(deal.current?.[1]);
           if (whdPrice === null) continue;
 
-          const discount = deal.deltaPercent?.[7] ?? null;
+          const discount = deal.deltaPercent?.[9] ?? null;
 
           let productId = productByAsin.get(asin)?.id as string | undefined;
           if (!productId) {
@@ -172,8 +172,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
               in_stock: true,
               keepa_domain_id: 3,
               discount_percent: discount,
-              avg_price_30d_cents: keepaPrice(deal.avg?.[7]),
-              avg_price_90d_cents: keepaPrice(deal.avg90?.[7]),
+              avg_price_30d_cents: keepaPrice(deal.avg?.[9]),
+              avg_price_90d_cents: keepaPrice(deal.avg90?.[9]),
               last_seen_at: new Date().toISOString(),
             },
             { onConflict: "shop_id,external_id,condition,country_code" },
