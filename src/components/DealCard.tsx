@@ -20,7 +20,7 @@ export function DealCard({ deal }: { deal: Deal }) {
   const pct = discountPct(deal);
   const savings = deal.newPriceCents - deal.priceCents;
 
-  const handleClick = () => trackClick(deal.id);
+  const handleClick = () => trackClick(deal.id, deal.shop, "primary");
 
   return (
     <>

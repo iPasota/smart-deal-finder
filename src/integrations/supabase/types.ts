@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_clicks: {
+        Row: {
+          country: string | null
+          created_at: string
+          deal_id: string
+          id: string
+          position: string
+          referrer_host: string | null
+          shop: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          deal_id: string
+          id?: string
+          position?: string
+          referrer_host?: string | null
+          shop: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          deal_id?: string
+          id?: string
+          position?: string
+          referrer_host?: string | null
+          shop?: string
+        }
+        Relationships: []
+      }
       affiliate_tags: {
         Row: {
           country_code: string
