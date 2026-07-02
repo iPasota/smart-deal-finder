@@ -158,6 +158,8 @@ export function tokenStatus() {
 }
 
 // Fetch one page of warehouse deals on amazon.de sorted by biggest discount.
+// Keepa /deal expects the selection as a URL-encoded JSON query parameter
+// (not a POST body). See https://keepa.com/#!discuss/t/browsing-deals/1489
 export async function fetchWarehouseDealsPage(
   page: number,
   overrides: Partial<DealSelection> = {},
@@ -174,13 +176,11 @@ export async function fetchWarehouseDealsPage(
     ...overrides,
   };
   const key = getApiKey();
+  const selJson = encodeURIComponent(JSON.stringify(selection));
   // /deal cost ~5 tokens per call, returns up to 150 deals per page.
   return keepaFetch<KeepaDealsResponse>(
-    `/deal?key=${key}`,
-    {
-      method: "POST",
-      body: JSON.stringify({ selection }),
-    },
+    `/deal?key=${key}&selection=${selJson}`,
+    { method: "GET" },
     5,
   );
 }
