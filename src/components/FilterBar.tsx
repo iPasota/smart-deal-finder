@@ -24,15 +24,29 @@ export const DEFAULT_FILTERS: Filters = {
   sort: "discount",
 };
 
+export type FilterAvailability = {
+  categories: Record<string, number>;
+  conditions: Record<string, number>;
+  shops: Record<string, number>;
+  discounts: Record<number, number>;
+};
+
 export function FilterBar({
   filters,
   onChange,
   count,
+  availability,
 }: {
   filters: Filters;
   onChange: (next: Filters) => void;
   count: number;
+  availability?: FilterAvailability;
 }) {
+  const catCount = (c: string) => availability?.categories[c] ?? Infinity;
+  const condCount = (c: Condition) => availability?.conditions[c] ?? Infinity;
+  const shopCount = (s: ShopSlug) => availability?.shops[s] ?? Infinity;
+  const discCount = (d: number) => availability?.discounts[d] ?? Infinity;
+
   const toggleCondition = (c: Condition) => {
     const next = filters.conditions.includes(c)
       ? filters.conditions.filter((x) => x !== c)
@@ -46,6 +60,7 @@ export function FilterBar({
       : [...filters.shops, s];
     onChange({ ...filters, shops: next });
   };
+
 
   return (
     <div className="border-b border-hairline bg-background/92 backdrop-blur-lg">
