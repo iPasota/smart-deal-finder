@@ -24,15 +24,29 @@ export const DEFAULT_FILTERS: Filters = {
   sort: "discount",
 };
 
+export type FilterAvailability = {
+  categories: Record<string, number>;
+  conditions: Record<string, number>;
+  shops: Record<string, number>;
+  discounts: Record<number, number>;
+};
+
 export function FilterBar({
   filters,
   onChange,
   count,
+  availability,
 }: {
   filters: Filters;
   onChange: (next: Filters) => void;
   count: number;
+  availability?: FilterAvailability;
 }) {
+  const catCount = (c: string) => availability?.categories[c] ?? Infinity;
+  const condCount = (c: Condition) => availability?.conditions[c] ?? Infinity;
+  const shopCount = (s: ShopSlug) => availability?.shops[s] ?? Infinity;
+  const discCount = (d: number) => availability?.discounts[d] ?? Infinity;
+
   const toggleCondition = (c: Condition) => {
     const next = filters.conditions.includes(c)
       ? filters.conditions.filter((x) => x !== c)
@@ -46,6 +60,7 @@ export function FilterBar({
       : [...filters.shops, s];
     onChange({ ...filters, shops: next });
   };
+
 
   return (
     <div className="border-b border-hairline bg-background/92 backdrop-blur-lg">
@@ -79,19 +94,24 @@ export function FilterBar({
         </div>
 
 
-        {/* Category chips */}
+        {/* Category chips – leere Kategorien werden ausgeblendet */}
         <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
-          {CATEGORIES.map((c) => (
-            <Chip
-              key={c}
-              active={filters.category === c}
-              tone="emerald"
-              onClick={() => onChange({ ...filters, category: c })}
-            >
-              {c}
-            </Chip>
-          ))}
+          {CATEGORIES.map((c) => {
+            const active = filters.category === c;
+            if (!active && catCount(c) === 0) return null;
+            return (
+              <Chip
+                key={c}
+                active={active}
+                tone="emerald"
+                onClick={() => onChange({ ...filters, category: c })}
+              >
+                {c}
+              </Chip>
+            );
+          })}
         </div>
+
 
         {/* Shop chips — MVP: nur Amazon aktiv, Rest disabled ("kommt bald") */}
         <div className="mt-3 flex flex-wrap items-center gap-1.5">
@@ -101,19 +121,8 @@ export function FilterBar({
           </span>
           {SHOP_LIST.map((s) => {
             const active = filters.shops.includes(s.slug);
-            if (!s.active) {
-              return (
-                <span
-                  key={s.slug}
-                  title="Bald verfügbar"
-                  className="inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap rounded-lg border border-dashed border-hairline bg-surface/50 px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight text-muted-foreground/60"
-                >
-                  <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
-                  {s.shortName}
-                  <span className="ml-0.5 rounded-sm bg-muted px-1 text-[9px] font-bold text-muted-foreground">bald</span>
-                </span>
-              );
-            }
+            if (!s.active) return null; // "kommt bald" ausblenden bis aktiv
+            if (!active && shopCount(s.slug) === 0) return null;
             return (
               <button
                 key={s.slug}
@@ -130,6 +139,7 @@ export function FilterBar({
               </button>
             );
           })}
+
         </div>
 
 
@@ -139,33 +149,42 @@ export function FilterBar({
             <span className="inline-block h-3.5 w-1 rounded-full bg-emerald" />
             Zustand
           </span>
-          {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => (
-            <Chip
-              key={c}
-              active={filters.conditions.includes(c)}
-              tone="emerald"
-              size="sm"
-              onClick={() => toggleCondition(c)}
-            >
-              {CONDITION_LABEL[c]}
-            </Chip>
-          ))}
+          {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
+            const active = filters.conditions.includes(c);
+            if (!active && condCount(c) === 0) return null;
+            return (
+              <Chip
+                key={c}
+                active={active}
+                tone="emerald"
+                size="sm"
+                onClick={() => toggleCondition(c)}
+              >
+                {CONDITION_LABEL[c]}
+              </Chip>
+            );
+          })}
 
           <span className="ml-4 mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
             <span className="inline-block h-3.5 w-1 rounded-full bg-amber" />
             Rabatt
           </span>
-          {[0, 10, 20, 30, 40].map((d) => (
-            <Chip
-              key={d}
-              active={filters.minDiscount === d}
-              tone="amber"
-              size="sm"
-              onClick={() => onChange({ ...filters, minDiscount: d })}
-            >
-              {d === 0 ? "Alle" : `${d}%+`}
-            </Chip>
-          ))}
+          {[0, 10, 20, 30, 40].map((d) => {
+            const active = filters.minDiscount === d;
+            if (!active && d !== 0 && discCount(d) === 0) return null;
+            return (
+              <Chip
+                key={d}
+                active={active}
+                tone="amber"
+                size="sm"
+                onClick={() => onChange({ ...filters, minDiscount: d })}
+              >
+                {d === 0 ? "Alle" : `${d}%+`}
+              </Chip>
+            );
+          })}
+
 
           <span className="font-mono-tabular ml-auto rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-bold text-muted-foreground">
             {count} Deals
