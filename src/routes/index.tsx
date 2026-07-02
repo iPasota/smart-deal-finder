@@ -1,12 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { DEFAULT_FILTERS, FilterBar, type Filters } from "@/components/FilterBar";
 import { SeoContent } from "@/components/SeoContent";
-import { discountPct, MOCK_DEALS, type Condition } from "@/lib/mock-deals";
+import { discountPct, type Condition, type Deal } from "@/lib/mock-deals";
 import { SHOPS } from "@/lib/shops";
+import { getPublicDeals } from "@/lib/deals.functions";
+
+const dealsQuery = {
+  queryKey: ["deals", "public"] as const,
+  queryFn: () => getPublicDeals(),
+  staleTime: 60_000,
+};
 
 const FAQ_JSONLD = {
   "@context": "https://schema.org",
@@ -73,15 +81,30 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(dealsQuery),
   component: Index,
+  errorComponent: ({ error, reset }) => (
+    <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+      <h1 className="font-display text-2xl font-extrabold">Deals konnten nicht geladen werden</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      <button
+        onClick={() => reset()}
+        className="mt-6 rounded-xl bg-foreground px-4 py-2 text-sm font-bold text-background"
+      >
+        Erneut versuchen
+      </button>
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-24 text-center">Seite nicht gefunden</div>,
 });
 
 function Index() {
+  const { data: allDeals } = useSuspenseQuery(dealsQuery);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const deals = useMemo(() => {
     const q = filters.search.trim().toLowerCase();
-    const filtered = MOCK_DEALS.filter((d) => {
+    const filtered = allDeals.filter((d: Deal) => {
       if (filters.shops.length && !filters.shops.includes(d.shop)) return false;
       if (filters.category !== "Alle" && d.category !== filters.category) return false;
       if (filters.conditions.length && !filters.conditions.includes(d.condition)) return false;
@@ -122,7 +145,7 @@ function Index() {
         break;
     }
     return filtered;
-  }, [filters]);
+  }, [filters, allDeals]);
 
   return (
     <div className="min-h-screen bg-background">

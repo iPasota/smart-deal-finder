@@ -11,6 +11,7 @@ import {
   fetchWarehouseDealsPage,
   fetchProducts,
   keepaPrice,
+  keepaImageUrl,
   tokenStatus,
   type KeepaDealRecord,
 } from "@/lib/keepa.server";
@@ -138,6 +139,10 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
 
           const discount = deal.deltaPercent?.[9] ?? null;
 
+          const imageUrl = keepaImageUrl(deal.image ?? null);
+          const categoryName =
+            deal.categoryTree?.[deal.categoryTree.length - 1]?.name ?? null;
+
           let productId = productByAsin.get(asin)?.id as string | undefined;
           if (!productId) {
             const { data: inserted, error } = await supabaseAdmin
@@ -145,11 +150,9 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
               .insert({
                 asin,
                 title: deal.title ?? asin,
-                image_url: deal.image
-                  ? `https://images-na.ssl-images-amazon.com/images/I/${deal.image}`
-                  : null,
+                image_url: imageUrl,
                 keepa_category_id: deal.rootCategory ?? null,
-                category: deal.categoryTree?.[deal.categoryTree.length - 1]?.name ?? null,
+                category: categoryName,
               })
               .select("id")
               .single();
@@ -160,6 +163,17 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             productId = inserted.id;
             productsInserted++;
             newAsinsForEnrichment.push(asin);
+          } else if (imageUrl) {
+            // Refresh title/image/category for existing products so broken rows
+            // from earlier sync attempts self-heal on the next scan.
+            await supabaseAdmin
+              .from("products")
+              .update({
+                title: deal.title ?? undefined,
+                image_url: imageUrl,
+                category: categoryName ?? undefined,
+              })
+              .eq("id", productId);
           }
 
           const { error: offerErr } = await supabaseAdmin.from("offers").upsert(
