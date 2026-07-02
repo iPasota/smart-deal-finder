@@ -19,21 +19,26 @@
 const KEEPA_BASE = "https://api.keepa.com";
 const DE_DOMAIN = 3;
 
+export type KeepaDealRecord = {
+  asin: string;
+  title?: string;
+  image?: string | null;
+  rootCategory?: number;
+  categoryTree?: Array<{ catId: number; name: string }>;
+  current?: number[];
+  avg?: number[];
+  avg90?: number[];
+  salesRankReference?: number;
+  lastUpdate?: number;
+  deltaPercent?: number[];
+  creationDate?: number;
+};
+
 export type KeepaDealsResponse = {
-  dr: Array<{
-    asin: string;
-    title?: string;
-    image?: string | null;
-    rootCategory?: number;
-    categoryTree?: Array<{ catId: number; name: string }>;
-    current?: number[]; // indexed by price type
-    avg?: number[]; // 30 day avg by price type
-    avg90?: number[];
-    salesRankReference?: number;
-    lastUpdate?: number; // keepa minutes
-    deltaPercent?: number[]; // discount % by price type
-    creationDate?: number;
-  }>;
+  // The API wraps deals inside a `deals` container. Older doc snippets showed
+  // top-level `dr` — we normalize both shapes.
+  deals?: { dr?: KeepaDealRecord[]; totalResults?: number };
+  dr?: KeepaDealRecord[];
   totalResults?: number;
   tokensLeft: number;
   refillIn?: number;
