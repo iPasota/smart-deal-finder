@@ -149,33 +149,42 @@ export function FilterBar({
             <span className="inline-block h-3.5 w-1 rounded-full bg-emerald" />
             Zustand
           </span>
-          {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => (
-            <Chip
-              key={c}
-              active={filters.conditions.includes(c)}
-              tone="emerald"
-              size="sm"
-              onClick={() => toggleCondition(c)}
-            >
-              {CONDITION_LABEL[c]}
-            </Chip>
-          ))}
+          {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
+            const active = filters.conditions.includes(c);
+            if (!active && condCount(c) === 0) return null;
+            return (
+              <Chip
+                key={c}
+                active={active}
+                tone="emerald"
+                size="sm"
+                onClick={() => toggleCondition(c)}
+              >
+                {CONDITION_LABEL[c]}
+              </Chip>
+            );
+          })}
 
           <span className="ml-4 mr-1 flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
             <span className="inline-block h-3.5 w-1 rounded-full bg-amber" />
             Rabatt
           </span>
-          {[0, 10, 20, 30, 40].map((d) => (
-            <Chip
-              key={d}
-              active={filters.minDiscount === d}
-              tone="amber"
-              size="sm"
-              onClick={() => onChange({ ...filters, minDiscount: d })}
-            >
-              {d === 0 ? "Alle" : `${d}%+`}
-            </Chip>
-          ))}
+          {[0, 10, 20, 30, 40].map((d) => {
+            const active = filters.minDiscount === d;
+            if (!active && d !== 0 && discCount(d) === 0) return null;
+            return (
+              <Chip
+                key={d}
+                active={active}
+                tone="amber"
+                size="sm"
+                onClick={() => onChange({ ...filters, minDiscount: d })}
+              >
+                {d === 0 ? "Alle" : `${d}%+`}
+              </Chip>
+            );
+          })}
+
 
           <span className="font-mono-tabular ml-auto rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-bold text-muted-foreground">
             {count} Deals
