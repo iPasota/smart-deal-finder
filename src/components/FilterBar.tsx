@@ -42,10 +42,10 @@ export function FilterBar({
   count: number;
   availability?: FilterAvailability;
 }) {
-  const catCount = (c: string) => availability?.categories[c] ?? Infinity;
-  const condCount = (c: Condition) => availability?.conditions[c] ?? Infinity;
-  const shopCount = (s: ShopSlug) => availability?.shops[s] ?? Infinity;
-  const discCount = (d: number) => availability?.discounts[d] ?? Infinity;
+  const catCount = (c: string) => (availability ? availability.categories[c] ?? 0 : Infinity);
+  const condCount = (c: Condition) => (availability ? availability.conditions[c] ?? 0 : Infinity);
+  const shopCount = (s: ShopSlug) => (availability ? availability.shops[s] ?? 0 : Infinity);
+  const discCount = (d: number) => (availability ? availability.discounts[d] ?? 0 : Infinity);
 
   const toggleCondition = (c: Condition) => {
     const next = filters.conditions.includes(c)
