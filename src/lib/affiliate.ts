@@ -16,11 +16,32 @@ export function buildDeeplink(asin: string, tag: string = AMAZON_TAG): string {
   return `https://www.amazon.de/dp/${asin}?${params.toString()}`;
 }
 
-export function trackClick(productId: string): void {
-  // Phase 1: no-op. In Phase 2+ this becomes:
-  // navigator.sendBeacon("/api/public/click", JSON.stringify({ productId }));
+export type ClickPosition = "primary" | "alternative";
+
+/**
+ * Fire-and-forget affiliate click log. Anonymous — no IP, no user id.
+ * Uses sendBeacon so it survives the outbound navigation to the shop.
+ */
+export function trackClick(
+  dealId: string,
+  shop: string,
+  position: ClickPosition = "primary",
+): void {
   if (typeof window === "undefined") return;
-  if (typeof navigator.sendBeacon !== "function") return;
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  productId;
+  const body = JSON.stringify({ dealId, shop, position });
+  try {
+    if (typeof navigator.sendBeacon === "function") {
+      const blob = new Blob([body], { type: "application/json" });
+      navigator.sendBeacon("/api/public/track-click", blob);
+      return;
+    }
+    void fetch("/api/public/track-click", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+      keepalive: true,
+    });
+  } catch {
+    // never break the outbound click on tracking failure
+  }
 }

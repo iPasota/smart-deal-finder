@@ -32,7 +32,7 @@ export function AlsoAvailableAt({
                 href={shop.buildDeeplink(o.externalId)}
                 target="_blank"
                 rel={shop.linkRel}
-                onClick={() => trackClick(`${dealId}:${o.shop}`)}
+                onClick={() => trackClick(dealId, o.shop, "alternative")}
                 className="inline-flex shrink-0 items-center gap-1 rounded-md border border-hairline bg-surface px-1.5 py-0.5 font-semibold text-foreground/80 transition-colors hover:border-emerald/40 hover:text-emerald-ink"
               >
                 <span
