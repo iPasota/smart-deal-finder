@@ -140,6 +140,21 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         const supabaseAdmin = await loadAdmin();
         const catCache: CatCache = new Map();
 
+        // Avoid overlapping cron runs. A stale/failed run may continue after 14 minutes.
+        const runningSince = new Date(Date.now() - 14 * 60_000).toISOString();
+        const { data: activeRun } = await supabaseAdmin
+          .from("keepa_sync_log")
+          .select("id, started_at")
+          .eq("sync_type", "deal_scan")
+          .eq("status", "running")
+          .gte("started_at", runningSince)
+          .order("started_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (activeRun) {
+          return json({ ok: true, skipped: true, reason: "sync_already_running", activeLogId: activeRun.id });
+        }
+
         // 3) Start log row
         const startedAt = new Date();
         const { data: logRow, error: logErr } = await supabaseAdmin
