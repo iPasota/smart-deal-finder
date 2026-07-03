@@ -49,7 +49,7 @@ export const getPublicDeals = createServerFn({ method: "GET" }).handler(async ()
     )
     .eq("in_stock", true)
     .order("discount_percent", { ascending: false, nullsFirst: false })
-    .limit(300);
+    .limit(2000);
 
   if (error) {
     console.error("[getPublicDeals]", error);
