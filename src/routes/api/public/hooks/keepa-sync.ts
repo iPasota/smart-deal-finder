@@ -95,7 +95,7 @@ async function loadAdmin() {
 
 const BodySchema = z
   .object({
-    maxPages: z.number().int().min(1).max(20).default(4),
+    maxPages: z.number().int().min(1).max(20).default(12),
     triggeredBy: z.enum(["cron", "manual", "admin"]).default("cron"),
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
