@@ -35,6 +35,36 @@ function normalizeCategory(raw: string | null): string {
   return raw;
 }
 
+const PUBLIC_DEALS_PAGE_SIZE = 1000;
+const PUBLIC_DEALS_MAX_ROWS = 5000;
+const PUBLIC_DEALS_SELECT =
+  "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)";
+
+type PublicOfferRow = {
+  id: string;
+  external_id: string;
+  condition: string;
+  price_cents: number;
+  list_price_cents: number | null;
+  avg_price_30d_cents: number | null;
+  avg_price_90d_cents: number | null;
+  currency: string;
+  in_stock: boolean;
+  first_seen_at: string | null;
+  country_code: string;
+  discount_percent: number | null;
+  shop_id: string;
+  product: {
+    id: string;
+    asin: string | null;
+    title: string;
+    brand: string | null;
+    image_url: string | null;
+    category: string | null;
+  } | null;
+  shop: { slug: string } | null;
+};
+
 export const getPublicDeals = createServerFn({ method: "GET" }).handler(async (): Promise<Deal[]> => {
   const supabase = createClient<Database>(
     process.env.SUPABASE_URL!,
@@ -42,21 +72,32 @@ export const getPublicDeals = createServerFn({ method: "GET" }).handler(async ()
     { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
   );
 
-  const { data, error } = await supabase
-    .from("offers")
-    .select(
-      "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)",
-    )
-    .eq("in_stock", true)
-    .order("discount_percent", { ascending: false, nullsFirst: false })
-    .limit(2000);
+  const fetchRange = async (from: number, to: number, withCount = false) => {
+    const { data, error, count } = await supabase
+      .from("offers")
+      .select(PUBLIC_DEALS_SELECT, withCount ? { count: "exact" } : undefined)
+      .eq("in_stock", true)
+      .order("discount_percent", { ascending: false, nullsFirst: false })
+      .range(from, to)
+      .returns<PublicOfferRow[]>();
 
-  if (error) {
-    console.error("[getPublicDeals]", error);
-    throw new Error(error.message);
+    if (error) {
+      console.error("[getPublicDeals]", error);
+      throw new Error(error.message);
+    }
+    return { data: data ?? [], count };
+  };
+
+  const firstPage = await fetchRange(0, PUBLIC_DEALS_PAGE_SIZE - 1, true);
+  const total = Math.min(firstPage.count ?? firstPage.data.length, PUBLIC_DEALS_MAX_ROWS);
+  const remainingRanges: Array<[number, number]> = [];
+  for (let from = PUBLIC_DEALS_PAGE_SIZE; from < total; from += PUBLIC_DEALS_PAGE_SIZE) {
+    remainingRanges.push([from, Math.min(from + PUBLIC_DEALS_PAGE_SIZE - 1, total - 1)]);
   }
+  const remainingPages = await Promise.all(remainingRanges.map(([from, to]) => fetchRange(from, to)));
+  const data = [firstPage.data, ...remainingPages.map((p) => p.data)].flat();
 
-  return (data ?? [])
+  return data
     .filter((o) => o.product && o.shop)
     .map((o): Deal => {
       const list =
