@@ -95,7 +95,8 @@ async function loadAdmin() {
 
 const BodySchema = z
   .object({
-    maxPages: z.number().int().min(1).max(20).default(12),
+    startPage: z.number().int().min(0).max(100).default(0),
+    maxPages: z.number().int().min(1).max(8).default(4),
     triggeredBy: z.enum(["cron", "manual", "admin"]).default("cron"),
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
@@ -140,8 +141,20 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         const supabaseAdmin = await loadAdmin();
         const catCache: CatCache = new Map();
 
-        // Avoid overlapping cron runs. A stale/failed run may continue after 14 minutes.
-        const runningSince = new Date(Date.now() - 14 * 60_000).toISOString();
+        // Avoid overlapping cron runs, but don't let stale timeout logs block future syncs.
+        const staleBefore = new Date(Date.now() - 10 * 60_000).toISOString();
+        await supabaseAdmin
+          .from("keepa_sync_log")
+          .update({
+            status: "failed",
+            errors: [{ msg: "sync timed out or was interrupted" }],
+            finished_at: new Date().toISOString(),
+          })
+          .eq("sync_type", "deal_scan")
+          .eq("status", "running")
+          .lt("started_at", staleBefore);
+
+        const runningSince = new Date(Date.now() - 10 * 60_000).toISOString();
         const { data: activeRun } = await supabaseAdmin
           .from("keepa_sync_log")
           .select("id, started_at")
@@ -191,7 +204,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         const errors: Array<{ page?: number; msg: string }> = [];
         const dealsByAsin = new Map<string, KeepaDealRecord>();
 
-        for (let page = 0; page < opts.maxPages; page++) {
+        for (let page = opts.startPage; page < opts.startPage + opts.maxPages; page++) {
           try {
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
