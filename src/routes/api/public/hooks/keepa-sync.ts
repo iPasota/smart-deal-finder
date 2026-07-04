@@ -224,6 +224,9 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
             }
             for (const row of rows) {
+              // Bücher-Filter: echte Amazon-Produkt-ASINs beginnen mit 'B' + 9 alphanumerische Zeichen.
+              // ISBN-basierte ASINs (10 Ziffern, oder mit 'X' am Ende) sind Bücher — überspringen.
+              if (!/^B[A-Z0-9]{9}$/.test(row.asin)) continue;
               // Safety net: skip anything Keepa still tagged in a book root category.
               const rootId = row.rootCategory ?? row.categoryTree?.[0]?.catId ?? null;
               if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) continue;
