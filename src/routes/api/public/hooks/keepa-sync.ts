@@ -200,6 +200,15 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         }
         const shopId = shopRow.id as string;
 
+        // Keepa DE root categories to exclude (Bücher-Welt komplett raus):
+        //   541686     = Bücher
+        //   530484031  = Kindle-Shop (eBooks)
+        //   77195031   = Hörbücher & Originals (Audible)
+        //   52044011   = Fremdsprachige Bücher
+        const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
+          541686, 530484031, 77195031, 52044011,
+        ]);
+
         // 5) Fetch deal pages
         const errors: Array<{ page?: number; msg: string }> = [];
         const dealsByAsin = new Map<string, KeepaDealRecord>();
@@ -208,12 +217,16 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
           try {
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
+              excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
             });
             const rows = res.deals?.dr ?? res.dr ?? [];
             if (page === 0) {
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
             }
             for (const row of rows) {
+              // Safety net: skip anything Keepa still tagged in a book root category.
+              const rootId = row.rootCategory ?? row.categoryTree?.[0]?.catId ?? null;
+              if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) continue;
               if (!dealsByAsin.has(row.asin)) dealsByAsin.set(row.asin, row);
             }
             if (rows.length < 150) break; // last page
@@ -222,6 +235,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             break;
           }
         }
+
 
         // 6) Upsert products + offers
         let productsInserted = 0;
