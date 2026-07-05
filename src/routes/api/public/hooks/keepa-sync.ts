@@ -249,14 +249,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         }
         const shopId = shopRow.id as string;
 
-        // Keepa DE root categories to exclude (Bücher-Welt komplett raus):
-        //   541686     = Bücher
-        //   530484031  = Kindle-Shop (eBooks)
-        //   77195031   = Hörbücher & Originals (Audible)
-        //   52044011   = Fremdsprachige Bücher
-        const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
-          541686, 530484031, 77195031, 52044011,
-        ]);
+        // Keepa DE root categories to exclude (Bücher-Welt komplett raus) —
+        // full list defined at module scope above.
 
         // 5) Fetch deal pages
         const errors: Array<{ page?: number; msg: string }> = [];
@@ -267,18 +261,22 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
+              ...(opts.electronicsOnly
+                ? { includeCategories: ELECTRONICS_ROOT_CATEGORIES }
+                : {}),
             });
             const rows = res.deals?.dr ?? res.dr ?? [];
             if (page === 0) {
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
             }
             for (const row of rows) {
-              // Bücher-Filter: echte Amazon-Produkt-ASINs beginnen mit 'B' + 9 alphanumerische Zeichen.
-              // ISBN-basierte ASINs (10 Ziffern, oder mit 'X' am Ende) sind Bücher — überspringen.
+              // Amazon-Produkt-ASINs beginnen mit 'B'. ISBN-basierte ASINs sind Bücher.
               if (!/^B[A-Z0-9]{9}$/.test(row.asin)) continue;
               // Safety net: skip anything Keepa still tagged in a book root category.
               const rootId = row.rootCategory ?? row.categoryTree?.[0]?.catId ?? null;
               if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) continue;
+              // Electronics-only mode: if we know the root, require it in the allow-list.
+              if (opts.electronicsOnly && rootId !== null && !ELECTRONICS_ROOT_CATEGORIES.includes(rootId)) continue;
               if (!dealsByAsin.has(row.asin)) dealsByAsin.set(row.asin, row);
             }
             if (rows.length < 150) break; // last page
