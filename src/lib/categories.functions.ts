@@ -77,6 +77,58 @@ export const getTopCategoryLinks = createServerFn({ method: "GET" }).handler(
   },
 );
 
+// Top level-2 (sub) categories with the most products — used by the header
+// as a dynamic navigation strip. Returns up to 5 sub-categories with their
+// parent slug so we can link into /kategorie/$parent/$child.
+export type TopSubCategoryLink = {
+  slug: string;
+  name: string;
+  parentSlug: string;
+  count: number;
+};
+
+export const getTopSubCategoryLinks = createServerFn({ method: "GET" }).handler(
+  async (): Promise<TopSubCategoryLink[]> => {
+    const supabase = anonClient();
+    const { data: subs, error } = await supabase
+      .from("categories")
+      .select("id, slug, name, parent_id")
+      .not("parent_id", "is", null);
+    if (error) throw new Error(error.message);
+    const subRows = (subs ?? []) as Array<{
+      id: string;
+      slug: string;
+      name: string;
+      parent_id: string;
+    }>;
+    if (subRows.length === 0) return [];
+
+    const parentIds = [...new Set(subRows.map((s) => s.parent_id))];
+    const { data: parents } = await supabase
+      .from("categories")
+      .select("id, slug")
+      .in("id", parentIds);
+    const parentSlugById = new Map(
+      (parents ?? []).map((p) => [p.id as string, p.slug as string]),
+    );
+
+    const withCounts: TopSubCategoryLink[] = [];
+    for (const s of subRows) {
+      const { count } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("category_id", s.id);
+      const n = count ?? 0;
+      if (n === 0) continue;
+      const parentSlug = parentSlugById.get(s.parent_id);
+      if (!parentSlug) continue;
+      withCounts.push({ slug: s.slug, name: s.name, parentSlug, count: n });
+    }
+    withCounts.sort((a, b) => b.count - a.count);
+    return withCounts.slice(0, 5);
+  },
+);
+
 // Look up a category by its slug path (["elektronik"] or ["elektronik","smartphones"])
 // and return the row + its ancestor breadcrumb.
 export type CategoryPage = {

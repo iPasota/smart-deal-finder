@@ -278,9 +278,9 @@ function FadeRow({ children, className = "" }: { children: React.ReactNode; clas
       className={`-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 no-scrollbar ${className}`}
       style={{
         maskImage:
-          "linear-gradient(to right, transparent 0, black 12px, black calc(100% - 24px), transparent 100%)",
+          "linear-gradient(to right, black 0, black calc(100% - 24px), transparent 100%)",
         WebkitMaskImage:
-          "linear-gradient(to right, transparent 0, black 12px, black calc(100% - 24px), transparent 100%)",
+          "linear-gradient(to right, black 0, black calc(100% - 24px), transparent 100%)",
       }}
     >
       {children}

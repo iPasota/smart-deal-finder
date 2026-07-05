@@ -100,12 +100,61 @@ const BodySchema = z
     triggeredBy: z.enum(["cron", "manual", "admin"]).default("cron"),
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
-    maxEnrich: z.number().int().min(0).max(500).default(100),
+    maxEnrich: z.number().int().min(0).max(500).default(150),
+    electronicsOnly: z.boolean().default(true),
   })
   .default({});
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
 const CONDITION_LABEL = "Used - Very Good";
+
+// Keepa DE root categories – books & digital media (Bücher-Welt komplett raus):
+//   541686     = Bücher
+//   530484031  = Kindle-Shop (eBooks)
+//   77195031   = Hörbücher & Originals (Audible)
+//   52044011   = Fremdsprachige Bücher
+//   77196031   = Musik-CDs & Vinyl
+//   77197031   = DVD & Blu-ray
+//   409838011  = Software
+//   77192031   = Zeitschriften
+const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
+  541686, 530484031, 77195031, 52044011, 77196031, 77197031, 409838011, 77192031,
+]);
+
+// Elektronik & Technik – alles was einen Stecker oder Akku hat:
+//   562066     = Elektronik & Foto
+//   340843031  = Computer & Zubehör
+//   84230031   = Elektro-Großgeräte
+//   84497031   = Elektro-Kleingeräte
+//   703548031  = Games / Videospiele
+const ELECTRONICS_ROOT_CATEGORIES = [
+  562066, 340843031, 84230031, 84497031, 703548031,
+];
+
+// productGroup / binding markers that indicate a book / digital-media product
+const BOOK_PRODUCT_GROUPS = new Set(
+  [
+    "book", "ebooks", "digital ebook purchase", "audible", "audio download",
+    "audio cd", "abis_book", "kindle ebook", "digital_ebook_purchase",
+    "music", "digital music track", "digital music album", "dvd", "video dvd",
+    "blu-ray", "software",
+  ].map((s) => s.toLowerCase()),
+);
+
+function isBookLikeProduct(p: {
+  productGroup?: string | null;
+  binding?: string | null;
+  rootCategory?: number | null;
+  categoryTree?: Array<{ catId: number; name: string }> | null;
+}): boolean {
+  const rootId = p.rootCategory ?? p.categoryTree?.[0]?.catId ?? null;
+  if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) return true;
+  const pg = (p.productGroup ?? "").toLowerCase().trim();
+  if (pg && BOOK_PRODUCT_GROUPS.has(pg)) return true;
+  const bd = (p.binding ?? "").toLowerCase().trim();
+  if (bd && (bd.includes("kindle") || bd.includes("paperback") || bd.includes("hardcover") || bd.includes("taschenbuch") || bd.includes("gebundene") || bd.includes("audible"))) return true;
+  return false;
+}
 
 export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
   server: {
@@ -200,14 +249,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         }
         const shopId = shopRow.id as string;
 
-        // Keepa DE root categories to exclude (Bücher-Welt komplett raus):
-        //   541686     = Bücher
-        //   530484031  = Kindle-Shop (eBooks)
-        //   77195031   = Hörbücher & Originals (Audible)
-        //   52044011   = Fremdsprachige Bücher
-        const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
-          541686, 530484031, 77195031, 52044011,
-        ]);
+        // Keepa DE root categories to exclude (Bücher-Welt komplett raus) —
+        // full list defined at module scope above.
 
         // 5) Fetch deal pages
         const errors: Array<{ page?: number; msg: string }> = [];
@@ -218,18 +261,22 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
+              ...(opts.electronicsOnly
+                ? { includeCategories: ELECTRONICS_ROOT_CATEGORIES }
+                : {}),
             });
             const rows = res.deals?.dr ?? res.dr ?? [];
             if (page === 0) {
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
             }
             for (const row of rows) {
-              // Bücher-Filter: echte Amazon-Produkt-ASINs beginnen mit 'B' + 9 alphanumerische Zeichen.
-              // ISBN-basierte ASINs (10 Ziffern, oder mit 'X' am Ende) sind Bücher — überspringen.
+              // Amazon-Produkt-ASINs beginnen mit 'B'. ISBN-basierte ASINs sind Bücher.
               if (!/^B[A-Z0-9]{9}$/.test(row.asin)) continue;
               // Safety net: skip anything Keepa still tagged in a book root category.
               const rootId = row.rootCategory ?? row.categoryTree?.[0]?.catId ?? null;
               if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) continue;
+              // Electronics-only mode: if we know the root, require it in the allow-list.
+              if (opts.electronicsOnly && rootId !== null && !ELECTRONICS_ROOT_CATEGORIES.includes(rootId)) continue;
               if (!dealsByAsin.has(row.asin)) dealsByAsin.set(row.asin, row);
             }
             if (rows.length < 150) break; // last page
@@ -347,14 +394,42 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             try {
               const res = await fetchProducts(chunk, { stats: 90, history: 0 });
               for (const p of res.products) {
+                // Book / digital-media detection – delete these outright so they
+                // never reach the catalog.
+                if (isBookLikeProduct(p)) {
+                  const { data: prodRow } = await supabaseAdmin
+                    .from("products")
+                    .select("id")
+                    .eq("asin", p.asin)
+                    .maybeSingle();
+                  if (prodRow?.id) {
+                    await supabaseAdmin.from("offers").delete().eq("product_id", prodRow.id);
+                    await supabaseAdmin.from("products").delete().eq("id", prodRow.id);
+                  }
+                  continue;
+                }
                 const ean = p.eanList?.[0] ?? null;
                 const salesRank = p.stats?.current?.[3] ?? null;
+                // Backfill category from enrichment (Deals API often omits it)
+                let categoryId: string | null = null;
+                let categoryName: string | null = null;
+                if (p.categoryTree && p.categoryTree.length > 0) {
+                  categoryName = p.categoryTree[p.categoryTree.length - 1]?.name ?? null;
+                  try {
+                    categoryId = await upsertCategoryPath(supabaseAdmin, p.categoryTree, catCache);
+                  } catch (err) {
+                    errors.push({ msg: `enrich cat ${p.asin}: ${err instanceof Error ? err.message : String(err)}` });
+                  }
+                }
                 await supabaseAdmin
                   .from("products")
                   .update({
                     brand: p.brand ?? p.manufacturer ?? null,
                     gtin: ean,
                     sales_rank: salesRank && salesRank > 0 ? salesRank : null,
+                    keepa_category_id: p.rootCategory ?? undefined,
+                    category: categoryName ?? undefined,
+                    category_id: categoryId ?? undefined,
                     keepa_last_refreshed_at: new Date().toISOString(),
                   })
                   .eq("asin", p.asin);
