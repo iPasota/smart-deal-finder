@@ -108,6 +108,33 @@ export function Header() {
         )}
       </div>
 
+      {topSubs.length > 0 && (
+        <nav
+          aria-label="Top-Kategorien"
+          className="border-t border-hairline/70 bg-background/70"
+        >
+          <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2 no-scrollbar lg:px-6">
+            <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Top
+            </span>
+            {topSubs.map((c) => (
+              <Link
+                key={`${c.parentSlug}/${c.slug}`}
+                to="/kategorie/$parent/$child"
+                params={{ parent: c.parentSlug, child: c.slug }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-hairline bg-surface px-2.5 py-1 text-xs font-bold uppercase tracking-tight text-muted-foreground transition-colors hover:border-emerald hover:text-emerald-ink"
+              >
+                {c.name}
+                <span className="text-[10px] font-normal text-muted-foreground/70">
+                  {c.count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
+
+
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="border-hairline bg-popover">
           <SheetHeader>
