@@ -55,6 +55,8 @@ export type KeepaProductResponse = {
     brand?: string | null;
     manufacturer?: string | null;
     productGroup?: string | null;
+    binding?: string | null;
+    rootCategory?: number | null;
     eanList?: string[] | null;
     upcList?: string[] | null;
     imagesCSV?: string | null;
