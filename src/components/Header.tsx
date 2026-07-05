@@ -15,6 +15,13 @@ export function Header() {
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const { user } = useAuth();
+  const { data: topSubs = [] } = useQuery({
+    queryKey: ["top-sub-categories"],
+    queryFn: () => getTopSubCategoryLinks(),
+    staleTime: 5 * 60_000,
+  });
+
+
 
   const signIn = async (provider: "google" | "apple") => {
     setErr(null);
