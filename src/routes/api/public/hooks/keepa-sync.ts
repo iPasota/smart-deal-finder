@@ -100,12 +100,61 @@ const BodySchema = z
     triggeredBy: z.enum(["cron", "manual", "admin"]).default("cron"),
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
-    maxEnrich: z.number().int().min(0).max(500).default(100),
+    maxEnrich: z.number().int().min(0).max(500).default(150),
+    electronicsOnly: z.boolean().default(true),
   })
   .default({});
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
 const CONDITION_LABEL = "Used - Very Good";
+
+// Keepa DE root categories – books & digital media (Bücher-Welt komplett raus):
+//   541686     = Bücher
+//   530484031  = Kindle-Shop (eBooks)
+//   77195031   = Hörbücher & Originals (Audible)
+//   52044011   = Fremdsprachige Bücher
+//   77196031   = Musik-CDs & Vinyl
+//   77197031   = DVD & Blu-ray
+//   409838011  = Software
+//   77192031   = Zeitschriften
+const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
+  541686, 530484031, 77195031, 52044011, 77196031, 77197031, 409838011, 77192031,
+]);
+
+// Elektronik & Technik – alles was einen Stecker oder Akku hat:
+//   562066     = Elektronik & Foto
+//   340843031  = Computer & Zubehör
+//   84230031   = Elektro-Großgeräte
+//   84497031   = Elektro-Kleingeräte
+//   703548031  = Games / Videospiele
+const ELECTRONICS_ROOT_CATEGORIES = [
+  562066, 340843031, 84230031, 84497031, 703548031,
+];
+
+// productGroup / binding markers that indicate a book / digital-media product
+const BOOK_PRODUCT_GROUPS = new Set(
+  [
+    "book", "ebooks", "digital ebook purchase", "audible", "audio download",
+    "audio cd", "abis_book", "kindle ebook", "digital_ebook_purchase",
+    "music", "digital music track", "digital music album", "dvd", "video dvd",
+    "blu-ray", "software",
+  ].map((s) => s.toLowerCase()),
+);
+
+function isBookLikeProduct(p: {
+  productGroup?: string | null;
+  binding?: string | null;
+  rootCategory?: number | null;
+  categoryTree?: Array<{ catId: number; name: string }> | null;
+}): boolean {
+  const rootId = p.rootCategory ?? p.categoryTree?.[0]?.catId ?? null;
+  if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) return true;
+  const pg = (p.productGroup ?? "").toLowerCase().trim();
+  if (pg && BOOK_PRODUCT_GROUPS.has(pg)) return true;
+  const bd = (p.binding ?? "").toLowerCase().trim();
+  if (bd && (bd.includes("kindle") || bd.includes("paperback") || bd.includes("hardcover") || bd.includes("taschenbuch") || bd.includes("gebundene") || bd.includes("audible"))) return true;
+  return false;
+}
 
 export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
   server: {
