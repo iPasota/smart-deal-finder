@@ -394,14 +394,43 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             try {
               const res = await fetchProducts(chunk, { stats: 90, history: 0 });
               for (const p of res.products) {
+                // Book / digital-media detection – delete these outright so they
+                // never reach the catalog.
+                if (isBookLikeProduct(p)) {
+                  const { data: prodRow } = await supabaseAdmin
+                    .from("products")
+                    .select("id")
+                    .eq("asin", p.asin)
+                    .maybeSingle();
+                  if (prodRow?.id) {
+                    await supabaseAdmin.from("offers").delete().eq("product_id", prodRow.id);
+                    await supabaseAdmin.from("price_history").delete().eq("product_id", prodRow.id);
+                    await supabaseAdmin.from("products").delete().eq("id", prodRow.id);
+                  }
+                  continue;
+                }
                 const ean = p.eanList?.[0] ?? null;
                 const salesRank = p.stats?.current?.[3] ?? null;
+                // Backfill category from enrichment (Deals API often omits it)
+                let categoryId: string | null = null;
+                let categoryName: string | null = null;
+                if (p.categoryTree && p.categoryTree.length > 0) {
+                  categoryName = p.categoryTree[p.categoryTree.length - 1]?.name ?? null;
+                  try {
+                    categoryId = await upsertCategoryPath(supabaseAdmin, p.categoryTree, catCache);
+                  } catch (err) {
+                    errors.push({ msg: `enrich cat ${p.asin}: ${err instanceof Error ? err.message : String(err)}` });
+                  }
+                }
                 await supabaseAdmin
                   .from("products")
                   .update({
                     brand: p.brand ?? p.manufacturer ?? null,
                     gtin: ean,
                     sales_rank: salesRank && salesRank > 0 ? salesRank : null,
+                    keepa_category_id: p.rootCategory ?? undefined,
+                    category: categoryName ?? undefined,
+                    category_id: categoryId ?? undefined,
                     keepa_last_refreshed_at: new Date().toISOString(),
                   })
                   .eq("asin", p.asin);
