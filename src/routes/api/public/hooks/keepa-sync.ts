@@ -404,7 +404,6 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
                     .maybeSingle();
                   if (prodRow?.id) {
                     await supabaseAdmin.from("offers").delete().eq("product_id", prodRow.id);
-                    await supabaseAdmin.from("price_history").delete().eq("product_id", prodRow.id);
                     await supabaseAdmin.from("products").delete().eq("id", prodRow.id);
                   }
                   continue;
