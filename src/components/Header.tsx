@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Bell, User, LogOut, BookmarkCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { GoogleIcon, AppleIcon } from "./BrandIcons";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MARKETPLACE_LIST } from "@/lib/marketplace";
+import { getTopSubCategoryLinks } from "@/lib/categories.functions";
 
 export function Header() {
   const [open, setOpen] = useState(false);
