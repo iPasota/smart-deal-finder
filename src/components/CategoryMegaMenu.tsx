@@ -50,22 +50,15 @@ function TopLevelItem({ node }: { node: CategoryTreeNode }) {
       {hasChildren ? (
         <>
           <NavigationMenu.Trigger
-            asChild
             className="group inline-flex items-center gap-1 rounded-md px-3 py-3 text-sm font-semibold text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-emerald data-[state=open]:text-foreground"
           >
-            <Link
-              to="/kategorie/$parent"
-              params={{ parent: node.slug }}
-              // Radix will still handle hover/focus to open the panel; the
-              // link ensures keyboard Enter navigates to the L1 landing page.
-            >
-              <span>{node.name}</span>
-              <ChevronDown
-                aria-hidden
-                className="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180"
-              />
-            </Link>
+            {node.name}
+            <ChevronDown
+              aria-hidden
+              className="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180"
+            />
           </NavigationMenu.Trigger>
+
 
           <NavigationMenu.Content className="data-[motion=from-end]:animate-in data-[motion=from-start]:animate-in data-[motion=to-end]:animate-out data-[motion=to-start]:animate-out data-[motion=from-end]:slide-in-from-right-4 data-[motion=from-start]:slide-in-from-left-4 data-[motion=to-end]:slide-out-to-right-4 data-[motion=to-start]:slide-out-to-left-4 absolute left-0 top-0 w-full">
             <MegaPanel parent={node} />
