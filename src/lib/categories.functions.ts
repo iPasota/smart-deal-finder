@@ -77,6 +77,88 @@ export const getTopCategoryLinks = createServerFn({ method: "GET" }).handler(
   },
 );
 
+// Full category tree (max 3 levels) with product counts per node, used by
+// the header mega-menu. Counts include the node's own products plus all
+// descendants so hitting a leaf never leads to an empty page.
+export type CategoryTreeNode = {
+  id: string;
+  slug: string;
+  name: string;
+  count: number;
+  children: CategoryTreeNode[];
+};
+
+export const getCategoryTree = createServerFn({ method: "GET" }).handler(
+  async (): Promise<CategoryTreeNode[]> => {
+    const supabase = anonClient();
+    const { data: cats, error } = await supabase
+      .from("categories")
+      .select("id, parent_id, slug, name, sort")
+      .order("sort")
+      .order("name");
+    if (error) throw new Error(error.message);
+    const rows = (cats ?? []) as Array<{
+      id: string;
+      parent_id: string | null;
+      slug: string;
+      name: string;
+      sort: number;
+    }>;
+    if (rows.length === 0) return [];
+
+    // Per-category direct product counts.
+    const { data: prods } = await supabase.from("products").select("category_id");
+    const directCount = new Map<string, number>();
+    for (const p of prods ?? []) {
+      const id = (p as { category_id: string | null }).category_id;
+      if (!id) continue;
+      directCount.set(id, (directCount.get(id) ?? 0) + 1);
+    }
+
+    type N = CategoryTreeNode & { parent_id: string | null };
+    const byId = new Map<string, N>();
+    rows.forEach((r) =>
+      byId.set(r.id, {
+        id: r.id,
+        slug: r.slug,
+        name: r.name,
+        count: directCount.get(r.id) ?? 0,
+        children: [],
+        parent_id: r.parent_id,
+      }),
+    );
+    const roots: N[] = [];
+    byId.forEach((n) => {
+      if (n.parent_id && byId.has(n.parent_id)) byId.get(n.parent_id)!.children.push(n);
+      else roots.push(n);
+    });
+
+    // Roll counts up.
+    const roll = (n: N): number => {
+      let sum = n.count;
+      for (const c of n.children) sum += roll(c as N);
+      n.count = sum;
+      return sum;
+    };
+    roots.forEach(roll);
+
+    // Strip parent_id from response + sort children by count desc, name asc.
+    const clean = (n: N): CategoryTreeNode => ({
+      id: n.id,
+      slug: n.slug,
+      name: n.name,
+      count: n.count,
+      children: n.children
+        .map((c) => clean(c as N))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "de")),
+    });
+    return roots
+      .filter((r) => r.count > 0)
+      .map(clean)
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "de"));
+  },
+);
+
 // Top level-2 (sub) categories with the most products — used by the header
 // as a dynamic navigation strip. Returns up to 5 sub-categories with their
 // parent slug so we can link into /kategorie/$parent/$child.
