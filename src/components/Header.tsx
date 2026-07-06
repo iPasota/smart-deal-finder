@@ -1,25 +1,19 @@
 import { useState } from "react";
 import { Bell, User, LogOut, BookmarkCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { GoogleIcon, AppleIcon } from "./BrandIcons";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { MARKETPLACE_LIST } from "@/lib/marketplace";
-import { getTopSubCategoryLinks } from "@/lib/categories.functions";
+import { CategoryMegaMenu } from "./CategoryMegaMenu";
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const { user } = useAuth();
-  const { data: topSubs = [] } = useQuery({
-    queryKey: ["top-sub-categories"],
-    queryFn: () => getTopSubCategoryLinks(),
-    staleTime: 5 * 60_000,
-  });
 
 
 
@@ -51,23 +45,8 @@ export function Header() {
           </span>
         </Link>
 
-        {topSubs.length > 0 && (
-          <nav
-            aria-label="Top-Kategorien"
-            className="hidden min-w-0 flex-1 items-center gap-5 overflow-hidden whitespace-nowrap md:flex"
-          >
-            {topSubs.map((c) => (
-              <Link
-                key={`${c.parentSlug}/${c.slug}`}
-                to="/kategorie/$parent/$child"
-                params={{ parent: c.parentSlug, child: c.slug }}
-                className="truncate text-lg font-extrabold uppercase tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {c.name}
-              </Link>
-            ))}
-          </nav>
-        )}
+        <div className="flex-1" />
+
 
 
         {/* Country / Marketplace switcher — MVP: nur DE aktiv */}
@@ -119,6 +98,10 @@ export function Header() {
           </button>
         )}
       </div>
+
+      <CategoryMegaMenu />
+
+
 
 
 
