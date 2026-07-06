@@ -41,8 +41,8 @@ export function Header() {
 
   return (
     <header className="border-b border-hairline bg-background/85 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 lg:px-6">
-        <Link to="/" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 lg:px-6">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5">
           <span className="grid size-9 place-items-center rounded-xl border border-emerald/20 bg-emerald-soft text-emerald-ink">
             <Bell className="size-4" strokeWidth={2.5} />
           </span>
@@ -51,12 +51,24 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
-          <Link to="/" className="hover:text-foreground">{"\n"}</Link>
-          {user && (
-            <Link to="/watchlist" className="hover:text-foreground">Watchlist</Link>
-          )}
-        </nav>
+        {topSubs.length > 0 && (
+          <nav
+            aria-label="Top-Kategorien"
+            className="hidden min-w-0 flex-1 items-center gap-5 overflow-hidden whitespace-nowrap md:flex"
+          >
+            {topSubs.map((c) => (
+              <Link
+                key={`${c.parentSlug}/${c.slug}`}
+                to="/kategorie/$parent/$child"
+                params={{ parent: c.parentSlug, child: c.slug }}
+                className="truncate text-lg font-extrabold uppercase tracking-tight text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {c.name}
+              </Link>
+            ))}
+          </nav>
+        )}
+
 
         {/* Country / Marketplace switcher — MVP: nur DE aktiv */}
         <div className="ml-auto mr-2 hidden items-center gap-1 rounded-lg border border-hairline bg-surface p-1 md:flex">
