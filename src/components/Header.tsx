@@ -45,23 +45,8 @@ export function Header() {
           </span>
         </Link>
 
-        {topSubs.length > 0 && (
-          <nav
-            aria-label="Top-Kategorien"
-            className="hidden min-w-0 flex-1 items-center gap-5 overflow-hidden whitespace-nowrap md:flex"
-          >
-            {topSubs.map((c) => (
-              <Link
-                key={`${c.parentSlug}/${c.slug}`}
-                to="/kategorie/$parent/$child"
-                params={{ parent: c.parentSlug, child: c.slug }}
-                className="truncate text-lg font-extrabold uppercase tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {c.name}
-              </Link>
-            ))}
-          </nav>
-        )}
+        <div className="flex-1" />
+
 
 
         {/* Country / Marketplace switcher — MVP: nur DE aktiv */}
