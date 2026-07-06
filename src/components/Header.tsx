@@ -99,6 +99,10 @@ export function Header() {
         )}
       </div>
 
+      <CategoryMegaMenu />
+
+
+
 
 
 
