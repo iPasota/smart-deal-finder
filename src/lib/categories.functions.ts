@@ -143,12 +143,14 @@ export const getCategoryTree = createServerFn({ method: "GET" }).handler(
     roots.forEach(roll);
 
     // Strip parent_id from response + sort children by count desc, name asc.
+    // Prune any node (at any depth) whose rolled-up count is 0.
     const clean = (n: N): CategoryTreeNode => ({
       id: n.id,
       slug: n.slug,
       name: n.name,
       count: n.count,
       children: n.children
+        .filter((c) => (c as N).count > 0)
         .map((c) => clean(c as N))
         .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "de")),
     });
