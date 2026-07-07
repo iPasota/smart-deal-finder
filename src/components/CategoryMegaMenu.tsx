@@ -18,12 +18,12 @@ export function CategoryMegaMenu() {
   if (tree.length === 0) return null;
 
   return (
-    <div className="border-b border-hairline bg-background/85 backdrop-blur-lg">
+    <div className="relative z-50 border-b border-hairline bg-background/85 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center px-4 lg:px-6">
         <NavigationMenu.Root
           delayDuration={80}
           skipDelayDuration={200}
-          className="relative z-40 w-full"
+          className="relative z-50 w-full"
         >
           <NavigationMenu.List className="flex flex-wrap items-center gap-1">
             {tree.map((top) => (
@@ -31,9 +31,9 @@ export function CategoryMegaMenu() {
             ))}
           </NavigationMenu.List>
 
-          <div className="absolute left-0 right-0 top-full flex justify-center">
+          <div className="absolute left-0 right-0 top-full z-50 flex justify-center">
             <NavigationMenu.Viewport
-              className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 relative mt-0 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-top overflow-hidden border-b border-hairline bg-background shadow-lg transition-[height,width] duration-200"
+              className="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 relative z-50 mt-0 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-top overflow-hidden border-b border-hairline bg-background shadow-xl transition-[height,width] duration-200"
             />
           </div>
         </NavigationMenu.Root>
