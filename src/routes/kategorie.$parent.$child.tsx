@@ -139,6 +139,134 @@ export function CategoryPageView({
   );
 }
 
+type CategoryDeal = { id: string; condition: Condition; priceCents: number; newPriceCents: number };
+
+function CategoryDealsSection<T extends CategoryDeal>({ deals }: { deals: T[] }) {
+  const [conditions, setConditions] = useState<Condition[]>([]);
+  const [minDiscount, setMinDiscount] = useState(0);
+
+  const filtered = useMemo(() => {
+    return deals.filter((d) => {
+      if (conditions.length > 0 && !conditions.includes(d.condition)) return false;
+      if (minDiscount > 0) {
+        const pct = d.newPriceCents > 0
+          ? Math.round((1 - d.priceCents / d.newPriceCents) * 100)
+          : 0;
+        if (pct < minDiscount) return false;
+      }
+      return true;
+    });
+  }, [deals, conditions, minDiscount]);
+
+  const condCounts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const d of deals) m[d.condition] = (m[d.condition] ?? 0) + 1;
+    return m;
+  }, [deals]);
+
+  const toggleCond = (c: Condition) =>
+    setConditions((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+
+  const hasAny = deals.length > 0;
+
+  return (
+    <div className="mt-8">
+      {hasAny && (
+        <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-hairline bg-surface/60 px-4 py-3">
+          <FilterGroup label="Zustand" accent="bg-emerald">
+            {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
+              const active = conditions.includes(c);
+              const n = condCounts[c] ?? 0;
+              if (!active && n === 0) return null;
+              return (
+                <FilterChip key={c} active={active} tone="emerald" onClick={() => toggleCond(c)}>
+                  {CONDITION_LABEL[c]}
+                </FilterChip>
+              );
+            })}
+          </FilterGroup>
+          <FilterGroup label="Rabatt" accent="bg-amber">
+            {[0, 10, 20, 30, 40].map((d) => (
+              <FilterChip
+                key={d}
+                active={minDiscount === d}
+                tone="amber"
+                onClick={() => setMinDiscount(d)}
+              >
+                {d === 0 ? "Alle" : `${d}%+`}
+              </FilterChip>
+            ))}
+          </FilterGroup>
+          <span className="font-mono-tabular ml-auto rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-bold text-muted-foreground">
+            {filtered.length} von {deals.length}
+          </span>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="grid place-items-center rounded-2xl border border-dashed border-hairline py-24 text-center">
+          <div>
+            <div className="font-display text-2xl font-extrabold">
+              {hasAny ? "Keine Deals mit diesen Filtern" : "Aktuell keine Deals"}
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {hasAny ? "Filter anpassen oder zurücksetzen." : "Wir aktualisieren mehrmals täglich — schau bald wieder vorbei."}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {(filtered as unknown as import("@/lib/mock-deals").Deal[]).map((d) => (
+            <DealCard key={d.id} deal={d} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FilterGroup({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-foreground/80">
+        <span className={`inline-block h-3.5 w-1 rounded-full ${accent}`} />
+        {label}
+      </span>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
+    </div>
+  );
+}
+
+function FilterChip({
+  children,
+  active,
+  onClick,
+  tone,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+  tone: "emerald" | "amber";
+}) {
+  const activeCls =
+    tone === "amber"
+      ? "border-amber bg-amber text-amber-foreground shadow-sm"
+      : "border-emerald bg-emerald text-emerald-foreground shadow-sm";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight transition-all ${
+        active
+          ? activeCls
+          : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function Breadcrumbs({ items }: { items: { slug: string; name: string }[] }) {
   return (
     <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
