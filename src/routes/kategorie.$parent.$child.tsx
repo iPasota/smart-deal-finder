@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { getCategoryPage } from "@/lib/categories.functions";
+import { CONDITION_LABEL, type Condition } from "@/lib/mock-deals";
 
 const SITE = "https://whdfinder.lovable.app";
 
@@ -124,24 +126,8 @@ export function CategoryPageView({
           </div>
         )}
 
-        <div className="mt-8">
-          {data.deals.length === 0 ? (
-            <div className="grid place-items-center rounded-2xl border border-dashed border-hairline py-24 text-center">
-              <div>
-                <div className="font-display text-2xl font-extrabold">Aktuell keine Deals</div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Wir aktualisieren mehrmals täglich — schau bald wieder vorbei.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {data.deals.map((d) => (
-                <DealCard key={d.id} deal={d} />
-              ))}
-            </div>
-          )}
-        </div>
+        <CategoryDealsSection deals={data.deals} />
+
 
         {data.category.outro_md && (
           <div className="prose prose-sm mt-12 max-w-3xl text-foreground/90">
