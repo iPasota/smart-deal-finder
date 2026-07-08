@@ -90,7 +90,7 @@ export function FilterBar({
     (filters.minDiscount > 0 ? 1 : 0);
 
   return (
-    <div className="border-b border-hairline bg-background/92 backdrop-blur-lg">
+    <div className="relative z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
       <div className="mx-auto max-w-7xl px-4 py-3 lg:px-6">
         {/* Top row: search + sort icon + (mobile) filter toggle */}
         <div className="flex items-center gap-2">
