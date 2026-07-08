@@ -106,10 +106,11 @@ export function CategoryPageView({
           {data.category.name}
         </h1>
         {data.category.intro_md && (
-          <div className="prose prose-sm mt-6 max-w-3xl text-foreground/90">
+          <div className="prose prose-sm mt-6 max-w-none text-foreground/90">
             <SimpleMarkdown src={data.category.intro_md} />
           </div>
         )}
+
 
         {data.childCategories.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
@@ -130,10 +131,11 @@ export function CategoryPageView({
 
 
         {data.category.outro_md && (
-          <div className="prose prose-sm mt-12 max-w-3xl text-foreground/90">
+          <div className="prose prose-sm mt-12 max-w-none text-foreground/90">
             <SimpleMarkdown src={data.category.outro_md} />
           </div>
         )}
+
       </main>
     </div>
   );
@@ -293,16 +295,34 @@ export function Breadcrumbs({ items }: { items: { slug: string; name: string }[]
   );
 }
 
-// Minimal markdown: paragraphs + bold + italic + links. No dependency.
+// Markdown + safe HTML: admin-authored content. Strips <script>/<iframe>/<style>
+// and inline event handlers (on*=), then converts markdown syntax on remaining text.
+function sanitizeHtml(input: string): string {
+  return input
+    // remove dangerous blocks entirely
+    .replace(/<\s*(script|style|iframe|object|embed|link|meta)[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+    .replace(/<\s*(script|style|iframe|object|embed|link|meta)[^>]*\/?>/gi, "")
+    // strip inline event handlers  onclick="..."  onLoad='...'  onerror=foo
+    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "")
+    .replace(/\son[a-z]+\s*=\s*[^\s>]+/gi, "")
+    // neutralize javascript: URLs
+    .replace(/(href|src)\s*=\s*"(\s*javascript:[^"]*)"/gi, '$1="#"')
+    .replace(/(href|src)\s*=\s*'(\s*javascript:[^']*)'/gi, "$1='#'");
+}
+
+// Markdown-lite: paragraphs, **bold**, *italic*, [text](url), plus raw HTML
+// tags (sanitized) so admins can use <h2>, <ul>, <table>, <a> etc. directly.
 export function SimpleMarkdown({ src }: { src: string }) {
+  // If the source already contains block-level HTML, render as-is (sanitized).
+  const hasHtml = /<\s*(h[1-6]|p|ul|ol|li|table|div|section|article|figure|img|blockquote|pre)\b/i.test(src);
+  if (hasHtml) {
+    return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(src) }} />;
+  }
   const html = src
     .split(/\n{2,}/)
     .map((block) => {
-      const escaped = block
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-      const inlined = escaped
+      const inlined = block
         .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
         .replace(/\*([^*]+)\*/g, "<em>$1</em>")
         .replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" rel="nofollow noopener" target="_blank">$1</a>');
@@ -311,5 +331,6 @@ export function SimpleMarkdown({ src }: { src: string }) {
       return `<p>${inlined.replace(/\n/g, "<br />")}</p>`;
     })
     .join("");
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />;
 }
+

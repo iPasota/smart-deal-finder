@@ -36,7 +36,7 @@ function normalizeCategory(raw: string | null): string {
 }
 
 const PUBLIC_DEALS_PAGE_SIZE = 1000;
-const PUBLIC_DEALS_MAX_ROWS = 5000;
+const PUBLIC_DEALS_MAX_ROWS = 25000;
 const PUBLIC_DEALS_SELECT =
   "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)";
 
