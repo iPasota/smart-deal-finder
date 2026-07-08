@@ -106,10 +106,11 @@ export function CategoryPageView({
           {data.category.name}
         </h1>
         {data.category.intro_md && (
-          <div className="prose prose-sm mt-6 max-w-3xl text-foreground/90">
+          <div className="prose prose-sm mt-6 max-w-none text-foreground/90">
             <SimpleMarkdown src={data.category.intro_md} />
           </div>
         )}
+
 
         {data.childCategories.length > 0 && (
           <div className="mt-6 flex flex-wrap gap-2">
