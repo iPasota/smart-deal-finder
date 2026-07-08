@@ -34,7 +34,7 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-hairline bg-background/85 backdrop-blur-lg">
+    <header className="relative z-50 border-b border-hairline bg-background/85 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 lg:px-6">
         <Link to="/" className="flex shrink-0 items-center gap-2.5">
           <span className="grid size-9 place-items-center rounded-xl border border-emerald/20 bg-emerald-soft text-emerald-ink">
