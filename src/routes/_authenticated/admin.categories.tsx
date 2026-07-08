@@ -236,22 +236,23 @@ function EditForm({ row, allRows }: { row: CategoryRow; allRows: CategoryRow[] }
             className="rounded-lg border-2 border-foreground/15 bg-white p-3 text-sm focus:border-emerald focus:outline-none"
           />
         </Field>
-        <Field label="Intro (Markdown, oberhalb der Deals)">
+        <Field label="Intro (Markdown oder HTML, oberhalb der Deals)" hint="Erlaubt: <h2>, <p>, <ul>, <a href>, <img>, <table>, **fett** …">
           <textarea
-            rows={8}
+            rows={10}
             value={form.intro_md}
             onChange={(e) => setForm({ ...form, intro_md: e.target.value })}
             className="rounded-lg border-2 border-foreground/15 bg-white p-3 font-mono text-xs focus:border-emerald focus:outline-none"
           />
         </Field>
-        <Field label="Outro (Markdown, unterhalb der Deals)">
+        <Field label="Outro (Markdown oder HTML, unterhalb der Deals)" hint="HTML-Tags werden gerendert; <script>/<iframe> werden entfernt.">
           <textarea
-            rows={6}
+            rows={8}
             value={form.outro_md}
             onChange={(e) => setForm({ ...form, outro_md: e.target.value })}
             className="rounded-lg border-2 border-foreground/15 bg-white p-3 font-mono text-xs focus:border-emerald focus:outline-none"
           />
         </Field>
+
       </div>
 
       <div className="mt-5 flex items-center gap-3">
