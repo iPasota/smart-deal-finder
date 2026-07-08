@@ -131,10 +131,11 @@ export function CategoryPageView({
 
 
         {data.category.outro_md && (
-          <div className="prose prose-sm mt-12 max-w-3xl text-foreground/90">
+          <div className="prose prose-sm mt-12 max-w-none text-foreground/90">
             <SimpleMarkdown src={data.category.outro_md} />
           </div>
         )}
+
       </main>
     </div>
   );
