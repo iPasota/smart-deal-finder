@@ -102,8 +102,11 @@ const BodySchema = z
     enrichNewAsins: z.boolean().default(true),
     maxEnrich: z.number().int().min(0).max(500).default(150),
     electronicsOnly: z.boolean().default(true),
+    // 0=day, 1=week, 2=month, 3=3month. Rotating this widens the deal pool.
+    dateRange: z.number().int().min(0).max(3).default(1),
   })
   .default({});
+
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
 const CONDITION_LABEL = "Used - Very Good";
