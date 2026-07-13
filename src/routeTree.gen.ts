@@ -19,6 +19,7 @@ import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$pa
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
+import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -70,6 +71,12 @@ const ApiPublicHooksKeepaSyncRoute = ApiPublicHooksKeepaSyncRouteImport.update({
   path: '/api/public/hooks/keepa-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksKeepaRefreshRoute =
+  ApiPublicHooksKeepaRefreshRouteImport.update({
+    id: '/api/public/hooks/keepa-refresh',
+    path: '/api/public/hooks/keepa-refresh',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesByTo {
@@ -91,6 +99,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRoutesById {
@@ -104,6 +113,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
 export interface FileRouteTypes {
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   id:
     | '__root__'
@@ -140,6 +152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   fileRoutesById: FileRoutesById
 }
@@ -150,6 +163,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
+  ApiPublicHooksKeepaRefreshRoute: typeof ApiPublicHooksKeepaRefreshRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
 }
 
@@ -225,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksKeepaSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/keepa-refresh': {
+      id: '/api/public/hooks/keepa-refresh'
+      path: '/api/public/hooks/keepa-refresh'
+      fullPath: '/api/public/hooks/keepa-refresh'
+      preLoaderRoute: typeof ApiPublicHooksKeepaRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -260,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
+  ApiPublicHooksKeepaRefreshRoute: ApiPublicHooksKeepaRefreshRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
 }
 export const routeTree = rootRouteImport

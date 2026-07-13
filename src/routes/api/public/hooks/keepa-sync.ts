@@ -102,8 +102,11 @@ const BodySchema = z
     enrichNewAsins: z.boolean().default(true),
     maxEnrich: z.number().int().min(0).max(500).default(150),
     electronicsOnly: z.boolean().default(true),
+    // 0=day, 1=week, 2=month, 3=3month. Rotating this widens the deal pool.
+    dateRange: z.number().int().min(0).max(3).default(1),
   })
   .default({});
+
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
 const CONDITION_LABEL = "Used - Very Good";
@@ -260,11 +263,13 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
           try {
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
+              dateRange: opts.dateRange,
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
               ...(opts.electronicsOnly
                 ? { includeCategories: ELECTRONICS_ROOT_CATEGORIES }
                 : {}),
             });
+
             const rows = res.deals?.dr ?? res.dr ?? [];
             if (page === 0) {
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
