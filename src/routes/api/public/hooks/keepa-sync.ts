@@ -263,11 +263,13 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
           try {
             const res = await fetchWarehouseDealsPage(page, {
               deltaPercentRange: [opts.minDiscount, 100],
+              dateRange: opts.dateRange,
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
               ...(opts.electronicsOnly
                 ? { includeCategories: ELECTRONICS_ROOT_CATEGORIES }
                 : {}),
             });
+
             const rows = res.deals?.dr ?? res.dr ?? [];
             if (page === 0) {
               console.log("[keepa-sync] page 0 got", rows.length, "rows, tokensLeft", res.tokensLeft);
