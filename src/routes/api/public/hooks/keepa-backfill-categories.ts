@@ -227,11 +227,12 @@ export const Route = createFileRoute("/api/public/hooks/keepa-backfill-categorie
               status: errors.length > 0 && updated === 0 ? "failed" : "success",
               finished_at: new Date().toISOString(),
               duration_ms: Date.now() - startedAt.getTime(),
-              products_processed: processed,
-              products_updated: updated,
+              deals_fetched: processed,
+              products_inserted: updated,
               errors: errors.length > 0 ? errors.slice(0, 20) : null,
             })
             .eq("id", logId);
+
         }
 
         return json({ ok: true, candidates: asins.length, processed, updated, deletedBooks, errors: errors.slice(0, 5) });
