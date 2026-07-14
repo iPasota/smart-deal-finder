@@ -106,13 +106,31 @@ export const getCategoryTree = createServerFn({ method: "GET" }).handler(
     }>;
     if (rows.length === 0) return [];
 
-    // Per-category direct product counts.
-    const { data: prods } = await supabase.from("products").select("category_id");
+    // Per-category direct counts of DISTINCT products with an in-stock offer.
+    // This is what the user experiences on category pages — showing counts
+    // based on total products (incl. out-of-stock) misleads when the menu
+    // number is much bigger than what's actually clickable.
     const directCount = new Map<string, number>();
-    for (const p of prods ?? []) {
-      const id = (p as { category_id: string | null }).category_id;
-      if (!id) continue;
-      directCount.set(id, (directCount.get(id) ?? 0) + 1);
+    const seenProduct = new Set<string>();
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data: page, error: pErr } = await supabase
+        .from("offers")
+        .select("product_id, product:products!inner(id, category_id)")
+        .eq("in_stock", true)
+        .range(from, from + PAGE - 1)
+        .returns<Array<{ product_id: string; product: { id: string; category_id: string | null } | null }>>();
+      if (pErr) throw new Error(pErr.message);
+      if (!page || page.length === 0) break;
+      for (const row of page) {
+        const catId = row.product?.category_id;
+        const pid = row.product_id;
+        if (!catId || !pid) continue;
+        if (seenProduct.has(pid)) continue;
+        seenProduct.add(pid);
+        directCount.set(catId, (directCount.get(catId) ?? 0) + 1);
+      }
+      if (page.length < PAGE) break;
     }
 
     type N = CategoryTreeNode & { parent_id: string | null };
@@ -270,54 +288,49 @@ export const getCategoryPage = createServerFn({ method: "GET" })
     const catIds = [current.id];
     for (const c of children ?? []) catIds.push(c.id);
 
-    const { data: products } = await supabase
-      .from("products")
-      .select("id")
-      .in("category_id", catIds);
-    const productIds = (products ?? []).map((p) => p.id);
-    let deals: Deal[] = [];
-    if (productIds.length > 0) {
-      const { data: offers } = await supabase
-        .from("offers")
-        .select(
-          "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)",
-        )
-        .in("product_id", productIds)
-        .eq("in_stock", true)
-        .order("discount_percent", { ascending: false, nullsFirst: false })
-        .limit(200);
-      deals = (offers ?? [])
-        .filter((o) => o.product && o.shop)
-        .map((o) => {
-          const list =
-            o.list_price_cents && o.list_price_cents > o.price_cents
-              ? o.list_price_cents
-              : o.avg_price_30d_cents && o.avg_price_30d_cents > o.price_cents
-                ? o.avg_price_30d_cents
-                : o.avg_price_90d_cents && o.avg_price_90d_cents > o.price_cents
-                  ? o.avg_price_90d_cents
-                  : Math.round(o.price_cents * 1.25);
-          return {
-            id: o.id,
-            asin: o.product!.asin ?? o.external_id,
-            title: o.product!.title,
-            brand: o.product!.brand ?? "",
-            category: o.product!.category ?? current.name,
-            imageUrl: o.product!.image_url ?? "",
-            condition: mapCondition(o.condition),
-            priceCents: o.price_cents,
-            newPriceCents: list,
-            msrpCents: list,
-            currency: "EUR",
-            inStock: o.in_stock,
-            firstSeenAt: (o.first_seen_at ?? "").slice(0, 10),
-            shop: (o.shop!.slug as ShopSlug) ?? "amazon-warehouse",
-            countryCode: "DE",
-            alternatives: [],
-            history: [],
-          } satisfies Deal;
-        });
-    }
+    // Filter offers directly on the joined products.category_id so we bypass
+    // the 1000-row cap of a two-step .in(productIds) fetch.
+    const { data: offers, error: oErr } = await supabase
+      .from("offers")
+      .select(
+        "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
+      )
+      .eq("in_stock", true)
+      .in("product.category_id", catIds)
+      .order("discount_percent", { ascending: false, nullsFirst: false })
+      .limit(500);
+    if (oErr) throw new Error(oErr.message);
+    const deals: Deal[] = (offers ?? [])
+      .filter((o) => o.product && o.shop)
+      .map((o) => {
+        const list =
+          o.list_price_cents && o.list_price_cents > o.price_cents
+            ? o.list_price_cents
+            : o.avg_price_30d_cents && o.avg_price_30d_cents > o.price_cents
+              ? o.avg_price_30d_cents
+              : o.avg_price_90d_cents && o.avg_price_90d_cents > o.price_cents
+                ? o.avg_price_90d_cents
+                : Math.round(o.price_cents * 1.25);
+        return {
+          id: o.id,
+          asin: o.product!.asin ?? o.external_id,
+          title: o.product!.title,
+          brand: o.product!.brand ?? "",
+          category: o.product!.category ?? current.name,
+          imageUrl: o.product!.image_url ?? "",
+          condition: mapCondition(o.condition),
+          priceCents: o.price_cents,
+          newPriceCents: list,
+          msrpCents: list,
+          currency: "EUR",
+          inStock: o.in_stock,
+          firstSeenAt: (o.first_seen_at ?? "").slice(0, 10),
+          shop: (o.shop!.slug as ShopSlug) ?? "amazon-warehouse",
+          countryCode: "DE",
+          alternatives: [],
+          history: [],
+        } satisfies Deal;
+      });
 
     return {
       category: current,
