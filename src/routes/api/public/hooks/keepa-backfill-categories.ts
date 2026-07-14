@@ -160,11 +160,11 @@ export const Route = createFileRoute("/api/public/hooks/keepa-backfill-categorie
                 status: "success",
                 finished_at: new Date().toISOString(),
                 duration_ms: Date.now() - startedAt.getTime(),
-                products_processed: 0,
               })
               .eq("id", logId);
           }
           return json({ ok: true, processed: 0, updated: 0, reason: "no_candidates" });
+
         }
 
         // 2) Fetch product details in chunks of 100.
