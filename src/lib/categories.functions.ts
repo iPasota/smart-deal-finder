@@ -106,13 +106,31 @@ export const getCategoryTree = createServerFn({ method: "GET" }).handler(
     }>;
     if (rows.length === 0) return [];
 
-    // Per-category direct product counts.
-    const { data: prods } = await supabase.from("products").select("category_id");
+    // Per-category direct counts of DISTINCT products with an in-stock offer.
+    // This is what the user experiences on category pages — showing counts
+    // based on total products (incl. out-of-stock) misleads when the menu
+    // number is much bigger than what's actually clickable.
     const directCount = new Map<string, number>();
-    for (const p of prods ?? []) {
-      const id = (p as { category_id: string | null }).category_id;
-      if (!id) continue;
-      directCount.set(id, (directCount.get(id) ?? 0) + 1);
+    const seenProduct = new Set<string>();
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data: page, error: pErr } = await supabase
+        .from("offers")
+        .select("product_id, product:products!inner(id, category_id)")
+        .eq("in_stock", true)
+        .range(from, from + PAGE - 1)
+        .returns<Array<{ product_id: string; product: { id: string; category_id: string | null } | null }>>();
+      if (pErr) throw new Error(pErr.message);
+      if (!page || page.length === 0) break;
+      for (const row of page) {
+        const catId = row.product?.category_id;
+        const pid = row.product_id;
+        if (!catId || !pid) continue;
+        if (seenProduct.has(pid)) continue;
+        seenProduct.add(pid);
+        directCount.set(catId, (directCount.get(catId) ?? 0) + 1);
+      }
+      if (page.length < PAGE) break;
     }
 
     type N = CategoryTreeNode & { parent_id: string | null };
