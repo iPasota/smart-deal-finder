@@ -20,6 +20,7 @@ import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/tra
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
+import { Route as ApiPublicHooksKeepaBackfillCategoriesRouteImport } from './routes/api/public/hooks/keepa-backfill-categories'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -77,6 +78,12 @@ const ApiPublicHooksKeepaRefreshRoute =
     path: '/api/public/hooks/keepa-refresh',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksKeepaBackfillCategoriesRoute =
+  ApiPublicHooksKeepaBackfillCategoriesRouteImport.update({
+    id: '/api/public/hooks/keepa-backfill-categories',
+    path: '/api/public/hooks/keepa-backfill-categories',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
 }
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   fileRoutesByTo: FileRoutesByTo
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   id:
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
   fileRoutesById: FileRoutesById
@@ -163,6 +176,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
+  ApiPublicHooksKeepaBackfillCategoriesRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   ApiPublicHooksKeepaRefreshRoute: typeof ApiPublicHooksKeepaRefreshRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
 }
@@ -246,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksKeepaRefreshRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/keepa-backfill-categories': {
+      id: '/api/public/hooks/keepa-backfill-categories'
+      path: '/api/public/hooks/keepa-backfill-categories'
+      fullPath: '/api/public/hooks/keepa-backfill-categories'
+      preLoaderRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -281,6 +302,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
+  ApiPublicHooksKeepaBackfillCategoriesRoute:
+    ApiPublicHooksKeepaBackfillCategoriesRoute,
   ApiPublicHooksKeepaRefreshRoute: ApiPublicHooksKeepaRefreshRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
 }
