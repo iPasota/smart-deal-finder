@@ -288,54 +288,49 @@ export const getCategoryPage = createServerFn({ method: "GET" })
     const catIds = [current.id];
     for (const c of children ?? []) catIds.push(c.id);
 
-    const { data: products } = await supabase
-      .from("products")
-      .select("id")
-      .in("category_id", catIds);
-    const productIds = (products ?? []).map((p) => p.id);
-    let deals: Deal[] = [];
-    if (productIds.length > 0) {
-      const { data: offers } = await supabase
-        .from("offers")
-        .select(
-          "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)",
-        )
-        .in("product_id", productIds)
-        .eq("in_stock", true)
-        .order("discount_percent", { ascending: false, nullsFirst: false })
-        .limit(200);
-      deals = (offers ?? [])
-        .filter((o) => o.product && o.shop)
-        .map((o) => {
-          const list =
-            o.list_price_cents && o.list_price_cents > o.price_cents
-              ? o.list_price_cents
-              : o.avg_price_30d_cents && o.avg_price_30d_cents > o.price_cents
-                ? o.avg_price_30d_cents
-                : o.avg_price_90d_cents && o.avg_price_90d_cents > o.price_cents
-                  ? o.avg_price_90d_cents
-                  : Math.round(o.price_cents * 1.25);
-          return {
-            id: o.id,
-            asin: o.product!.asin ?? o.external_id,
-            title: o.product!.title,
-            brand: o.product!.brand ?? "",
-            category: o.product!.category ?? current.name,
-            imageUrl: o.product!.image_url ?? "",
-            condition: mapCondition(o.condition),
-            priceCents: o.price_cents,
-            newPriceCents: list,
-            msrpCents: list,
-            currency: "EUR",
-            inStock: o.in_stock,
-            firstSeenAt: (o.first_seen_at ?? "").slice(0, 10),
-            shop: (o.shop!.slug as ShopSlug) ?? "amazon-warehouse",
-            countryCode: "DE",
-            alternatives: [],
-            history: [],
-          } satisfies Deal;
-        });
-    }
+    // Filter offers directly on the joined products.category_id so we bypass
+    // the 1000-row cap of a two-step .in(productIds) fetch.
+    const { data: offers, error: oErr } = await supabase
+      .from("offers")
+      .select(
+        "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
+      )
+      .eq("in_stock", true)
+      .in("product.category_id", catIds)
+      .order("discount_percent", { ascending: false, nullsFirst: false })
+      .limit(500);
+    if (oErr) throw new Error(oErr.message);
+    const deals: Deal[] = (offers ?? [])
+      .filter((o) => o.product && o.shop)
+      .map((o) => {
+        const list =
+          o.list_price_cents && o.list_price_cents > o.price_cents
+            ? o.list_price_cents
+            : o.avg_price_30d_cents && o.avg_price_30d_cents > o.price_cents
+              ? o.avg_price_30d_cents
+              : o.avg_price_90d_cents && o.avg_price_90d_cents > o.price_cents
+                ? o.avg_price_90d_cents
+                : Math.round(o.price_cents * 1.25);
+        return {
+          id: o.id,
+          asin: o.product!.asin ?? o.external_id,
+          title: o.product!.title,
+          brand: o.product!.brand ?? "",
+          category: o.product!.category ?? current.name,
+          imageUrl: o.product!.image_url ?? "",
+          condition: mapCondition(o.condition),
+          priceCents: o.price_cents,
+          newPriceCents: list,
+          msrpCents: list,
+          currency: "EUR",
+          inStock: o.in_stock,
+          firstSeenAt: (o.first_seen_at ?? "").slice(0, 10),
+          shop: (o.shop!.slug as ShopSlug) ?? "amazon-warehouse",
+          countryCode: "DE",
+          alternatives: [],
+          history: [],
+        } satisfies Deal;
+      });
 
     return {
       category: current,
