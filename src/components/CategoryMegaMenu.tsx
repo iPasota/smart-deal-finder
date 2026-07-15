@@ -116,10 +116,13 @@ function MegaPanel({ parent }: { parent: CategoryTreeNode }) {
                   <NavigationMenu.Link asChild>
                     <Link
                       to="/kategorie/$parent/$child"
-                      params={{ parent: parent.slug, child: child.slug }}
+                      params={{ parent: parent.slug, child: leaf.slug }}
                       className="block truncate text-xs text-muted-foreground hover:text-foreground"
                     >
                       {leaf.name}
+                      <span className="ml-1 text-[10px] font-normal text-muted-foreground/70">
+                        ({leaf.count})
+                      </span>
                     </Link>
                   </NavigationMenu.Link>
                 </li>
