@@ -95,11 +95,11 @@ Erstelle für die ${contextLine} folgende Felder als JSON:
 {
   "seo_title": "60-65 Zeichen, enthält '${row.name}' und 'Amazon Warehouse' oder 'B-Ware'",
   "seo_description": "150-160 Zeichen Meta-Description, Nutzenversprechen + CTA",
-  "intro_md": "2-3 Absätze Markdown, konkret zur Kategorie ${row.name}, welche Produkte man findet, worauf beim Kauf zu achten ist. Kein Marketing-Blabla.",
-  "outro_md": "1-2 Absätze Markdown mit FAQ-Charakter, z.B. Rückgabe, Garantie, Zustand"
+  "intro_md": "KURZ: 2-4 Sätze in EINEM <p>-Absatz (max. 60 Wörter). Nennt die Kategorie ${row.name}, den Nutzen und was Nutzer hier finden. Kein <h1>, kein <h2>. Reines HTML.",
+  "outro_md": "LANG & STRUKTURIERT: 500-800 Wörter reines HTML. Beginne mit <h2>Was ist ${row.name} bei Amazon Warehouse?</h2> und beschreibe die Kategorie. Dann <h2>Worauf beim Kauf achten?</h2> mit 2-3 <h3>-Unterabschnitten (z.B. Zustand, Preisverlauf, Rückgabe). Danach <h2>Häufige Fragen</h2> mit 3-5 <h3>Frage?</h3><p>Antwort.</p>-Blöcken zu Garantie, Zustandsstufen (Wie neu, Sehr gut, Gut, Akzeptabel), Rückgaberecht und Nachhaltigkeit. Nutze <ul><li>-Listen wo sinnvoll. KEIN <h1>."
 }
 
-Nur das reine JSON zurückgeben, ohne Codeblock, ohne erklärenden Text.`;
+Wichtig: intro_md ist BEWUSST KURZ (steht direkt unter dem H1 der Seite), outro_md ist der SEO-Content (unterhalb der Deals) und darf ausführlich sein. Nur das reine JSON zurückgeben, ohne Codeblock, ohne erklärenden Text.`;
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

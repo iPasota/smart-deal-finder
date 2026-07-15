@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Loader2, LineChart as LineChartIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -12,6 +13,7 @@ import {
 import { buildDeeplink } from "@/lib/affiliate";
 import { formatEUR, type Deal } from "@/lib/mock-deals";
 import { ConditionBadge } from "./ConditionBadge";
+import { getPriceHistoryByAsin } from "@/lib/history.functions";
 
 type Range = 30 | 90 | 365;
 
@@ -26,15 +28,26 @@ export function PriceHistoryModal({
 }) {
   const [range, setRange] = useState<Range>(90);
 
-  const data = useMemo(() => {
-    const slice = deal.history.slice(-range);
-    return slice.map((h) => ({ date: h.t, price: h.p / 100 }));
-  }, [deal.history, range]);
+  const { data: fetched = [], isFetching } = useQuery({
+    queryKey: ["price-history", deal.asin],
+    queryFn: () => getPriceHistoryByAsin({ data: { asin: deal.asin } }),
+    enabled: open && (!deal.history || deal.history.length === 0),
+    staleTime: 60 * 60_000,
+    gcTime: 24 * 60 * 60_000,
+  });
 
+  const history = deal.history?.length ? deal.history : fetched;
+
+  const data = useMemo(() => {
+    const slice = history.slice(-range);
+    return slice.map((h) => ({ date: h.t, price: h.p / 100 }));
+  }, [history, range]);
+
+  const hasData = data.length > 0;
   const prices = data.map((d) => d.price);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+  const min = hasData ? Math.min(...prices) : 0;
+  const max = hasData ? Math.max(...prices) : 0;
+  const avg = hasData ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
   const current = deal.priceCents / 100;
 
   return (
@@ -59,9 +72,9 @@ export function PriceHistoryModal({
           {/* Stats */}
           <div className="mt-5 grid grid-cols-4 gap-3 border-y border-hairline py-4">
             <Stat label="Aktuell" value={formatEUR(deal.priceCents)} accent />
-            <Stat label="Tief" value={`€${min.toFixed(2).replace(".", ",")}`} />
-            <Stat label="Ø" value={`€${avg.toFixed(2).replace(".", ",")}`} />
-            <Stat label="Hoch" value={`€${max.toFixed(2).replace(".", ",")}`} />
+            <Stat label="Tief" value={hasData ? `€${min.toFixed(2).replace(".", ",")}` : "—"} />
+            <Stat label="Ø" value={hasData ? `€${avg.toFixed(2).replace(".", ",")}` : "—"} />
+            <Stat label="Hoch" value={hasData ? `€${max.toFixed(2).replace(".", ",")}` : "—"} />
           </div>
 
           {/* Range */}
@@ -83,49 +96,66 @@ export function PriceHistoryModal({
 
           {/* Chart */}
           <div className="mt-3 h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="hist" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="var(--emerald)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="var(--emerald)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                  minTickGap={32}
-                />
-                <YAxis
-                  tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                  width={50}
-                  domain={["auto", "auto"]}
-                  tickFormatter={(v) => `€${Math.round(v)}`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--popover)",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  labelStyle={{ color: "var(--muted-foreground)" }}
-                  formatter={(v) => [`€${Number(v).toFixed(2).replace(".", ",")}`, "Preis"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="price"
-                  stroke="var(--emerald)"
-                  strokeWidth={2}
-                  fill="url(#hist)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {isFetching && !hasData ? (
+              <div className="grid h-full place-items-center text-muted-foreground">
+                <Loader2 className="size-6 animate-spin" />
+              </div>
+            ) : !hasData ? (
+              <div className="grid h-full place-items-center rounded-lg border border-dashed border-hairline p-6 text-center">
+                <div>
+                  <LineChartIcon className="mx-auto size-6 text-muted-foreground/60" />
+                  <p className="mt-2 text-sm font-semibold text-foreground">Noch kein Preisverlauf</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Für dieses Produkt liegen noch keine historischen Warehouse-Preise vor.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="hist" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="var(--emerald)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="var(--emerald)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    minTickGap={32}
+                  />
+                  <YAxis
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    width={50}
+                    domain={["auto", "auto"]}
+                    tickFormatter={(v) => `€${Math.round(v)}`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--popover)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    labelStyle={{ color: "var(--muted-foreground)" }}
+                    formatter={(v) => [`€${Number(v).toFixed(2).replace(".", ",")}`, "Preis"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="price"
+                    stroke="var(--emerald)"
+                    strokeWidth={2}
+                    fill="url(#hist)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
+
 
           {/* Primary CTA stays visible */}
           <a

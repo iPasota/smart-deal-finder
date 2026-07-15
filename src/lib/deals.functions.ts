@@ -36,10 +36,10 @@ function normalizeCategory(raw: string | null): string {
 }
 
 const PUBLIC_DEALS_PAGE_SIZE = 500;
-// Cap SSR payload — Cloudflare Workers have a ~128MB memory limit.
-// 8000 rows ≈ 6MB of JSON with the current projection, comfortably under limit
-// while covering the entire in-stock catalog (currently ~6.3k offers).
-const PUBLIC_DEALS_MAX_ROWS = 8000;
+// Cap SSR payload — keep initial page fast. 2500 rows ≈ ~1.9 MB JSON, hydrates
+// in <1s on typical broadband while still covering the biggest-discount tail
+// used by the homepage filters.
+const PUBLIC_DEALS_MAX_ROWS = 2500;
 const PUBLIC_DEALS_SELECT =
   "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category), shop:shops!inner(slug)";
 

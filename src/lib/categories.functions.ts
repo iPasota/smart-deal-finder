@@ -250,53 +250,73 @@ export const getCategoryPage = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<CategoryPage | null> => {
     const supabase = anonClient();
 
-    // Find parent
-    const { data: parentRow, error: e1 } = await supabase
+    // Load all categories once (tree is small) so a child slug can resolve to
+    // any descendant of the parent, not just a direct child. This fixes the
+    // "menu leaf routes to top parent" bug when subcategories are 3 levels deep.
+    const { data: allCats, error: allErr } = await supabase
       .from("categories")
-      .select("*")
-      .is("parent_id", null)
-      .eq("slug", data.parent)
-      .maybeSingle();
-    if (e1) throw new Error(e1.message);
+      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort");
+    if (allErr) throw new Error(allErr.message);
+    const rows = (allCats ?? []) as CategoryRow[];
+
+    const parentRow = rows.find((r) => !r.parent_id && r.slug === data.parent);
     if (!parentRow) return null;
 
-    let current = parentRow as CategoryRow;
-    const breadcrumb: CategoryRow[] = [parentRow as CategoryRow];
+    // Descendant lookup: any category whose ancestor chain contains parentRow
+    const parentOf = new Map(rows.map((r) => [r.id, r.parent_id] as const));
+    const isDescendantOf = (id: string, rootId: string): boolean => {
+      let cur: string | null | undefined = id;
+      for (let i = 0; i < 10 && cur; i += 1) {
+        if (cur === rootId) return true;
+        cur = parentOf.get(cur) ?? null;
+      }
+      return false;
+    };
+
+    let current: CategoryRow = parentRow;
+    const breadcrumb: CategoryRow[] = [parentRow];
 
     if (data.child) {
-      const { data: childRow, error: e2 } = await supabase
-        .from("categories")
-        .select("*")
-        .eq("parent_id", parentRow.id)
-        .eq("slug", data.child)
-        .maybeSingle();
-      if (e2) throw new Error(e2.message);
-      if (!childRow) return null;
-      current = childRow as CategoryRow;
-      breadcrumb.push(childRow as CategoryRow);
+      const candidates = rows.filter((r) => r.slug === data.child && r.id !== parentRow.id);
+      const match = candidates.find((r) => isDescendantOf(r.id, parentRow.id));
+      if (!match) return null;
+      current = match;
+      // Build full breadcrumb from parentRow down to current
+      const chain: CategoryRow[] = [];
+      let cur: CategoryRow | undefined = match;
+      while (cur && cur.id !== parentRow.id) {
+        chain.unshift(cur);
+        const pid: string | null = parentOf.get(cur.id) ?? null;
+        cur = pid ? rows.find((r) => r.id === pid) : undefined;
+      }
+      breadcrumb.push(...chain);
     }
 
-    // Direct children (for further navigation on the page)
-    const { data: children } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort")
-      .eq("parent_id", current.id)
-      .order("sort")
-      .order("name");
+    // Direct children (further navigation)
+    const children = rows
+      .filter((r) => r.parent_id === current.id)
+      .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name, "de"));
 
-    // Collect all descendant category ids to include child-only products.
-    const catIds = [current.id];
-    for (const c of children ?? []) catIds.push(c.id);
+    // Include all descendants when fetching offers
+    const catIds = new Set<string>([current.id]);
+    let added = true;
+    while (added) {
+      added = false;
+      for (const r of rows) {
+        if (r.parent_id && catIds.has(r.parent_id) && !catIds.has(r.id)) {
+          catIds.add(r.id);
+          added = true;
+        }
+      }
+    }
 
-    // Filter offers directly on the joined products.category_id so we bypass
-    // the 1000-row cap of a two-step .in(productIds) fetch.
     const { data: offers, error: oErr } = await supabase
       .from("offers")
       .select(
         "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
       )
       .eq("in_stock", true)
-      .in("product.category_id", catIds)
+      .in("product.category_id", Array.from(catIds))
       .order("discount_percent", { ascending: false, nullsFirst: false })
       .limit(500);
     if (oErr) throw new Error(oErr.message);
@@ -335,7 +355,7 @@ export const getCategoryPage = createServerFn({ method: "GET" })
     return {
       category: current,
       breadcrumb,
-      childCategories: (children ?? []) as CategoryRow[],
+      childCategories: children as CategoryRow[],
       deals,
     };
   });
