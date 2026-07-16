@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -10,7 +10,6 @@ import { useLazyList } from "@/hooks/use-lazy-list";
 import { discountPct, type Condition, type Deal } from "@/lib/mock-deals";
 import { SHOPS } from "@/lib/shops";
 import { getPublicDeals } from "@/lib/deals.functions";
-import { getTopCategoryLinks } from "@/lib/categories.functions";
 
 const dealsQuery = {
   queryKey: ["deals", "public"] as const,
@@ -18,11 +17,7 @@ const dealsQuery = {
   staleTime: 60_000,
 };
 
-const topCategoriesQuery = {
-  queryKey: ["top-categories"] as const,
-  queryFn: () => getTopCategoryLinks(),
-  staleTime: 5 * 60_000,
-};
+
 
 const FAQ_JSONLD = {
   "@context": "https://schema.org",
