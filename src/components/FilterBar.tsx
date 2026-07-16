@@ -1,6 +1,6 @@
-import { ArrowUpDown, Check, SlidersHorizontal, Search } from "lucide-react";
+import { ArrowUpDown, Check, SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { CATEGORIES, CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
+import { CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
 import { SHOP_LIST, type ShopSlug } from "@/lib/shops";
 
 export type SortKey = "discount" | "newest" | "price_asc" | "price_desc" | "shop" | "condition";
@@ -52,7 +52,6 @@ export function FilterBar({
   count: number;
   availability?: FilterAvailability;
 }) {
-  const catCount = (c: string) => (availability ? availability.categories[c] ?? 0 : Infinity);
   const condCount = (c: Condition) => (availability ? availability.conditions[c] ?? 0 : Infinity);
   const shopCount = (s: ShopSlug) => (availability ? availability.shops[s] ?? 0 : Infinity);
   const discCount = (d: number) => (availability ? availability.discounts[d] ?? 0 : Infinity);
@@ -89,31 +88,104 @@ export function FilterBar({
     filters.shops.length +
     (filters.minDiscount > 0 ? 1 : 0);
 
+  const shopsAvailable = SHOP_LIST.filter((s) => s.active).length > 1;
+
   return (
     <div className="relative z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
-      <div className="mx-auto max-w-7xl px-4 py-3 lg:px-6">
-        {/* Top row: search + sort icon + (mobile) filter toggle */}
+      <div className="mx-auto max-w-7xl px-4 py-2 lg:px-6">
+        {/* Compact single-row bar on desktop; collapsible on mobile */}
         <div className="flex items-center gap-2">
-          <div className="group relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-[18px] -translate-y-1/2 text-foreground/70 transition-colors group-focus-within:text-emerald" />
-            <input
-              value={filters.search}
-              onChange={(e) => onChange({ ...filters, search: e.target.value })}
-              placeholder="Marke, Modell, ASIN…"
-              className="h-12 w-full rounded-xl border-2 border-foreground/15 bg-white pl-10 pr-3 text-sm font-medium text-foreground shadow-sm placeholder:font-normal placeholder:text-muted-foreground focus:border-emerald focus:outline-none focus:ring-4 focus:ring-emerald-soft"
-            />
+          {/* Filter chips (desktop) */}
+          <div className="hidden min-w-0 flex-1 items-center gap-x-4 gap-y-1 lg:flex lg:flex-wrap">
+            <InlineGroup label="Zustand" accent="bg-emerald">
+              {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
+                const active = filters.conditions.includes(c);
+                if (!active && condCount(c) === 0) return null;
+                return (
+                  <Chip key={c} active={active} tone="emerald" onClick={() => toggleCondition(c)}>
+                    {CONDITION_LABEL[c]}
+                  </Chip>
+                );
+              })}
+            </InlineGroup>
+
+            <InlineGroup label="Rabatt" accent="bg-amber">
+              {[0, 10, 20, 30, 40].map((d) => {
+                const active = filters.minDiscount === d;
+                if (!active && d !== 0 && discCount(d) === 0) return null;
+                return (
+                  <Chip
+                    key={d}
+                    active={active}
+                    tone="amber"
+                    onClick={() => onChange({ ...filters, minDiscount: d })}
+                  >
+                    {d === 0 ? "Alle" : `${d}%+`}
+                  </Chip>
+                );
+              })}
+            </InlineGroup>
+
+            {shopsAvailable && (
+              <InlineGroup label="Shop" accent="bg-foreground">
+                {SHOP_LIST.map((s) => {
+                  if (!s.active) return null;
+                  const active = filters.shops.includes(s.slug);
+                  if (!active && shopCount(s.slug) === 0) return null;
+                  return (
+                    <button
+                      key={s.slug}
+                      type="button"
+                      onClick={() => toggleShop(s.slug)}
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-tight transition-all ${
+                        active
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                      }`}
+                    >
+                      <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                      {s.shortName}
+                    </button>
+                  );
+                })}
+              </InlineGroup>
+            )}
           </div>
 
-          {/* Sort as icon button */}
+          {/* Mobile: filter toggle */}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((v) => !v)}
+            aria-label="Filter"
+            aria-expanded={filtersOpen}
+            className="relative inline-flex items-center gap-1.5 rounded-lg border border-foreground/15 bg-white px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:border-foreground/40 lg:hidden"
+          >
+            <SlidersHorizontal className="size-4" strokeWidth={2.5} />
+            Filter
+            {activeFilterCount > 0 && (
+              <span className="ml-1 grid size-4 place-items-center rounded-full bg-emerald text-[10px] font-black text-emerald-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
+          <span className="font-mono-tabular ml-auto hidden shrink-0 rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground sm:inline">
+            {count} Deals
+          </span>
+
+          {/* Sort */}
           <div ref={sortRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => setSortOpen((v) => !v)}
               aria-label="Sortierung"
               title={`Sortieren: ${SORT_OPTIONS.find((o) => o.value === filters.sort)?.label ?? ""}`}
-              className="grid size-12 place-items-center rounded-xl border-2 border-foreground bg-foreground text-background transition-colors hover:bg-foreground/90 focus:outline-none focus:ring-4 focus:ring-foreground/20"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground bg-foreground px-2.5 py-1.5 text-xs font-bold text-background transition-colors hover:bg-foreground/90"
             >
-              <ArrowUpDown className="size-5" strokeWidth={2.5} />
+              <ArrowUpDown className="size-4" strokeWidth={2.5} />
+              <span className="hidden sm:inline">
+                {SORT_OPTIONS.find((o) => o.value === filters.sort)?.label}
+              </span>
             </button>
             {sortOpen && (
               <div className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-hairline bg-white shadow-lg">
@@ -139,151 +211,89 @@ export function FilterBar({
               </div>
             )}
           </div>
-
-          {/* Mobile filter toggle */}
-          <button
-            type="button"
-            onClick={() => setFiltersOpen((v) => !v)}
-            aria-label="Filter"
-            aria-expanded={filtersOpen}
-            className="relative grid size-12 shrink-0 place-items-center rounded-xl border-2 border-foreground/15 bg-white text-foreground transition-colors hover:border-foreground/40 focus:outline-none focus:ring-4 focus:ring-foreground/10 lg:hidden"
-          >
-            <SlidersHorizontal className="size-5" strokeWidth={2.5} />
-            {activeFilterCount > 0 && (
-              <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-emerald text-[10px] font-black text-emerald-foreground">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
         </div>
 
-        {/* Collapsible on mobile, always visible on lg+ */}
-        <div className={`${filtersOpen ? "block" : "hidden"} lg:block`}>
-          {/* Category chips */}
-          <FadeRow className="mt-3">
-            {CATEGORIES.map((c) => {
-              const active = filters.category === c;
-              if (!active && catCount(c) === 0) return null;
-              return (
-                <Chip
-                  key={c}
-                  active={active}
-                  tone="emerald"
-                  onClick={() => onChange({ ...filters, category: c })}
-                >
-                  {c}
-                </Chip>
-              );
-            })}
-          </FadeRow>
-
-          {/* Shop chips — komplett ausgeblendet solange nur ein Shop aktiv ist */}
-          {SHOP_LIST.filter((s) => s.active).length > 1 && (
-            <FilterRow label="Shop" accent="bg-foreground">
-              {SHOP_LIST.map((s) => {
-                const active = filters.shops.includes(s.slug);
-                if (!s.active) return null;
-                if (!active && shopCount(s.slug) === 0) return null;
+        {/* Mobile-only expanded filters */}
+        {filtersOpen && (
+          <div className="mt-2 space-y-2 lg:hidden">
+            <MobileGroup label="Zustand" accent="bg-emerald">
+              {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
+                const active = filters.conditions.includes(c);
+                if (!active && condCount(c) === 0) return null;
                 return (
-                  <button
-                    key={s.slug}
-                    type="button"
-                    onClick={() => toggleShop(s.slug)}
-                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-bold uppercase tracking-tight transition-all ${
-                      active
-                        ? "border-foreground bg-foreground text-background shadow-sm"
-                        : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                    }`}
-                  >
-                    <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
-                    {s.shortName}
-                  </button>
+                  <Chip key={c} active={active} tone="emerald" onClick={() => toggleCondition(c)}>
+                    {CONDITION_LABEL[c]}
+                  </Chip>
                 );
               })}
-            </FilterRow>
-          )}
-
-          {/* Zustand — eigene Zeile */}
-          <FilterRow label="Zustand" accent="bg-emerald">
-            {(Object.keys(CONDITION_LABEL) as Condition[]).map((c) => {
-              const active = filters.conditions.includes(c);
-              if (!active && condCount(c) === 0) return null;
-              return (
-                <Chip
-                  key={c}
-                  active={active}
-                  tone="emerald"
-                  size="sm"
-                  onClick={() => toggleCondition(c)}
-                >
-                  {CONDITION_LABEL[c]}
-                </Chip>
-              );
-            })}
-          </FilterRow>
-
-          {/* Rabatt — eigene Zeile */}
-          <FilterRow label="Rabatt" accent="bg-amber">
-            {[0, 10, 20, 30, 40].map((d) => {
-              const active = filters.minDiscount === d;
-              if (!active && d !== 0 && discCount(d) === 0) return null;
-              return (
-                <Chip
-                  key={d}
-                  active={active}
-                  tone="amber"
-                  size="sm"
-                  onClick={() => onChange({ ...filters, minDiscount: d })}
-                >
-                  {d === 0 ? "Alle" : `${d}%+`}
-                </Chip>
-              );
-            })}
-          </FilterRow>
-
-          <div className="mt-3 flex justify-end">
-            <span className="font-mono-tabular rounded-lg bg-surface-2 px-2.5 py-1 text-xs font-bold text-muted-foreground">
-              {count} Deals
-            </span>
+            </MobileGroup>
+            <MobileGroup label="Rabatt" accent="bg-amber">
+              {[0, 10, 20, 30, 40].map((d) => {
+                const active = filters.minDiscount === d;
+                if (!active && d !== 0 && discCount(d) === 0) return null;
+                return (
+                  <Chip
+                    key={d}
+                    active={active}
+                    tone="amber"
+                    onClick={() => onChange({ ...filters, minDiscount: d })}
+                  >
+                    {d === 0 ? "Alle" : `${d}%+`}
+                  </Chip>
+                );
+              })}
+            </MobileGroup>
+            {shopsAvailable && (
+              <MobileGroup label="Shop" accent="bg-foreground">
+                {SHOP_LIST.map((s) => {
+                  if (!s.active) return null;
+                  const active = filters.shops.includes(s.slug);
+                  if (!active && shopCount(s.slug) === 0) return null;
+                  return (
+                    <button
+                      key={s.slug}
+                      type="button"
+                      onClick={() => toggleShop(s.slug)}
+                      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-tight transition-all ${
+                        active
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                      }`}
+                    >
+                      <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                      {s.shortName}
+                    </button>
+                  );
+                })}
+              </MobileGroup>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-function FilterRow({
-  label,
-  accent,
-  children,
-}: {
-  label: string;
-  accent: string;
-  children: React.ReactNode;
-}) {
+function InlineGroup({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
   return (
-    <div className="mt-3 flex items-center gap-2">
-      <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-foreground/80">
-        <span className={`inline-block h-3.5 w-1 rounded-full ${accent}`} />
+    <div className="flex items-center gap-1.5">
+      <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-foreground/70">
+        <span className={`inline-block h-3 w-1 rounded-full ${accent}`} />
         {label}
       </span>
-      <FadeRow className="min-w-0 flex-1">{children}</FadeRow>
+      <div className="flex flex-wrap gap-1">{children}</div>
     </div>
   );
 }
 
-function FadeRow({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function MobileGroup({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
   return (
-    <div
-      className={`-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 no-scrollbar ${className}`}
-      style={{
-        maskImage:
-          "linear-gradient(to right, black 0, black calc(100% - 24px), transparent 100%)",
-        WebkitMaskImage:
-          "linear-gradient(to right, black 0, black calc(100% - 24px), transparent 100%)",
-      }}
-    >
-      {children}
+    <div className="flex items-start gap-2">
+      <span className="mt-1 flex shrink-0 items-center gap-1 text-[11px] font-semibold text-foreground/70">
+        <span className={`inline-block h-3 w-1 rounded-full ${accent}`} />
+        {label}
+      </span>
+      <div className="flex flex-wrap gap-1">{children}</div>
     </div>
   );
 }
@@ -293,24 +303,21 @@ function Chip({
   active,
   onClick,
   tone = "emerald",
-  size = "md",
 }: {
   children: React.ReactNode;
   active: boolean;
   onClick: () => void;
   tone?: "emerald" | "amber";
-  size?: "sm" | "md";
 }) {
-  const sizing = size === "sm" ? "px-2.5 py-1 text-[11px]" : "px-3.5 py-1.5 text-xs";
   const activeCls =
     tone === "amber"
-      ? "border-amber bg-amber text-amber-foreground shadow-sm"
-      : "border-emerald bg-emerald text-emerald-foreground shadow-sm";
+      ? "border-amber bg-amber text-amber-foreground"
+      : "border-emerald bg-emerald text-emerald-foreground";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`whitespace-nowrap rounded-lg border font-bold uppercase tracking-tight transition-all ${sizing} ${
+      className={`whitespace-nowrap rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-tight transition-all ${
         active
           ? activeCls
           : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"

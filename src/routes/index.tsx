@@ -6,6 +6,7 @@ import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { DEFAULT_FILTERS, FilterBar, type Filters } from "@/components/FilterBar";
 import { SeoContent } from "@/components/SeoContent";
+import { useLazyList } from "@/hooks/use-lazy-list";
 import { discountPct, type Condition, type Deal } from "@/lib/mock-deals";
 import { SHOPS } from "@/lib/shops";
 import { getPublicDeals } from "@/lib/deals.functions";
@@ -195,10 +196,15 @@ function Index() {
   }, [filters, allDeals]);
 
 
+  const { visible, sentinelRef, hasMore } = useLazyList(deals, 48, 48);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-40">
-        <Header />
+        <Header
+          search={filters.search}
+          onSearchChange={(v) => setFilters({ ...filters, search: v })}
+        />
         <FilterBar filters={filters} onChange={setFilters} count={deals.length} availability={availability} />
       </div>
 
@@ -230,13 +236,24 @@ function Index() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {deals.map((d) => (
-              <DealCard key={d.id} deal={d} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {deals.slice(0, visible).map((d) => (
+                <DealCard key={d.id} deal={d} />
+              ))}
+            </div>
+            {hasMore && (
+              <div
+                ref={sentinelRef}
+                className="mt-8 py-8 text-center text-xs text-muted-foreground"
+              >
+                Lade weitere Deals… ({visible} von {deals.length})
+              </div>
+            )}
+          </>
         )}
       </main>
+
 
       <SeoContent />
 
