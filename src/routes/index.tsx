@@ -209,22 +209,7 @@ function Index() {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
-        {topCategories.length > 0 && (
-          <nav aria-label="Kategorien" className="mb-6 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-semibold text-foreground/80">Kategorien:</span>
-            {topCategories.map((c) => (
-              <Link
-                key={c.slug}
-                to="/kategorie/$parent"
-                params={{ parent: c.slug }}
-                className="rounded-lg border border-hairline bg-surface px-2.5 py-1 font-bold uppercase tracking-tight text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-              >
-                {c.name}
-                <span className="ml-1 text-[10px] font-normal text-muted-foreground/70">{c.count}</span>
-              </Link>
-            ))}
-          </nav>
-        )}
+
 
         {deals.length === 0 ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-hairline py-24 text-center">
