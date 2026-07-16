@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
+import { useLazyList } from "@/hooks/use-lazy-list";
 import { getCategoryPage } from "@/lib/categories.functions";
 import { CONDITION_LABEL, type Condition } from "@/lib/mock-deals";
 
@@ -95,10 +96,11 @@ export function CategoryPageView({
 }: {
   data: NonNullable<Awaited<ReturnType<typeof getCategoryPage>>>;
 }) {
+  const [search, setSearch] = useState("");
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-40">
-        <Header />
+        <Header search={search} onSearchChange={setSearch} />
       </div>
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
         <Breadcrumbs items={data.breadcrumb} />
@@ -127,7 +129,7 @@ export function CategoryPageView({
           </div>
         )}
 
-        <CategoryDealsSection deals={data.deals} />
+        <CategoryDealsSection deals={data.deals} search={search} />
 
 
         {data.category.outro_md && (
@@ -141,13 +143,22 @@ export function CategoryPageView({
   );
 }
 
-type CategoryDeal = { id: string; condition: Condition; priceCents: number; newPriceCents: number };
+type CategoryDeal = {
+  id: string;
+  condition: Condition;
+  priceCents: number;
+  newPriceCents: number;
+  title?: string;
+  brand?: string;
+  asin?: string;
+};
 
-function CategoryDealsSection<T extends CategoryDeal>({ deals }: { deals: T[] }) {
+function CategoryDealsSection<T extends CategoryDeal>({ deals, search }: { deals: T[]; search: string }) {
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [minDiscount, setMinDiscount] = useState(0);
 
   const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
     return deals.filter((d) => {
       if (conditions.length > 0 && !conditions.includes(d.condition)) return false;
       if (minDiscount > 0) {
@@ -156,9 +167,15 @@ function CategoryDealsSection<T extends CategoryDeal>({ deals }: { deals: T[] })
           : 0;
         if (pct < minDiscount) return false;
       }
+      if (q) {
+        const hay = `${d.brand ?? ""} ${d.title ?? ""} ${d.asin ?? ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
       return true;
     });
-  }, [deals, conditions, minDiscount]);
+  }, [deals, conditions, minDiscount, search]);
+
+  const { visible, sentinelRef, hasMore } = useLazyList(filtered, 48, 48);
 
   const condCounts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -217,15 +234,23 @@ function CategoryDealsSection<T extends CategoryDeal>({ deals }: { deals: T[] })
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {(filtered as unknown as import("@/lib/mock-deals").Deal[]).map((d) => (
-            <DealCard key={d.id} deal={d} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {(filtered.slice(0, visible) as unknown as import("@/lib/mock-deals").Deal[]).map((d) => (
+              <DealCard key={d.id} deal={d} />
+            ))}
+          </div>
+          {hasMore && (
+            <div ref={sentinelRef} className="mt-8 py-8 text-center text-xs text-muted-foreground">
+              Lade weitere Deals… ({visible} von {filtered.length})
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
+
 
 function FilterGroup({ label, accent, children }: { label: string; accent: string; children: React.ReactNode }) {
   return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, User, LogOut, BookmarkCheck } from "lucide-react";
+import { Bell, User, LogOut, BookmarkCheck, Search } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { GoogleIcon, AppleIcon } from "./BrandIcons";
@@ -9,13 +9,16 @@ import { useAuth } from "@/hooks/use-auth";
 import { MARKETPLACE_LIST } from "@/lib/marketplace";
 import { CategoryMegaMenu } from "./CategoryMegaMenu";
 
-export function Header() {
+type HeaderProps = {
+  search?: string;
+  onSearchChange?: (v: string) => void;
+};
+
+export function Header({ search, onSearchChange }: HeaderProps = {}) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const { user } = useAuth();
-
-
 
   const signIn = async (provider: "google" | "apple") => {
     setErr(null);
@@ -33,9 +36,11 @@ export function Header() {
     await supabase.auth.signOut();
   };
 
+  const showSearch = typeof onSearchChange === "function";
+
   return (
     <header className="relative z-50 border-b border-hairline bg-background/85 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 lg:px-6">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 lg:px-6">
         <Link to="/" className="flex shrink-0 items-center gap-2.5">
           <span className="grid size-9 place-items-center rounded-xl border border-emerald/20 bg-emerald-soft text-emerald-ink">
             <Bell className="size-4" strokeWidth={2.5} />
@@ -45,12 +50,22 @@ export function Header() {
           </span>
         </Link>
 
-        <div className="flex-1" />
+        {showSearch ? (
+          <div className="group relative mx-2 min-w-0 max-w-xl flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-foreground/60 transition-colors group-focus-within:text-emerald" />
+            <input
+              value={search ?? ""}
+              onChange={(e) => onSearchChange!(e.target.value)}
+              placeholder="Marke, Modell, ASIN…"
+              aria-label="Deals durchsuchen"
+              className="h-10 w-full rounded-lg border border-foreground/15 bg-white pl-9 pr-3 text-sm font-medium text-foreground placeholder:font-normal placeholder:text-muted-foreground focus:border-emerald focus:outline-none focus:ring-2 focus:ring-emerald-soft"
+            />
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
 
-
-
-        {/* Country / Marketplace switcher — MVP: nur DE aktiv */}
-        <div className="ml-auto mr-2 hidden items-center gap-1 rounded-lg border border-hairline bg-surface p-1 md:flex">
+        <div className="hidden items-center gap-1 rounded-lg border border-hairline bg-surface p-1 md:flex">
           {MARKETPLACE_LIST.map((m) => (
             <button
               key={m.code}
@@ -68,7 +83,6 @@ export function Header() {
             </button>
           ))}
         </div>
-
 
         {user ? (
           <div className="flex items-center gap-2">
@@ -94,18 +108,12 @@ export function Header() {
             className="inline-flex items-center gap-2 rounded-lg border border-hairline bg-surface px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:border-emerald hover:text-emerald-ink"
           >
             <User className="size-4" />
-            Anmelden
+            <span className="hidden sm:inline">Anmelden</span>
           </button>
         )}
       </div>
 
       <CategoryMegaMenu />
-
-
-
-
-
-
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="border-hairline bg-popover">

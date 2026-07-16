@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -6,10 +6,10 @@ import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
 import { DEFAULT_FILTERS, FilterBar, type Filters } from "@/components/FilterBar";
 import { SeoContent } from "@/components/SeoContent";
+import { useLazyList } from "@/hooks/use-lazy-list";
 import { discountPct, type Condition, type Deal } from "@/lib/mock-deals";
 import { SHOPS } from "@/lib/shops";
 import { getPublicDeals } from "@/lib/deals.functions";
-import { getTopCategoryLinks } from "@/lib/categories.functions";
 
 const dealsQuery = {
   queryKey: ["deals", "public"] as const,
@@ -17,11 +17,7 @@ const dealsQuery = {
   staleTime: 60_000,
 };
 
-const topCategoriesQuery = {
-  queryKey: ["top-categories"] as const,
-  queryFn: () => getTopCategoryLinks(),
-  staleTime: 5 * 60_000,
-};
+
 
 const FAQ_JSONLD = {
   "@context": "https://schema.org",
@@ -89,11 +85,9 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(dealsQuery),
-      context.queryClient.ensureQueryData(topCategoriesQuery),
-    ]);
+    await context.queryClient.ensureQueryData(dealsQuery);
   },
+
   component: Index,
   errorComponent: ({ error, reset }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
@@ -112,7 +106,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data: allDeals } = useSuspenseQuery(dealsQuery);
-  const { data: topCategories } = useSuspenseQuery(topCategoriesQuery);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const deals = useMemo(() => {
@@ -195,30 +188,20 @@ function Index() {
   }, [filters, allDeals]);
 
 
+  const { visible, sentinelRef, hasMore } = useLazyList(deals, 48, 48);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-40">
-        <Header />
+        <Header
+          search={filters.search}
+          onSearchChange={(v) => setFilters({ ...filters, search: v })}
+        />
         <FilterBar filters={filters} onChange={setFilters} count={deals.length} availability={availability} />
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
-        {topCategories.length > 0 && (
-          <nav aria-label="Kategorien" className="mb-6 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-semibold text-foreground/80">Kategorien:</span>
-            {topCategories.map((c) => (
-              <Link
-                key={c.slug}
-                to="/kategorie/$parent"
-                params={{ parent: c.slug }}
-                className="rounded-lg border border-hairline bg-surface px-2.5 py-1 font-bold uppercase tracking-tight text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-              >
-                {c.name}
-                <span className="ml-1 text-[10px] font-normal text-muted-foreground/70">{c.count}</span>
-              </Link>
-            ))}
-          </nav>
-        )}
+
 
         {deals.length === 0 ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-hairline py-24 text-center">
@@ -230,13 +213,24 @@ function Index() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {deals.map((d) => (
-              <DealCard key={d.id} deal={d} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {deals.slice(0, visible).map((d) => (
+                <DealCard key={d.id} deal={d} />
+              ))}
+            </div>
+            {hasMore && (
+              <div
+                ref={sentinelRef}
+                className="mt-8 py-8 text-center text-xs text-muted-foreground"
+              >
+                Lade weitere Deals… ({visible} von {deals.length})
+              </div>
+            )}
+          </>
         )}
       </main>
+
 
       <SeoContent />
 

@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KategorieParentRouteImport } from './routes/kategorie.$parent'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
+import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$parent.index'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
@@ -50,6 +51,11 @@ const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const KategorieParentIndexRoute = KategorieParentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => KategorieParentRoute,
 } as any)
 const KategorieParentChildRoute = KategorieParentChildRouteImport.update({
   id: '/$child',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/kategorie/$parent/': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
@@ -103,10 +110,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
-  '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/kategorie/$parent': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
@@ -122,6 +129,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/kategorie/$parent/': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
@@ -137,6 +145,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/kategorie/$parent/'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
@@ -146,10 +155,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/watchlist'
-    | '/kategorie/$parent'
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/kategorie/$parent'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/kategorie/$parent/'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
@@ -225,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWatchlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/kategorie/$parent/': {
+      id: '/kategorie/$parent/'
+      path: '/'
+      fullPath: '/kategorie/$parent/'
+      preLoaderRoute: typeof KategorieParentIndexRouteImport
+      parentRoute: typeof KategorieParentRoute
+    }
     '/kategorie/$parent/$child': {
       id: '/kategorie/$parent/$child'
       path: '/$child'
@@ -285,10 +302,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface KategorieParentRouteChildren {
   KategorieParentChildRoute: typeof KategorieParentChildRoute
+  KategorieParentIndexRoute: typeof KategorieParentIndexRoute
 }
 
 const KategorieParentRouteChildren: KategorieParentRouteChildren = {
   KategorieParentChildRoute: KategorieParentChildRoute,
+  KategorieParentIndexRoute: KategorieParentIndexRoute,
 }
 
 const KategorieParentRouteWithChildren = KategorieParentRoute._addFileChildren(
