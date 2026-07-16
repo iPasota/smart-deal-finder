@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { DealCard } from "@/components/DealCard";
 import { Header } from "@/components/Header";
+import { useLazyList } from "@/hooks/use-lazy-list";
 import { getCategoryPage } from "@/lib/categories.functions";
 import { CONDITION_LABEL, type Condition } from "@/lib/mock-deals";
 
