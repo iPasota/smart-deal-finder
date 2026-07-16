@@ -106,7 +106,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data: allDeals } = useSuspenseQuery(dealsQuery);
-  const { data: allDeals } = useSuspenseQuery(dealsQuery);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
   const deals = useMemo(() => {
