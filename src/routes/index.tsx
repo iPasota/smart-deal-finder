@@ -85,11 +85,9 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(dealsQuery),
-      context.queryClient.ensureQueryData(topCategoriesQuery),
-    ]);
+    await context.queryClient.ensureQueryData(dealsQuery);
   },
+
   component: Index,
   errorComponent: ({ error, reset }) => (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
