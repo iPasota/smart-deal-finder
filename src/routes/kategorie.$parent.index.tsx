@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getCategoryPage } from "@/lib/categories.functions";
 import { CategoryPageView } from "./kategorie.$parent.$child";
@@ -13,6 +13,9 @@ const pageQuery = (parent: string) =>
   });
 
 export const Route = createFileRoute("/kategorie/$parent/")({
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: "/$parent", params: { parent: params.parent } });
+  },
   loader: async ({ params, context }) => {
     const data = await context.queryClient.ensureQueryData(pageQuery(params.parent));
     if (!data) throw notFound();
@@ -23,7 +26,7 @@ export const Route = createFileRoute("/kategorie/$parent/")({
       return { meta: [{ title: "Kategorie nicht gefunden" }, { name: "robots", content: "noindex" }] };
     }
     const c = loaderData.category;
-    const url = `${SITE}/kategorie/${params.parent}`;
+    const url = `${SITE}/${params.parent}`;
     const title = c.seo_title || `${c.name} — Amazon Warehouse Deals | whdfinder.de`;
     const desc =
       c.seo_description ||

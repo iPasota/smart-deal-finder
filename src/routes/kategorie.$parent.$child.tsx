@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -19,6 +19,9 @@ const pageQuery = (parent: string, child?: string) =>
   });
 
 export const Route = createFileRoute("/kategorie/$parent/$child")({
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: "/$parent/$child", params: { parent: params.parent, child: params.child } });
+  },
   loader: async ({ params, context }) => {
     const data = await context.queryClient.ensureQueryData(pageQuery(params.parent, params.child));
     if (!data) throw notFound();
@@ -29,7 +32,7 @@ export const Route = createFileRoute("/kategorie/$parent/$child")({
       return { meta: [{ title: "Kategorie nicht gefunden" }, { name: "robots", content: "noindex" }] };
     }
     const c = loaderData.category;
-    const url = `${SITE}/kategorie/${params.parent}/${params.child}`;
+    const url = `${SITE}/${params.parent}/${params.child}`;
     const title = c.seo_title || `${c.name} — Amazon Warehouse Deals | whdfinder.de`;
     const desc =
       c.seo_description ||
@@ -56,7 +59,7 @@ export const Route = createFileRoute("/kategorie/$parent/$child")({
                 "@type": "ListItem",
                 position: i + 2,
                 name: b.name,
-                item: `${SITE}/kategorie/${loaderData.breadcrumb.slice(0, i + 1).map((x) => x.slug).join("/")}`,
+                item: `${SITE}/${loaderData.breadcrumb.slice(0, i + 1).map((x) => x.slug).join("/")}`,
               })),
             ],
           }),
@@ -119,7 +122,7 @@ export function CategoryPageView({
             {data.childCategories.map((c) => (
               <Link
                 key={c.id}
-                to="/kategorie/$parent/$child"
+                to="/$parent/$child"
                 params={{ parent: data.breadcrumb[0].slug, child: c.slug }}
                 className="rounded-lg border border-hairline bg-surface px-3 py-1.5 text-xs font-bold uppercase tracking-tight text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
               >
@@ -307,7 +310,7 @@ export function Breadcrumbs({ items }: { items: { slug: string; name: string }[]
             {isLast ? (
               <span className="font-semibold text-foreground">{c.name}</span>
             ) : i === 0 ? (
-              <Link to="/kategorie/$parent" params={{ parent: parentSlug }} className="hover:text-foreground">
+              <Link to="/$parent" params={{ parent: parentSlug }} className="hover:text-foreground">
                 {c.name}
               </Link>
             ) : (
