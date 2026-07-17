@@ -181,7 +181,7 @@ export const getCategoryTree = createServerFn({ method: "GET" }).handler(
 
 // Top level-2 (sub) categories with the most products — used by the header
 // as a dynamic navigation strip. Returns up to 5 sub-categories with their
-// parent slug so we can link into /kategorie/$parent/$child.
+// parent slug so we can link into /$parent/$child.
 export type TopSubCategoryLink = {
   slug: string;
   name: string;

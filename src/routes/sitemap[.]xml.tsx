@@ -30,7 +30,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (const c of rows) {
           if (c.parent_id === null) {
             urls.push({
-              loc: `${BASE_URL}/kategorie/${c.slug}`,
+              loc: `${BASE_URL}/${c.slug}`,
               priority: "0.8",
               changefreq: "daily",
             });
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             const parent = byId.get(c.parent_id);
             if (!parent) continue;
             urls.push({
-              loc: `${BASE_URL}/kategorie/${parent.slug}/${c.slug}`,
+              loc: `${BASE_URL}/${parent.slug}/${c.slug}`,
               priority: "0.7",
               changefreq: "daily",
             });

@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getCategoryPage } from "@/lib/categories.functions";
-import { CategoryPageView } from "./kategorie.$parent.$child";
+import { CategoryPageView } from "./$parent.$child";
 
 const SITE = "https://whdfinder.lovable.app";
 
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/$parent/")({
       return { meta: [{ title: "Kategorie nicht gefunden" }, { name: "robots", content: "noindex" }] };
     }
     const c = loaderData.category;
-    const url = `${SITE}/kategorie/${params.parent}`;
+    const url = `${SITE}/${params.parent}`;
     const title = c.seo_title || `${c.name} — Amazon Warehouse Deals | whdfinder.de`;
     const desc =
       c.seo_description ||

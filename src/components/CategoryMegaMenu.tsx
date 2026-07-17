@@ -6,7 +6,7 @@ import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { getCategoryTree, type CategoryTreeNode } from "@/lib/categories.functions";
 
 // Hover-driven, keyboard-accessible mega menu. Renders up to 3 levels:
-// L1 (trigger) → L2 (column headings, link to /kategorie/$parent/$child)
+// L1 (trigger) → L2 (column headings, link to /$parent/$child)
 // → L3 (leaf links; currently not present in the dataset but supported).
 export function CategoryMegaMenu() {
   const { data: tree = [] } = useQuery({
@@ -67,7 +67,7 @@ function TopLevelItem({ node }: { node: CategoryTreeNode }) {
       ) : (
         <NavigationMenu.Link asChild>
           <Link
-            to="/kategorie/$parent"
+            to="/$parent"
             params={{ parent: node.slug }}
             className="inline-flex items-center rounded-md px-3 py-3 text-sm font-semibold text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-emerald"
           >
@@ -85,7 +85,7 @@ function MegaPanel({ parent }: { parent: CategoryTreeNode }) {
       <div className="col-span-full flex items-baseline justify-between border-b border-hairline pb-3">
         <NavigationMenu.Link asChild>
           <Link
-            to="/kategorie/$parent"
+            to="/$parent"
             params={{ parent: parent.slug }}
             className="text-xs font-bold uppercase tracking-widest text-foreground hover:text-emerald-ink"
           >
@@ -98,7 +98,7 @@ function MegaPanel({ parent }: { parent: CategoryTreeNode }) {
         <div key={child.id} className="min-w-0">
           <NavigationMenu.Link asChild>
             <Link
-              to="/kategorie/$parent/$child"
+              to="/$parent/$child"
               params={{ parent: parent.slug, child: child.slug }}
               className="block truncate text-sm font-bold text-foreground hover:text-emerald-ink"
             >
@@ -115,7 +115,7 @@ function MegaPanel({ parent }: { parent: CategoryTreeNode }) {
                 <li key={leaf.id}>
                   <NavigationMenu.Link asChild>
                     <Link
-                      to="/kategorie/$parent/$child"
+                      to="/$parent/$child"
                       params={{ parent: parent.slug, child: leaf.slug }}
                       className="block truncate text-xs text-muted-foreground hover:text-foreground"
                     >
