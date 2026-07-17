@@ -34,6 +34,7 @@ export type KeepaDealRecord = {
   lastUpdate?: number;
   deltaPercent?: number[];
   creationDate?: number;
+  warehouseCondition?: number | null;
 };
 
 export type KeepaDealsResponse = {
@@ -78,7 +79,7 @@ export type KeepaProductResponse = {
 export type DealSelection = {
   page: number;
   domainId: number;
-  priceTypes: number[]; // [7] = warehouse
+  priceTypes: number[]; // [9] = warehouse, [19-22] = used condition buckets incl. shipping
   deltaPercentRange?: [number, number]; // e.g. [10, 100] = 10-100% off
   currentRange?: [number, number]; // price cents range
   isRangeEnabled?: boolean;

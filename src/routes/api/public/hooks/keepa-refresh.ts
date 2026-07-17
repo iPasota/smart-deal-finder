@@ -10,6 +10,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { fetchProducts, keepaPrice, tokenStatus } from "@/lib/keepa.server";
+import { priceIndexForCondition } from "@/lib/keepa-conditions";
 
 const BodySchema = z
   .object({
@@ -109,7 +110,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-refresh")({
         // 4) Pick oldest-seen in-stock warehouse offers.
         const { data: staleOffers, error: pickErr } = await supabaseAdmin
           .from("offers")
-          .select("id, external_id, product_id, last_seen_at, price_cents")
+          .select("id, external_id, product_id, condition, last_seen_at, price_cents")
           .eq("shop_id", shopId)
           .eq("in_stock", true)
           .order("last_seen_at", { ascending: true, nullsFirst: true })
@@ -151,12 +152,16 @@ export const Route = createFileRoute("/api/public/hooks/keepa-refresh")({
               const offer = asinToOffer.get(p.asin);
               if (!offer) continue;
 
-              const whd = keepaPrice(p.stats?.current?.[9]);
+              const condition = (offer.condition as string | null) ?? "Used - Very Good";
+              const priceIndex = priceIndexForCondition(condition);
+              const whd =
+                keepaPrice(p.stats?.current?.[priceIndex]) ??
+                (condition === "Used - Very Good" ? keepaPrice(p.stats?.current?.[9]) : null);
               const list =
                 keepaPrice(p.stats?.current?.[4]) ??
                 keepaPrice(p.stats?.current?.[1]);
-              const avg30 = keepaPrice(p.stats?.avg30?.[9]);
-              const avg90 = keepaPrice(p.stats?.avg90?.[9]);
+              const avg30 = keepaPrice(p.stats?.avg30?.[priceIndex]) ?? keepaPrice(p.stats?.avg30?.[9]);
+              const avg90 = keepaPrice(p.stats?.avg90?.[priceIndex]) ?? keepaPrice(p.stats?.avg90?.[9]);
 
               if (whd === null || whd <= 0) {
                 // No warehouse price → out of stock.
