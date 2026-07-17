@@ -1,7 +1,7 @@
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getCategoryPage } from "@/lib/categories.functions";
-import { CategoryPageView } from "./kategorie.$parent.$child";
+import { CategoryPageView } from "./$parent.$child";
 
 const SITE = "https://whdfinder.lovable.app";
 
@@ -12,10 +12,7 @@ const pageQuery = (parent: string) =>
     staleTime: 60_000,
   });
 
-export const Route = createFileRoute("/kategorie/$parent/")({
-  beforeLoad: ({ params }) => {
-    throw redirect({ to: "/$parent", params: { parent: params.parent } });
-  },
+export const Route = createFileRoute("/$parent/")({
   loader: async ({ params, context }) => {
     const data = await context.queryClient.ensureQueryData(pageQuery(params.parent));
     if (!data) throw notFound();

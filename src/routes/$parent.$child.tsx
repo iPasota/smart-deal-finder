@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -18,10 +18,7 @@ const pageQuery = (parent: string, child?: string) =>
     staleTime: 60_000,
   });
 
-export const Route = createFileRoute("/kategorie/$parent/$child")({
-  beforeLoad: ({ params }) => {
-    throw redirect({ to: "/$parent/$child", params: { parent: params.parent, child: params.child } });
-  },
+export const Route = createFileRoute("/$parent/$child")({
   loader: async ({ params, context }) => {
     const data = await context.queryClient.ensureQueryData(pageQuery(params.parent, params.child));
     if (!data) throw notFound();

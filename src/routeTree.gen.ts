@@ -11,10 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ParentRouteImport } from './routes/$parent'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ParentIndexRouteImport } from './routes/$parent.index'
 import { Route as KategorieParentRouteImport } from './routes/kategorie.$parent'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
+import { Route as ParentChildRouteImport } from './routes/$parent.$child'
 import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$parent.index'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
@@ -33,6 +36,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParentRoute = ParentRouteImport.update({
+  id: '/$parent',
+  path: '/$parent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -41,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ParentIndexRoute = ParentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ParentRoute,
 } as any)
 const KategorieParentRoute = KategorieParentRouteImport.update({
   id: '/kategorie/$parent',
@@ -51,6 +64,11 @@ const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ParentChildRoute = ParentChildRouteImport.update({
+  id: '/$child',
+  path: '/$child',
+  getParentRoute: () => ParentRoute,
 } as any)
 const KategorieParentIndexRoute = KategorieParentIndexRouteImport.update({
   id: '/',
@@ -93,10 +111,13 @@ const ApiPublicHooksKeepaBackfillCategoriesRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$parent': typeof ParentRouteWithChildren
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
+  '/$parent/': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
@@ -109,7 +130,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/$parent': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
@@ -122,10 +145,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/$parent': typeof ParentRouteWithChildren
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/$parent/$child': typeof ParentChildRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
+  '/$parent/': typeof ParentIndexRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
@@ -138,10 +164,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$parent'
     | '/auth'
     | '/sitemap.xml'
+    | '/$parent/$child'
     | '/watchlist'
     | '/kategorie/$parent'
+    | '/$parent/'
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
@@ -154,7 +183,9 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/$parent/$child'
     | '/watchlist'
+    | '/$parent'
     | '/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
@@ -166,10 +197,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/$parent'
     | '/auth'
     | '/sitemap.xml'
+    | '/$parent/$child'
     | '/_authenticated/watchlist'
     | '/kategorie/$parent'
+    | '/$parent/'
     | '/_authenticated/admin/categories'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
@@ -182,6 +216,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ParentRoute: typeof ParentRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
@@ -207,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$parent': {
+      id: '/$parent'
+      path: '/$parent'
+      fullPath: '/$parent'
+      preLoaderRoute: typeof ParentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -221,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$parent/': {
+      id: '/$parent/'
+      path: '/'
+      fullPath: '/$parent/'
+      preLoaderRoute: typeof ParentIndexRouteImport
+      parentRoute: typeof ParentRoute
+    }
     '/kategorie/$parent': {
       id: '/kategorie/$parent'
       path: '/kategorie/$parent'
@@ -234,6 +283,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/watchlist'
       preLoaderRoute: typeof AuthenticatedWatchlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/$parent/$child': {
+      id: '/$parent/$child'
+      path: '/$child'
+      fullPath: '/$parent/$child'
+      preLoaderRoute: typeof ParentChildRouteImport
+      parentRoute: typeof ParentRoute
     }
     '/kategorie/$parent/': {
       id: '/kategorie/$parent/'
@@ -300,6 +356,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface ParentRouteChildren {
+  ParentChildRoute: typeof ParentChildRoute
+  ParentIndexRoute: typeof ParentIndexRoute
+}
+
+const ParentRouteChildren: ParentRouteChildren = {
+  ParentChildRoute: ParentChildRoute,
+  ParentIndexRoute: ParentIndexRoute,
+}
+
+const ParentRouteWithChildren =
+  ParentRoute._addFileChildren(ParentRouteChildren)
+
 interface KategorieParentRouteChildren {
   KategorieParentChildRoute: typeof KategorieParentChildRoute
   KategorieParentIndexRoute: typeof KategorieParentIndexRoute
@@ -317,6 +386,7 @@ const KategorieParentRouteWithChildren = KategorieParentRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ParentRoute: ParentRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,

@@ -149,8 +149,8 @@ function EditForm({ row, allRows }: { row: CategoryRow; allRows: CategoryRow[] }
 
   const parent = row.parent_id ? allRows.find((r) => r.id === row.parent_id) : null;
   const path = parent
-    ? `/kategorie/${parent.slug}/${row.slug}`
-    : `/kategorie/${row.slug}`;
+    ? `/${parent.slug}/${row.slug}`
+    : `/${row.slug}`;
 
   const saveMut = useMutation({
     mutationFn: () =>

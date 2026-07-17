@@ -16,6 +16,7 @@ import {
   type KeepaDealRecord,
 } from "@/lib/keepa.server";
 import { slugify } from "@/lib/categories";
+import { conditionForDeal, priceIndexForCondition } from "@/lib/keepa-conditions";
 
 // In-memory cache for the duration of one sync run: keepaCatId → categoryId.
 type CatCache = Map<number, string>;
@@ -26,9 +27,7 @@ async function upsertCategoryPath(
   cache: CatCache,
 ): Promise<string | null> {
   if (!tree || tree.length === 0) return null;
-  // Take at most 2 levels: top + first sub.
-  const top = tree[0];
-  const sub = tree.length > 1 ? tree[1] : null;
+  // Keep the full Keepa path so the menu and category pages grow with the catalog.
 
   const ensure = async (
     entry: { catId: number; name: string },
@@ -79,13 +78,17 @@ async function upsertCategoryPath(
     return inserted.id;
   };
 
-  const topId = await ensure(top, null);
-  if (!sub) return topId;
-  try {
-    return await ensure(sub, topId);
-  } catch {
-    return topId;
+  let parentId: string | null = null;
+  let leafId: string | null = null;
+  for (const entry of tree) {
+    try {
+      leafId = await ensure(entry, parentId);
+      parentId = leafId;
+    } catch {
+      break;
+    }
   }
+  return leafId;
 }
 
 async function loadAdmin() {
@@ -101,15 +104,15 @@ const BodySchema = z
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
     maxEnrich: z.number().int().min(0).max(500).default(150),
-    electronicsOnly: z.boolean().default(true),
+    electronicsOnly: z.boolean().default(false),
     // 0=day, 1=week, 2=month, 3=3month. Rotating this widens the deal pool.
     dateRange: z.number().int().min(0).max(3).default(1),
+    // 9=cheapest Warehouse deal, 19=Wie neu, 20=Sehr gut, 21=Gut.
+    priceType: z.number().int().refine((v) => [9, 19, 20, 21].includes(v)).default(9),
   })
   .default({});
 
-
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
-const CONDITION_LABEL = "Used - Very Good";
 
 // Keepa DE root categories – books & digital media (Bücher-Welt komplett raus):
 //   541686     = Bücher
@@ -262,6 +265,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         for (let page = opts.startPage; page < opts.startPage + opts.maxPages; page++) {
           try {
             const res = await fetchWarehouseDealsPage(page, {
+              priceTypes: [opts.priceType],
               deltaPercentRange: [opts.minDiscount, 100],
               dateRange: opts.dateRange,
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
@@ -308,11 +312,13 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         );
 
         for (const [asin, deal] of dealsByAsin) {
-          const whdPrice = keepaPrice(deal.current?.[9]);
+          const condition = conditionForDeal(opts.priceType, deal.warehouseCondition);
+          const priceIndex = opts.priceType === 9 ? 9 : priceIndexForCondition(condition);
+          const whdPrice = keepaPrice(deal.current?.[priceIndex]) ?? keepaPrice(deal.current?.[9]);
           const listPrice = keepaPrice(deal.current?.[4]) ?? keepaPrice(deal.current?.[1]);
           if (whdPrice === null) continue;
 
-          const discount = deal.deltaPercent?.[9] ?? null;
+          const discount = deal.deltaPercent?.[priceIndex] ?? deal.deltaPercent?.[9] ?? null;
 
           const imageUrl = keepaImageUrl(deal.image ?? null);
           const categoryName =
@@ -367,15 +373,15 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
               shop_id: shopId,
               country_code: "DE",
               external_id: asin,
-              condition: CONDITION_LABEL,
+              condition,
               price_cents: whdPrice,
               list_price_cents: listPrice,
               currency: "EUR",
               in_stock: true,
               keepa_domain_id: 3,
               discount_percent: discount,
-              avg_price_30d_cents: keepaPrice(deal.avg?.[9]),
-              avg_price_90d_cents: keepaPrice(deal.avg90?.[9]),
+              avg_price_30d_cents: keepaPrice(deal.avg?.[priceIndex]) ?? keepaPrice(deal.avg?.[9]),
+              avg_price_90d_cents: keepaPrice(deal.avg90?.[priceIndex]) ?? keepaPrice(deal.avg90?.[9]),
               last_seen_at: new Date().toISOString(),
             },
             { onConflict: "shop_id,external_id,condition,country_code" },

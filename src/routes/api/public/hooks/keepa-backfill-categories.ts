@@ -24,9 +24,6 @@ async function upsertCategoryPath(
   cache: CatCache,
 ): Promise<string | null> {
   if (!tree || tree.length === 0) return null;
-  const top = tree[0];
-  const sub = tree.length > 1 ? tree[1] : null;
-
   const ensure = async (
     entry: { catId: number; name: string },
     parentId: string | null,
@@ -64,13 +61,17 @@ async function upsertCategoryPath(
     return inserted.id;
   };
 
-  const topId = await ensure(top, null);
-  if (!sub) return topId;
-  try {
-    return await ensure(sub, topId);
-  } catch {
-    return topId;
+  let parentId: string | null = null;
+  let leafId: string | null = null;
+  for (const entry of tree) {
+    try {
+      leafId = await ensure(entry, parentId);
+      parentId = leafId;
+    } catch {
+      break;
+    }
   }
+  return leafId;
 }
 
 const BodySchema = z
