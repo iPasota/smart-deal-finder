@@ -12,7 +12,7 @@ const pageQuery = (parent: string) =>
     staleTime: 60_000,
   });
 
-export const Route = createFileRoute("/kategorie/$parent/")({
+export const Route = createFileRoute("/$parent/")({
   loader: async ({ params, context }) => {
     const data = await context.queryClient.ensureQueryData(pageQuery(params.parent));
     if (!data) throw notFound();
