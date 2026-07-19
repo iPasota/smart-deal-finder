@@ -64,24 +64,7 @@ export function Header({ search, onSearchChange }: HeaderProps = {}) {
           <div className="flex-1" />
         )}
 
-        <div className="hidden items-center gap-1 rounded-lg border border-hairline bg-surface p-1 md:flex">
-          {MARKETPLACE_LIST.map((m) => (
-            <button
-              key={m.code}
-              type="button"
-              disabled={!m.active}
-              title={m.active ? m.label : `${m.label} – bald verfügbar`}
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-bold uppercase tracking-wider transition-colors ${
-                m.active
-                  ? "bg-foreground text-background"
-                  : "cursor-not-allowed text-muted-foreground/50"
-              }`}
-            >
-              <span aria-hidden>{m.flag}</span>
-              {m.code}
-            </button>
-          ))}
-        </div>
+        <CategoriesMenu />
 
         {user ? (
           <div className="flex items-center gap-2">
