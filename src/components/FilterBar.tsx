@@ -2,6 +2,7 @@ import { ArrowUpDown, Check, SlidersHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CONDITION_LABEL, type Category, type Condition } from "@/lib/mock-deals";
 import { SHOP_LIST, type ShopSlug } from "@/lib/shops";
+import { MARKETPLACE_LIST, type CountryCode, DEFAULT_COUNTRY } from "@/lib/marketplace";
 
 export type SortKey = "discount" | "newest" | "price_asc" | "price_desc" | "shop" | "condition";
 
@@ -13,6 +14,7 @@ export type Filters = {
   maxPrice: number;
   search: string;
   sort: SortKey;
+  country: CountryCode;
 };
 
 export const DEFAULT_FILTERS: Filters = {
@@ -23,6 +25,7 @@ export const DEFAULT_FILTERS: Filters = {
   maxPrice: 5000,
   search: "",
   sort: "discount",
+  country: DEFAULT_COUNTRY,
 };
 
 export type FilterAvailability = {
