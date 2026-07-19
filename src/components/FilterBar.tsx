@@ -179,6 +179,8 @@ export function FilterBar({
                 })}
               </InlineGroup>
             )}
+
+            {renderCountries()}
           </div>
 
           {/* Mobile: filter toggle */}
