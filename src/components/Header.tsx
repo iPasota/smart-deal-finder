@@ -95,7 +95,7 @@ export function Header({ search, onSearchChange }: HeaderProps = {}) {
         )}
       </div>
 
-      <CategoryMegaMenu />
+      
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent className="border-hairline bg-popover">
