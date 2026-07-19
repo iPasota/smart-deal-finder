@@ -276,6 +276,27 @@ export type Database = {
           },
         ]
       }
+      pages: {
+        Row: {
+          body_html: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body_html?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       price_history: {
         Row: {
           id: number
