@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ImpressumRouteImport } from './routes/impressum'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ParentRouteImport } from './routes/$parent'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -21,6 +23,7 @@ import { Route as ParentChildRouteImport } from './routes/$parent.$child'
 import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$parent.index'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
+import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
@@ -29,6 +32,16 @@ import { Route as ApiPublicHooksKeepaBackfillCategoriesRouteImport } from './rou
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -85,6 +98,11 @@ const ApiPublicTrackClickRoute = ApiPublicTrackClickRouteImport.update({
   path: '/api/public/track-click',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminPagesRoute = AuthenticatedAdminPagesRouteImport.update({
+  id: '/admin/pages',
+  path: '/admin/pages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminCategoriesRoute =
   AuthenticatedAdminCategoriesRouteImport.update({
     id: '/admin/categories',
@@ -113,12 +131,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$parent': typeof ParentRouteWithChildren
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
@@ -129,11 +150,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
   '/$parent': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/kategorie/$parent': typeof KategorieParentIndexRoute
@@ -147,12 +171,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/$parent': typeof ParentRouteWithChildren
   '/auth': typeof AuthRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
@@ -166,12 +193,15 @@ export interface FileRouteTypes {
     | '/'
     | '/$parent'
     | '/auth'
+    | '/datenschutz'
+    | '/impressum'
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/watchlist'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/admin/categories'
+    | '/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/kategorie/$parent/'
@@ -182,11 +212,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/datenschutz'
+    | '/impressum'
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/watchlist'
     | '/$parent'
     | '/admin/categories'
+    | '/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/kategorie/$parent'
@@ -199,12 +232,15 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/$parent'
     | '/auth'
+    | '/datenschutz'
+    | '/impressum'
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/_authenticated/watchlist'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/kategorie/$parent/'
@@ -218,6 +254,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ParentRoute: typeof ParentRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DatenschutzRoute: typeof DatenschutzRoute
+  ImpressumRoute: typeof ImpressumRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
@@ -233,6 +271,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -312,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackClickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/pages': {
+      id: '/_authenticated/admin/pages'
+      path: '/admin/pages'
+      fullPath: '/admin/pages'
+      preLoaderRoute: typeof AuthenticatedAdminPagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/categories': {
       id: '/_authenticated/admin/categories'
       path: '/admin/categories'
@@ -346,11 +405,13 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -388,6 +449,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ParentRoute: ParentRouteWithChildren,
   AuthRoute: AuthRoute,
+  DatenschutzRoute: DatenschutzRoute,
+  ImpressumRoute: ImpressumRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
