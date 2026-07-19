@@ -92,6 +92,32 @@ export function FilterBar({
     (filters.minDiscount > 0 ? 1 : 0);
 
   const shopsAvailable = SHOP_LIST.filter((s) => s.active).length > 1;
+  const activeCountries = MARKETPLACE_LIST.filter((m) => m.active);
+  const countryAvailable = activeCountries.length > 1;
+
+  const renderCountries = () =>
+    countryAvailable ? (
+      <InlineGroup label="Land" accent="bg-foreground">
+        {activeCountries.map((m) => {
+          const active = filters.country === m.code;
+          return (
+            <button
+              key={m.code}
+              type="button"
+              onClick={() => onChange({ ...filters, country: m.code })}
+              className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-2 py-0.5 text-[11px] font-bold uppercase tracking-tight transition-all ${
+                active
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-hairline bg-surface text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+              }`}
+            >
+              <span aria-hidden>{m.flag}</span>
+              {m.code}
+            </button>
+          );
+        })}
+      </InlineGroup>
+    ) : null;
 
   return (
     <div className="relative z-30 border-b border-hairline bg-background/92 backdrop-blur-lg">
