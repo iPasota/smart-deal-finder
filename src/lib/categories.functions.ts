@@ -272,11 +272,10 @@ export const getCategoryPage = createServerFn({ method: "GET" })
     // Load all categories once (tree is small) so a child slug can resolve to
     // any descendant of the parent, not just a direct child. This fixes the
     // "menu leaf routes to top parent" bug when subcategories are 3 levels deep.
-    const { data: allCats, error: allErr } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort");
-    if (allErr) throw new Error(allErr.message);
-    const rows = (allCats ?? []) as CategoryRow[];
+    const rows = await fetchAllCategories<CategoryRow>(
+      supabase,
+      "id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort",
+    );
 
     const parentRow = rows.find((r) => !r.parent_id && r.slug === data.parent);
     if (!parentRow) return null;
