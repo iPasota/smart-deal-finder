@@ -33,15 +33,14 @@ export const Route = createFileRoute("/api/public/hooks/keepa-refresh")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // 1) Auth
-        const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+        // 1) Auth — require the private KEEPA_SYNC_SECRET as a Bearer token.
+        //    The Supabase publishable key is NOT accepted (it ships in the
+        //    browser bundle).
         const bearerSecret = process.env.KEEPA_SYNC_SECRET;
-        const apiKeyHeader = request.headers.get("apikey");
         const auth = request.headers.get("authorization") ?? "";
         const bearerToken = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-        const apiKeyOk = !!publishableKey && apiKeyHeader === publishableKey;
         const bearerOk = !!bearerSecret && bearerToken === bearerSecret;
-        if (!apiKeyOk && !bearerOk) return json({ error: "unauthorized" }, 401);
+        if (!bearerOk) return json({ error: "unauthorized" }, 401);
 
         // 2) Input
         let body: unknown = {};

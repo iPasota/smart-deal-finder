@@ -166,17 +166,15 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // 1) Auth guard — accept EITHER the publishable key in apikey header
-        //    (pg_cron) OR the shared bearer secret (manual/admin trigger).
-        const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+        // 1) Auth guard — require the private KEEPA_SYNC_SECRET as a Bearer
+        //    token. The Supabase publishable key is NOT accepted because it
+        //    ships in the browser bundle and would let anyone trigger expensive
+        //    Keepa API calls.
         const bearerSecret = process.env.KEEPA_SYNC_SECRET;
-        const apiKeyHeader = request.headers.get("apikey");
         const auth = request.headers.get("authorization") ?? "";
         const bearerToken = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-
-        const apiKeyOk = !!publishableKey && apiKeyHeader === publishableKey;
         const bearerOk = !!bearerSecret && bearerToken === bearerSecret;
-        if (!apiKeyOk && !bearerOk) {
+        if (!bearerOk) {
           return json({ error: "unauthorized" }, 401);
         }
 
