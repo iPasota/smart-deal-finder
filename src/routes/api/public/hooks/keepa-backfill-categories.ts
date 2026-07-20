@@ -95,14 +95,11 @@ export const Route = createFileRoute("/api/public/hooks/keepa-backfill-categorie
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
         const bearerSecret = process.env.KEEPA_SYNC_SECRET;
-        const apiKeyHeader = request.headers.get("apikey");
         const auth = request.headers.get("authorization") ?? "";
         const bearerToken = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-        const apiKeyOk = !!publishableKey && apiKeyHeader === publishableKey;
         const bearerOk = !!bearerSecret && bearerToken === bearerSecret;
-        if (!apiKeyOk && !bearerOk) return json({ error: "unauthorized" }, 401);
+        if (!bearerOk) return json({ error: "unauthorized" }, 401);
 
         let body: unknown = {};
         try { body = await request.json(); } catch { body = {}; }
