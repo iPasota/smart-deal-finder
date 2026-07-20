@@ -329,16 +329,29 @@ export const getCategoryPage = createServerFn({ method: "GET" })
       }
     }
 
-    const { data: offers, error: oErr } = await supabase
-      .from("offers")
-      .select(
-        "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
-      )
-      .eq("in_stock", true)
-      .in("product.category_id", Array.from(catIds))
-      .order("discount_percent", { ascending: false, nullsFirst: false })
-      .limit(500);
-    if (oErr) throw new Error(oErr.message);
+    // Chunk the category-id list: with thousands of descendants (e.g. /fashion)
+    // a single `.in()` produces an oversized URL and fetch fails.
+    const idList = Array.from(catIds);
+    const CHUNK = 150;
+    const offersAll: NonNullable<Awaited<ReturnType<typeof supabase.from>>["data"]>[number][] = [];
+    for (let i = 0; i < idList.length; i += CHUNK) {
+      const slice = idList.slice(i, i + CHUNK);
+      const { data: offers, error: oErr } = await supabase
+        .from("offers")
+        .select(
+          "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
+        )
+        .eq("in_stock", true)
+        .in("product.category_id", slice)
+        .order("discount_percent", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (oErr) throw new Error(oErr.message);
+      if (offers) offersAll.push(...(offers as unknown as typeof offersAll));
+      if (offersAll.length >= 800) break;
+    }
+    const offers = offersAll
+      .sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0))
+      .slice(0, 500);
     const deals: Deal[] = (offers ?? [])
       .filter((o) => o.product && o.shop)
       .map((o) => {
