@@ -17,6 +17,29 @@ function anonClient() {
   );
 }
 
+// Supabase caps each request at 1000 rows. The categories table has thousands
+// of entries, so unpaginated selects silently drop most rows — which caused
+// menu links like /fashion/damen to 404 because the parent/child never
+// appeared in the first 1000-row window. This helper pages through them all.
+async function fetchAllCategories<T>(
+  supabase: ReturnType<typeof anonClient>,
+  columns: string,
+): Promise<T[]> {
+  const PAGE = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("categories")
+      .select(columns)
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    out.push(...(data as unknown as T[]));
+    if (data.length < PAGE) break;
+  }
+  return out;
+}
+
 const KEEPA_TO_APP_CONDITION: Record<string, Condition> = {
   "Used - Like New": "like_new",
   "Used - Very Good": "very_good",
