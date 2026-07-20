@@ -51,11 +51,10 @@ const mapCondition = (raw: string): Condition => KEEPA_TO_APP_CONDITION[raw] ?? 
 export const getAllCategories = createServerFn({ method: "GET" }).handler(
   async (): Promise<CategoryRow[]> => {
     const supabase = anonClient();
-    const { data, error } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort");
-    if (error) throw new Error(error.message);
-    return (data ?? []) as CategoryRow[];
+    return await fetchAllCategories<CategoryRow>(
+      supabase,
+      "id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort",
+    );
   },
 );
 
