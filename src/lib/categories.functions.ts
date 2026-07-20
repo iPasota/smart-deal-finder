@@ -113,19 +113,16 @@ export type CategoryTreeNode = {
 export const getCategoryTree = createServerFn({ method: "GET" }).handler(
   async (): Promise<CategoryTreeNode[]> => {
     const supabase = anonClient();
-    const { data: cats, error } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, sort")
-      .order("sort")
-      .order("name");
-    if (error) throw new Error(error.message);
-    const rows = (cats ?? []) as Array<{
+    const rows = await fetchAllCategories<{
       id: string;
       parent_id: string | null;
       slug: string;
       name: string;
       sort: number;
-    }>;
+    }>(supabase, "id, parent_id, slug, name, sort");
+    rows.sort(
+      (a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name, "de"),
+    );
     if (rows.length === 0) return [];
 
     // Per-category direct counts of DISTINCT products with an in-stock offer.
