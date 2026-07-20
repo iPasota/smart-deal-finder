@@ -211,12 +211,13 @@ export type TopSubCategoryLink = {
 export const getTopSubCategoryLinks = createServerFn({ method: "GET" }).handler(
   async (): Promise<TopSubCategoryLink[]> => {
     const supabase = anonClient();
-    const { data: subs, error } = await supabase
-      .from("categories")
-      .select("id, slug, name, parent_id")
-      .not("parent_id", "is", null);
-    if (error) throw new Error(error.message);
-    const subRows = (subs ?? []) as Array<{
+    const all = await fetchAllCategories<{
+      id: string;
+      slug: string;
+      name: string;
+      parent_id: string | null;
+    }>(supabase, "id, slug, name, parent_id");
+    const subRows = all.filter((s) => s.parent_id) as Array<{
       id: string;
       slug: string;
       name: string;
