@@ -17,6 +17,29 @@ function anonClient() {
   );
 }
 
+// Supabase caps each request at 1000 rows. The categories table has thousands
+// of entries, so unpaginated selects silently drop most rows — which caused
+// menu links like /fashion/damen to 404 because the parent/child never
+// appeared in the first 1000-row window. This helper pages through them all.
+async function fetchAllCategories<T>(
+  supabase: ReturnType<typeof anonClient>,
+  columns: string,
+): Promise<T[]> {
+  const PAGE = 1000;
+  const out: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("categories")
+      .select(columns)
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    out.push(...(data as unknown as T[]));
+    if (data.length < PAGE) break;
+  }
+  return out;
+}
+
 const KEEPA_TO_APP_CONDITION: Record<string, Condition> = {
   "Used - Like New": "like_new",
   "Used - Very Good": "very_good",
@@ -28,11 +51,10 @@ const mapCondition = (raw: string): Condition => KEEPA_TO_APP_CONDITION[raw] ?? 
 export const getAllCategories = createServerFn({ method: "GET" }).handler(
   async (): Promise<CategoryRow[]> => {
     const supabase = anonClient();
-    const { data, error } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort");
-    if (error) throw new Error(error.message);
-    return (data ?? []) as CategoryRow[];
+    return await fetchAllCategories<CategoryRow>(
+      supabase,
+      "id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort",
+    );
   },
 );
 
@@ -91,19 +113,16 @@ export type CategoryTreeNode = {
 export const getCategoryTree = createServerFn({ method: "GET" }).handler(
   async (): Promise<CategoryTreeNode[]> => {
     const supabase = anonClient();
-    const { data: cats, error } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, sort")
-      .order("sort")
-      .order("name");
-    if (error) throw new Error(error.message);
-    const rows = (cats ?? []) as Array<{
+    const rows = await fetchAllCategories<{
       id: string;
       parent_id: string | null;
       slug: string;
       name: string;
       sort: number;
-    }>;
+    }>(supabase, "id, parent_id, slug, name, sort");
+    rows.sort(
+      (a, b) => (a.sort ?? 0) - (b.sort ?? 0) || a.name.localeCompare(b.name, "de"),
+    );
     if (rows.length === 0) return [];
 
     // Per-category direct counts of DISTINCT products with an in-stock offer.
@@ -192,12 +211,13 @@ export type TopSubCategoryLink = {
 export const getTopSubCategoryLinks = createServerFn({ method: "GET" }).handler(
   async (): Promise<TopSubCategoryLink[]> => {
     const supabase = anonClient();
-    const { data: subs, error } = await supabase
-      .from("categories")
-      .select("id, slug, name, parent_id")
-      .not("parent_id", "is", null);
-    if (error) throw new Error(error.message);
-    const subRows = (subs ?? []) as Array<{
+    const all = await fetchAllCategories<{
+      id: string;
+      slug: string;
+      name: string;
+      parent_id: string | null;
+    }>(supabase, "id, slug, name, parent_id");
+    const subRows = all.filter((s) => s.parent_id) as Array<{
       id: string;
       slug: string;
       name: string;
@@ -253,11 +273,10 @@ export const getCategoryPage = createServerFn({ method: "GET" })
     // Load all categories once (tree is small) so a child slug can resolve to
     // any descendant of the parent, not just a direct child. This fixes the
     // "menu leaf routes to top parent" bug when subcategories are 3 levels deep.
-    const { data: allCats, error: allErr } = await supabase
-      .from("categories")
-      .select("id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort");
-    if (allErr) throw new Error(allErr.message);
-    const rows = (allCats ?? []) as CategoryRow[];
+    const rows = await fetchAllCategories<CategoryRow>(
+      supabase,
+      "id, parent_id, slug, name, keepa_category_id, seo_title, seo_description, intro_md, outro_md, sort",
+    );
 
     const parentRow = rows.find((r) => !r.parent_id && r.slug === data.parent);
     if (!parentRow) return null;
@@ -310,16 +329,29 @@ export const getCategoryPage = createServerFn({ method: "GET" })
       }
     }
 
-    const { data: offers, error: oErr } = await supabase
-      .from("offers")
-      .select(
-        "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
-      )
-      .eq("in_stock", true)
-      .in("product.category_id", Array.from(catIds))
-      .order("discount_percent", { ascending: false, nullsFirst: false })
-      .limit(500);
-    if (oErr) throw new Error(oErr.message);
+    // Chunk the category-id list: with thousands of descendants (e.g. /fashion)
+    // a single `.in()` produces an oversized URL and fetch fails.
+    const idList = Array.from(catIds);
+    const CHUNK = 150;
+    const offersAll: NonNullable<Awaited<ReturnType<typeof supabase.from>>["data"]>[number][] = [];
+    for (let i = 0; i < idList.length; i += CHUNK) {
+      const slice = idList.slice(i, i + CHUNK);
+      const { data: offers, error: oErr } = await supabase
+        .from("offers")
+        .select(
+          "id, external_id, condition, price_cents, list_price_cents, avg_price_30d_cents, avg_price_90d_cents, currency, in_stock, first_seen_at, country_code, discount_percent, shop_id, product:products!inner(id, asin, title, brand, image_url, category, category_id), shop:shops!inner(slug)",
+        )
+        .eq("in_stock", true)
+        .in("product.category_id", slice)
+        .order("discount_percent", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (oErr) throw new Error(oErr.message);
+      if (offers) offersAll.push(...(offers as unknown as typeof offersAll));
+      if (offersAll.length >= 800) break;
+    }
+    const offers = offersAll
+      .sort((a, b) => (b.discount_percent ?? 0) - (a.discount_percent ?? 0))
+      .slice(0, 500);
     const deals: Deal[] = (offers ?? [])
       .filter((o) => o.product && o.shop)
       .map((o) => {
