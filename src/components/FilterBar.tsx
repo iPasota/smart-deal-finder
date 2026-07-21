@@ -47,12 +47,11 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 export function FilterBar({
   filters,
   onChange,
-  count,
+  
   availability,
 }: {
   filters: Filters;
   onChange: (next: Filters) => void;
-  count: number;
   availability?: FilterAvailability;
 }) {
   const condCount = (c: Condition) => (availability ? availability.conditions[c] ?? 0 : Infinity);
