@@ -113,8 +113,8 @@ const BodySchema = z
     electronicsOnly: z.boolean().default(true),
     // 0=day, 1=week, 2=month, 3=3month. Rotating this widens the deal pool.
     dateRange: z.number().int().min(0).max(3).default(1),
-    // 19=Wie neu, 20=Sehr gut, 21=Gut, 22=Akzeptabel.
-    priceType: z.number().int().refine((v) => [19, 20, 21, 22].includes(v)).default(20),
+    // 19=Wie neu, 20=Sehr gut, 21=Gut, 22=Akzeptabel. Legacy cron value 9 is accepted and mapped below.
+    priceType: z.number().int().refine((v) => [9, 19, 20, 21, 22].includes(v)).default(20),
   })
   .default({});
 
@@ -147,7 +147,11 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         if (!parsed.success) {
           return json({ error: "bad input", details: parsed.error.flatten() }, 400);
         }
-        const opts = parsed.data;
+        const opts = {
+          ...parsed.data,
+          electronicsOnly: true,
+          priceType: parsed.data.priceType === 9 ? 22 : parsed.data.priceType,
+        };
 
         const supabaseAdmin = await loadAdmin();
         const catCache: CatCache = new Map();
