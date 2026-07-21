@@ -47,12 +47,11 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 export function FilterBar({
   filters,
   onChange,
-  count,
+  
   availability,
 }: {
   filters: Filters;
   onChange: (next: Filters) => void;
-  count: number;
   availability?: FilterAvailability;
 }) {
   const condCount = (c: Condition) => (availability ? availability.conditions[c] ?? 0 : Infinity);
@@ -199,10 +198,6 @@ export function FilterBar({
               </span>
             )}
           </button>
-
-          <span className="font-mono-tabular ml-auto hidden shrink-0 rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground sm:inline">
-            {count} Deals
-          </span>
 
           {/* Sort */}
           <div ref={sortRef} className="relative shrink-0">
