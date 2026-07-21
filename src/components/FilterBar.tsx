@@ -200,10 +200,6 @@ export function FilterBar({
             )}
           </button>
 
-          <span className="font-mono-tabular ml-auto hidden shrink-0 rounded-md bg-surface-2 px-2 py-0.5 text-[11px] font-bold text-muted-foreground sm:inline">
-            {count} Deals
-          </span>
-
           {/* Sort */}
           <div ref={sortRef} className="relative shrink-0">
             <button
