@@ -197,7 +197,7 @@ function Index() {
           search={filters.search}
           onSearchChange={(v) => setFilters({ ...filters, search: v })}
         />
-        <FilterBar filters={filters} onChange={setFilters} count={deals.length} availability={availability} />
+        <FilterBar filters={filters} onChange={setFilters} availability={availability} />
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
