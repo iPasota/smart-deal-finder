@@ -2,8 +2,7 @@
 // Route: /api/public/hooks/keepa-sync
 //
 // Security: bypasses Lovable-published auth (public prefix). Callers must
-// present the Supabase publishable key in the `apikey` header (canonical
-// pg_cron pattern) OR the KEEPA_SYNC_SECRET as a Bearer token.
+// present the private KEEPA_SYNC_SECRET as a Bearer token.
 
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
@@ -17,6 +16,13 @@ import {
 } from "@/lib/keepa.server";
 import { slugify } from "@/lib/categories";
 import { conditionForDeal, priceIndexForCondition } from "@/lib/keepa-conditions";
+import {
+  ELECTRONIC_DEVICE_ROOT_CATEGORIES,
+  EXCLUDED_ROOT_CATEGORIES,
+  isBlockedCatalogProduct,
+  isTargetElectronicDevice,
+  rootCategoryId,
+} from "@/lib/keepa-catalog-policy.server";
 
 // In-memory cache for the duration of one sync run: keepaCatId → categoryId.
 type CatCache = Map<number, string>;
@@ -104,63 +110,15 @@ const BodySchema = z
     minDiscount: z.number().int().min(1).max(99).default(15),
     enrichNewAsins: z.boolean().default(true),
     maxEnrich: z.number().int().min(0).max(500).default(150),
-    electronicsOnly: z.boolean().default(false),
+    electronicsOnly: z.boolean().default(true),
     // 0=day, 1=week, 2=month, 3=3month. Rotating this widens the deal pool.
     dateRange: z.number().int().min(0).max(3).default(1),
-    // 9=cheapest Warehouse deal, 19=Wie neu, 20=Sehr gut, 21=Gut.
-    priceType: z.number().int().refine((v) => [9, 19, 20, 21].includes(v)).default(9),
+    // 19=Wie neu, 20=Sehr gut, 21=Gut, 22=Akzeptabel. Legacy cron value 9 is accepted and mapped below.
+    priceType: z.number().int().refine((v) => [9, 19, 20, 21, 22].includes(v)).default(20),
   })
   .default({});
 
 const AMAZON_WAREHOUSE_SLUG = "amazon-warehouse";
-
-// Keepa DE root categories – books & digital media (Bücher-Welt komplett raus):
-//   541686     = Bücher
-//   530484031  = Kindle-Shop (eBooks)
-//   77195031   = Hörbücher & Originals (Audible)
-//   52044011   = Fremdsprachige Bücher
-//   77196031   = Musik-CDs & Vinyl
-//   77197031   = DVD & Blu-ray
-//   409838011  = Software
-//   77192031   = Zeitschriften
-const EXCLUDED_ROOT_CATEGORIES = new Set<number>([
-  541686, 530484031, 77195031, 52044011, 77196031, 77197031, 409838011, 77192031,
-]);
-
-// Elektronik & Technik – alles was einen Stecker oder Akku hat:
-//   562066     = Elektronik & Foto
-//   340843031  = Computer & Zubehör
-//   84230031   = Elektro-Großgeräte
-//   84497031   = Elektro-Kleingeräte
-//   703548031  = Games / Videospiele
-const ELECTRONICS_ROOT_CATEGORIES = [
-  562066, 340843031, 84230031, 84497031, 703548031,
-];
-
-// productGroup / binding markers that indicate a book / digital-media product
-const BOOK_PRODUCT_GROUPS = new Set(
-  [
-    "book", "ebooks", "digital ebook purchase", "audible", "audio download",
-    "audio cd", "abis_book", "kindle ebook", "digital_ebook_purchase",
-    "music", "digital music track", "digital music album", "dvd", "video dvd",
-    "blu-ray", "software",
-  ].map((s) => s.toLowerCase()),
-);
-
-function isBookLikeProduct(p: {
-  productGroup?: string | null;
-  binding?: string | null;
-  rootCategory?: number | null;
-  categoryTree?: Array<{ catId: number; name: string }> | null;
-}): boolean {
-  const rootId = p.rootCategory ?? p.categoryTree?.[0]?.catId ?? null;
-  if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) return true;
-  const pg = (p.productGroup ?? "").toLowerCase().trim();
-  if (pg && BOOK_PRODUCT_GROUPS.has(pg)) return true;
-  const bd = (p.binding ?? "").toLowerCase().trim();
-  if (bd && (bd.includes("kindle") || bd.includes("paperback") || bd.includes("hardcover") || bd.includes("taschenbuch") || bd.includes("gebundene") || bd.includes("audible"))) return true;
-  return false;
-}
 
 export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
   server: {
@@ -189,7 +147,11 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         if (!parsed.success) {
           return json({ error: "bad input", details: parsed.error.flatten() }, 400);
         }
-        const opts = parsed.data;
+        const opts = {
+          ...parsed.data,
+          electronicsOnly: true,
+          priceType: parsed.data.priceType === 9 ? 22 : parsed.data.priceType,
+        };
 
         const supabaseAdmin = await loadAdmin();
         const catCache: CatCache = new Map();
@@ -253,8 +215,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
         }
         const shopId = shopRow.id as string;
 
-        // Keepa DE root categories to exclude (Bücher-Welt komplett raus) —
-        // full list defined at module scope above.
+        // Keepa DE policy: import only electronic devices, never books/media/software/games.
 
         // 5) Fetch deal pages
         const errors: Array<{ page?: number; msg: string }> = [];
@@ -268,7 +229,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
               dateRange: opts.dateRange,
               excludeCategories: [...EXCLUDED_ROOT_CATEGORIES],
               ...(opts.electronicsOnly
-                ? { includeCategories: ELECTRONICS_ROOT_CATEGORIES }
+                ? { includeCategories: ELECTRONIC_DEVICE_ROOT_CATEGORIES }
                 : {}),
             });
 
@@ -279,11 +240,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             for (const row of rows) {
               // Amazon-Produkt-ASINs beginnen mit 'B'. ISBN-basierte ASINs sind Bücher.
               if (!/^B[A-Z0-9]{9}$/.test(row.asin)) continue;
-              // Safety net: skip anything Keepa still tagged in a book root category.
-              const rootId = row.rootCategory ?? row.categoryTree?.[0]?.catId ?? null;
-              if (rootId !== null && EXCLUDED_ROOT_CATEGORIES.has(rootId)) continue;
-              // Electronics-only mode: if we know the root, require it in the allow-list.
-              if (opts.electronicsOnly && rootId !== null && !ELECTRONICS_ROOT_CATEGORIES.includes(rootId)) continue;
+              if (isBlockedCatalogProduct(row)) continue;
+              if (opts.electronicsOnly && !isTargetElectronicDevice(row)) continue;
               if (!dealsByAsin.has(row.asin)) dealsByAsin.set(row.asin, row);
             }
             if (rows.length < 150) break; // last page
@@ -311,8 +269,8 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
 
         for (const [asin, deal] of dealsByAsin) {
           const condition = conditionForDeal(opts.priceType, deal.warehouseCondition);
-          const priceIndex = opts.priceType === 9 ? 9 : priceIndexForCondition(condition);
-          const whdPrice = keepaPrice(deal.current?.[priceIndex]) ?? keepaPrice(deal.current?.[9]);
+          const priceIndex = priceIndexForCondition(condition);
+          const whdPrice = keepaPrice(deal.current?.[priceIndex]);
           const listPrice = keepaPrice(deal.current?.[4]) ?? keepaPrice(deal.current?.[1]);
           if (whdPrice === null) continue;
 
@@ -403,9 +361,9 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
             try {
               const res = await fetchProducts(chunk, { stats: 90, history: 0 });
               for (const p of res.products) {
-                // Book / digital-media detection – delete these outright so they
-                // never reach the catalog.
-                if (isBookLikeProduct(p)) {
+                // Non-target products are deleted outright so media/fashion/etc.
+                // never stays in the live catalog.
+                if (isBlockedCatalogProduct(p) || !isTargetElectronicDevice(p)) {
                   const { data: prodRow } = await supabaseAdmin
                     .from("products")
                     .select("id")
@@ -436,7 +394,7 @@ export const Route = createFileRoute("/api/public/hooks/keepa-sync")({
                     brand: p.brand ?? p.manufacturer ?? null,
                     gtin: ean,
                     sales_rank: salesRank && salesRank > 0 ? salesRank : null,
-                    keepa_category_id: p.rootCategory ?? undefined,
+                    keepa_category_id: rootCategoryId(p) ?? undefined,
                     category: categoryName ?? undefined,
                     category_id: categoryId ?? undefined,
                     keepa_last_refreshed_at: new Date().toISOString(),
