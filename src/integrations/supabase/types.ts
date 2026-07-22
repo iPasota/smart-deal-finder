@@ -198,6 +198,36 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_name: string
+          html_body: string
+          name: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_name: string
+          html_body: string
+          name: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_name?: string
+          html_body?: string
+          name?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_unsubscribe_tokens: {
         Row: {
           created_at: string
@@ -219,6 +249,60 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      email_watches: {
+        Row: {
+          asin: string
+          condition: string
+          confirmed_at: string | null
+          created_at: string
+          current_price_cents: number | null
+          doi_token: string
+          email: string
+          id: string
+          last_triggered_at: string | null
+          product_brand: string | null
+          product_image_url: string | null
+          product_title: string
+          target_price_cents: number
+          unsubscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          asin: string
+          condition: string
+          confirmed_at?: string | null
+          created_at?: string
+          current_price_cents?: number | null
+          doi_token: string
+          email: string
+          id?: string
+          last_triggered_at?: string | null
+          product_brand?: string | null
+          product_image_url?: string | null
+          product_title: string
+          target_price_cents: number
+          unsubscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asin?: string
+          condition?: string
+          confirmed_at?: string | null
+          created_at?: string
+          current_price_cents?: number | null
+          doi_token?: string
+          email?: string
+          id?: string
+          last_triggered_at?: string | null
+          product_brand?: string | null
+          product_image_url?: string | null
+          product_title?: string
+          target_price_cents?: number
+          unsubscribed_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
