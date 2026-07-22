@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ImpressumRouteImport } from './routes/impressum'
 import { Route as DatenschutzRouteImport } from './routes/datenschutz'
@@ -18,18 +19,33 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParentIndexRouteImport } from './routes/$parent.index'
 import { Route as KategorieParentRouteImport } from './routes/kategorie.$parent'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as ParentChildRouteImport } from './routes/$parent.$child'
 import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$parent.index'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
+import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
+import { Route as AuthenticatedAdminEmailTemplatesRouteImport } from './routes/_authenticated/admin.email-templates'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as ApiPublicHooksPriceAlertCheckRouteImport } from './routes/api/public/hooks/price-alert-check'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
 import { Route as ApiPublicHooksKeepaBackfillCategoriesRouteImport } from './routes/api/public/hooks/keepa-backfill-categories'
+import { Route as ApiPublicHooksAdminDailyDigestRouteImport } from './routes/api/public/hooks/admin-daily-digest'
+import { Route as ApiPublicEmailWatchSubscribeRouteImport } from './routes/api/public/email/watch-subscribe'
+import { Route as ApiPublicEmailConfirmRouteImport } from './routes/api/public/email/confirm'
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -74,6 +90,11 @@ const KategorieParentRoute = KategorieParentRouteImport.update({
   path: '/kategorie/$parent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
@@ -89,6 +110,11 @@ const KategorieParentIndexRoute = KategorieParentIndexRouteImport.update({
   path: '/',
   getParentRoute: () => KategorieParentRoute,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KategorieParentChildRoute = KategorieParentChildRouteImport.update({
   id: '/$child',
   path: '/$child',
@@ -99,21 +125,51 @@ const ApiPublicTrackClickRoute = ApiPublicTrackClickRouteImport.update({
   path: '/api/public/track-click',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminSubscribersRoute =
+  AuthenticatedAdminSubscribersRouteImport.update({
+    id: '/admin/subscribers',
+    path: '/admin/subscribers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminPagesRoute = AuthenticatedAdminPagesRouteImport.update({
   id: '/admin/pages',
   path: '/admin/pages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminEmailTemplatesRoute =
+  AuthenticatedAdminEmailTemplatesRouteImport.update({
+    id: '/admin/email-templates',
+    path: '/admin/email-templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCategoriesRoute =
   AuthenticatedAdminCategoriesRouteImport.update({
     id: '/admin/categories',
     path: '/admin/categories',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
     path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPriceAlertCheckRoute =
+  ApiPublicHooksPriceAlertCheckRouteImport.update({
+    id: '/api/public/hooks/price-alert-check',
+    path: '/api/public/hooks/price-alert-check',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksKeepaSyncRoute = ApiPublicHooksKeepaSyncRouteImport.update({
@@ -133,6 +189,23 @@ const ApiPublicHooksKeepaBackfillCategoriesRoute =
     path: '/api/public/hooks/keepa-backfill-categories',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAdminDailyDigestRoute =
+  ApiPublicHooksAdminDailyDigestRouteImport.update({
+    id: '/api/public/hooks/admin-daily-digest',
+    path: '/api/public/hooks/admin-daily-digest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicEmailWatchSubscribeRoute =
+  ApiPublicEmailWatchSubscribeRouteImport.update({
+    id: '/api/public/email/watch-subscribe',
+    path: '/api/public/email/watch-subscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicEmailConfirmRoute = ApiPublicEmailConfirmRouteImport.update({
+  id: '/api/public/email/confirm',
+  path: '/api/public/email/confirm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -141,19 +214,30 @@ export interface FileRoutesByFullPath {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
+  '/api/public/email/confirm': typeof ApiPublicEmailConfirmRoute
+  '/api/public/email/watch-subscribe': typeof ApiPublicEmailWatchSubscribeRoute
+  '/api/public/hooks/admin-daily-digest': typeof ApiPublicHooksAdminDailyDigestRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/api/public/hooks/price-alert-check': typeof ApiPublicHooksPriceAlertCheckRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -161,18 +245,29 @@ export interface FileRoutesByTo {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/$parent': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent': typeof KategorieParentIndexRoute
+  '/api/public/email/confirm': typeof ApiPublicEmailConfirmRoute
+  '/api/public/email/watch-subscribe': typeof ApiPublicEmailWatchSubscribeRoute
+  '/api/public/hooks/admin-daily-digest': typeof ApiPublicHooksAdminDailyDigestRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/api/public/hooks/price-alert-check': typeof ApiPublicHooksPriceAlertCheckRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -183,19 +278,30 @@ export interface FileRoutesById {
   '/datenschutz': typeof DatenschutzRoute
   '/impressum': typeof ImpressumRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/$parent/$child': typeof ParentChildRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
+  '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
+  '/api/public/email/confirm': typeof ApiPublicEmailConfirmRoute
+  '/api/public/email/watch-subscribe': typeof ApiPublicEmailWatchSubscribeRoute
+  '/api/public/hooks/admin-daily-digest': typeof ApiPublicHooksAdminDailyDigestRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/api/public/hooks/price-alert-check': typeof ApiPublicHooksPriceAlertCheckRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -206,19 +312,30 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/$parent/$child'
     | '/watchlist'
+    | '/email/unsubscribe'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/admin/categories'
+    | '/admin/email-templates'
     | '/admin/pages'
+    | '/admin/subscribers'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent/'
+    | '/api/public/email/confirm'
+    | '/api/public/email/watch-subscribe'
+    | '/api/public/hooks/admin-daily-digest'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/api/public/hooks/price-alert-check'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -226,18 +343,29 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/$parent/$child'
     | '/watchlist'
+    | '/email/unsubscribe'
     | '/$parent'
     | '/admin/categories'
+    | '/admin/email-templates'
     | '/admin/pages'
+    | '/admin/subscribers'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent'
+    | '/api/public/email/confirm'
+    | '/api/public/email/watch-subscribe'
+    | '/api/public/hooks/admin-daily-digest'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/api/public/hooks/price-alert-check'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -247,19 +375,30 @@ export interface FileRouteTypes {
     | '/datenschutz'
     | '/impressum'
     | '/sitemap.xml'
+    | '/unsubscribe'
     | '/$parent/$child'
     | '/_authenticated/watchlist'
+    | '/email/unsubscribe'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/email-templates'
     | '/_authenticated/admin/pages'
+    | '/_authenticated/admin/subscribers'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent/'
+    | '/api/public/email/confirm'
+    | '/api/public/email/watch-subscribe'
+    | '/api/public/hooks/admin-daily-digest'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/api/public/hooks/price-alert-check'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,16 +409,32 @@ export interface RootRouteChildren {
   DatenschutzRoute: typeof DatenschutzRoute
   ImpressumRoute: typeof ImpressumRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicEmailConfirmRoute: typeof ApiPublicEmailConfirmRoute
+  ApiPublicEmailWatchSubscribeRoute: typeof ApiPublicEmailWatchSubscribeRoute
+  ApiPublicHooksAdminDailyDigestRoute: typeof ApiPublicHooksAdminDailyDigestRoute
   ApiPublicHooksKeepaBackfillCategoriesRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   ApiPublicHooksKeepaRefreshRoute: typeof ApiPublicHooksKeepaRefreshRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
+  ApiPublicHooksPriceAlertCheckRoute: typeof ApiPublicHooksPriceAlertCheckRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -343,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KategorieParentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/watchlist': {
       id: '/_authenticated/watchlist'
       path: '/watchlist'
@@ -364,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KategorieParentIndexRouteImport
       parentRoute: typeof KategorieParentRoute
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/kategorie/$parent/$child': {
       id: '/kategorie/$parent/$child'
       path: '/$child'
@@ -378,11 +547,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackClickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/subscribers': {
+      id: '/_authenticated/admin/subscribers'
+      path: '/admin/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AuthenticatedAdminSubscribersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/pages': {
       id: '/_authenticated/admin/pages'
       path: '/admin/pages'
       fullPath: '/admin/pages'
       preLoaderRoute: typeof AuthenticatedAdminPagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/email-templates': {
+      id: '/_authenticated/admin/email-templates'
+      path: '/admin/email-templates'
+      fullPath: '/admin/email-templates'
+      preLoaderRoute: typeof AuthenticatedAdminEmailTemplatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/categories': {
@@ -392,11 +575,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/price-alert-check': {
+      id: '/api/public/hooks/price-alert-check'
+      path: '/api/public/hooks/price-alert-check'
+      fullPath: '/api/public/hooks/price-alert-check'
+      preLoaderRoute: typeof ApiPublicHooksPriceAlertCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/keepa-sync': {
@@ -420,19 +624,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/admin-daily-digest': {
+      id: '/api/public/hooks/admin-daily-digest'
+      path: '/api/public/hooks/admin-daily-digest'
+      fullPath: '/api/public/hooks/admin-daily-digest'
+      preLoaderRoute: typeof ApiPublicHooksAdminDailyDigestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email/watch-subscribe': {
+      id: '/api/public/email/watch-subscribe'
+      path: '/api/public/email/watch-subscribe'
+      fullPath: '/api/public/email/watch-subscribe'
+      preLoaderRoute: typeof ApiPublicEmailWatchSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email/confirm': {
+      id: '/api/public/email/confirm'
+      path: '/api/public/email/confirm'
+      fullPath: '/api/public/email/confirm'
+      preLoaderRoute: typeof ApiPublicEmailConfirmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedWatchlistRoute: typeof AuthenticatedWatchlistRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminEmailTemplatesRoute: typeof AuthenticatedAdminEmailTemplatesRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
+  AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedWatchlistRoute: AuthenticatedWatchlistRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminEmailTemplatesRoute: AuthenticatedAdminEmailTemplatesRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
+  AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -473,13 +702,22 @@ const rootRouteChildren: RootRouteChildren = {
   DatenschutzRoute: DatenschutzRoute,
   ImpressumRoute: ImpressumRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicEmailConfirmRoute: ApiPublicEmailConfirmRoute,
+  ApiPublicEmailWatchSubscribeRoute: ApiPublicEmailWatchSubscribeRoute,
+  ApiPublicHooksAdminDailyDigestRoute: ApiPublicHooksAdminDailyDigestRoute,
   ApiPublicHooksKeepaBackfillCategoriesRoute:
     ApiPublicHooksKeepaBackfillCategoriesRoute,
   ApiPublicHooksKeepaRefreshRoute: ApiPublicHooksKeepaRefreshRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
+  ApiPublicHooksPriceAlertCheckRoute: ApiPublicHooksPriceAlertCheckRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

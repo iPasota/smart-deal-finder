@@ -64,7 +64,22 @@ export function PriceAlertModal({
         qc.invalidateQueries({ queryKey: ["watches"] });
         setSavedAuth(true);
       } else {
-        // Phase 5: createEmailWatch + Double-Opt-In Mail
+        const res = await fetch("/api/public/email/watch-subscribe", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email,
+            asin: deal.asin,
+            productTitle: deal.title,
+            productImageUrl: deal.imageUrl,
+            productBrand: deal.brand,
+            targetPriceCents: Math.round(target * 100),
+            currentPriceCents: deal.priceCents,
+            condition: deal.condition,
+          }),
+        });
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(j.error ?? "Konnte Preiswecker nicht speichern");
         setSent(true);
       }
     } catch (e) {
@@ -112,10 +127,10 @@ export function PriceAlertModal({
               <Check className="size-6" />
             </div>
             <p className="text-sm text-foreground">
-              Fast geschafft — wir mailen dich an <span className="text-emerald">{email}</span>.
+              Fast geschafft — wir haben dir eine Bestätigungs-Mail an <span className="text-emerald">{email}</span> geschickt.
             </p>
             <p className="text-xs text-muted-foreground">
-              Bestätigungs-Mail folgt sobald wir Mail-Versand aktivieren.
+              Klicke den Link darin, um den Preiswecker zu aktivieren.
             </p>
           </div>
         ) : (
