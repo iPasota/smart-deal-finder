@@ -18,13 +18,17 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParentIndexRouteImport } from './routes/$parent.index'
 import { Route as KategorieParentRouteImport } from './routes/kategorie.$parent'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedWatchlistRouteImport } from './routes/_authenticated/watchlist'
 import { Route as ParentChildRouteImport } from './routes/$parent.$child'
 import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$parent.index'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
@@ -74,6 +78,11 @@ const KategorieParentRoute = KategorieParentRouteImport.update({
   path: '/kategorie/$parent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWatchlistRoute = AuthenticatedWatchlistRouteImport.update({
   id: '/watchlist',
   path: '/watchlist',
@@ -88,6 +97,11 @@ const KategorieParentIndexRoute = KategorieParentIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => KategorieParentRoute,
+} as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const KategorieParentChildRoute = KategorieParentChildRouteImport.update({
   id: '/$child',
@@ -109,6 +123,18 @@ const AuthenticatedAdminCategoriesRoute =
     id: '/admin/categories',
     path: '/admin/categories',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
@@ -143,17 +169,21 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -163,16 +193,20 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/$parent': typeof ParentIndexRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -185,17 +219,21 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$parent/$child': typeof ParentChildRoute
   '/_authenticated/watchlist': typeof AuthenticatedWatchlistRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/kategorie/$parent': typeof KategorieParentRouteWithChildren
   '/$parent/': typeof ParentIndexRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/kategorie/$parent/': typeof KategorieParentIndexRoute
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -208,17 +246,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/watchlist'
+    | '/email/unsubscribe'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/admin/categories'
     | '/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent/'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -228,16 +270,20 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/watchlist'
+    | '/email/unsubscribe'
     | '/$parent'
     | '/admin/categories'
     | '/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -249,17 +295,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/$parent/$child'
     | '/_authenticated/watchlist'
+    | '/email/unsubscribe'
     | '/kategorie/$parent'
     | '/$parent/'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/pages'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
+    | '/lovable/email/suppression'
     | '/kategorie/$parent/'
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -270,12 +320,16 @@ export interface RootRouteChildren {
   DatenschutzRoute: typeof DatenschutzRoute
   ImpressumRoute: typeof ImpressumRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   KategorieParentRoute: typeof KategorieParentRouteWithChildren
   ApiPublicTrackClickRoute: typeof ApiPublicTrackClickRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksKeepaBackfillCategoriesRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   ApiPublicHooksKeepaRefreshRoute: typeof ApiPublicHooksKeepaRefreshRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -343,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KategorieParentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/watchlist': {
       id: '/_authenticated/watchlist'
       path: '/watchlist'
@@ -363,6 +424,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/kategorie/$parent/'
       preLoaderRoute: typeof KategorieParentIndexRouteImport
       parentRoute: typeof KategorieParentRoute
+    }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/kategorie/$parent/$child': {
       id: '/kategorie/$parent/$child'
@@ -391,6 +459,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/categories'
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -473,13 +555,17 @@ const rootRouteChildren: RootRouteChildren = {
   DatenschutzRoute: DatenschutzRoute,
   ImpressumRoute: ImpressumRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   KategorieParentRoute: KategorieParentRouteWithChildren,
   ApiPublicTrackClickRoute: ApiPublicTrackClickRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksKeepaBackfillCategoriesRoute:
     ApiPublicHooksKeepaBackfillCategoriesRoute,
   ApiPublicHooksKeepaRefreshRoute: ApiPublicHooksKeepaRefreshRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
