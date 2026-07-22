@@ -63,20 +63,31 @@ export const Route = createFileRoute("/api/public/hooks/price-alert-check")({
           return Response.json({ checked: 0, triggered: 0 });
         }
 
-        // 3. Fetch current lowest offer per ASIN
+        // 3. Fetch current lowest offer per ASIN (offers link via product_id)
         const asins = Array.from(new Set(allWatches.map((w) => w.asin)));
-        const { data: offers } = await supabaseAdmin
-          .from("offers")
-          .select("asin, price_cents, condition")
-          .in("asin", asins)
-          .not("price_cents", "is", null);
-
+        const { data: products } = await supabaseAdmin
+          .from("products")
+          .select("id, asin")
+          .in("asin", asins);
+        const asinByProductId = new Map<string, string>();
+        const productIds: string[] = [];
+        for (const p of products ?? []) {
+          if (p.id && p.asin) { asinByProductId.set(p.id as string, p.asin as string); productIds.push(p.id as string); }
+        }
         const cheapestByAsin = new Map<string, { price_cents: number; condition: string }>();
-        for (const o of offers ?? []) {
-          if (o.price_cents == null) continue;
-          const cur = cheapestByAsin.get(o.asin);
-          if (!cur || (o.price_cents as number) < cur.price_cents) {
-            cheapestByAsin.set(o.asin, { price_cents: o.price_cents as number, condition: o.condition ?? "" });
+        if (productIds.length) {
+          const { data: offers } = await supabaseAdmin
+            .from("offers")
+            .select("product_id, price_cents, condition")
+            .in("product_id", productIds)
+            .not("price_cents", "is", null);
+          for (const o of offers ?? []) {
+            const asin = asinByProductId.get(o.product_id as string);
+            if (!asin || o.price_cents == null) continue;
+            const cur = cheapestByAsin.get(asin);
+            if (!cur || (o.price_cents as number) < cur.price_cents) {
+              cheapestByAsin.set(asin, { price_cents: o.price_cents as number, condition: (o.condition as string) ?? "" });
+            }
           }
         }
 

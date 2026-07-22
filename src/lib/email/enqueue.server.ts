@@ -122,7 +122,7 @@ export async function enqueueDbEmail(input: EnqueueEmailInput): Promise<{ queued
 
   const { error } = await supabaseAdmin.rpc("enqueue_email", {
     queue_name: "transactional_emails",
-    payload,
+    payload: payload as any,
   });
 
   if (error) {
