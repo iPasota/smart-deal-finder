@@ -25,6 +25,7 @@ import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$pa
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicHooksKeepaSyncRouteImport } from './routes/api/public/hooks/keepa-sync'
 import { Route as ApiPublicHooksKeepaRefreshRouteImport } from './routes/api/public/hooks/keepa-refresh'
 import { Route as ApiPublicHooksKeepaBackfillCategoriesRouteImport } from './routes/api/public/hooks/keepa-backfill-categories'
@@ -109,6 +110,12 @@ const AuthenticatedAdminCategoriesRoute =
     path: '/admin/categories',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksKeepaSyncRoute = ApiPublicHooksKeepaSyncRouteImport.update({
   id: '/api/public/hooks/keepa-sync',
   path: '/api/public/hooks/keepa-sync',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/api/public/hooks/keepa-backfill-categories': typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   '/api/public/hooks/keepa-refresh': typeof ApiPublicHooksKeepaRefreshRoute
   '/api/public/hooks/keepa-sync': typeof ApiPublicHooksKeepaSyncRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -247,6 +259,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/keepa-backfill-categories'
     | '/api/public/hooks/keepa-refresh'
     | '/api/public/hooks/keepa-sync'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,6 +275,7 @@ export interface RootRouteChildren {
   ApiPublicHooksKeepaBackfillCategoriesRoute: typeof ApiPublicHooksKeepaBackfillCategoriesRoute
   ApiPublicHooksKeepaRefreshRoute: typeof ApiPublicHooksKeepaRefreshRoute
   ApiPublicHooksKeepaSyncRoute: typeof ApiPublicHooksKeepaSyncRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -378,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/keepa-sync': {
       id: '/api/public/hooks/keepa-sync'
       path: '/api/public/hooks/keepa-sync'
@@ -458,17 +479,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiPublicHooksKeepaBackfillCategoriesRoute,
   ApiPublicHooksKeepaRefreshRoute: ApiPublicHooksKeepaRefreshRoute,
   ApiPublicHooksKeepaSyncRoute: ApiPublicHooksKeepaSyncRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
