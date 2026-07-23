@@ -102,8 +102,7 @@ export const Route = createFileRoute("/api/public/email/watch-subscribe")({
           await enqueueDbEmail({
             templateName: "doi-confirmation",
             recipientEmail: parsed.email,
-            skipUnsubscribe: true,
-            idempotencyKey: `doi-${doiToken}`,
+            idempotencyKey: `doi-${doiToken}-${Date.now()}`,
             variables: {
               product_title: parsed.productTitle,
               target_price: formatEUR(parsed.targetPriceCents),
