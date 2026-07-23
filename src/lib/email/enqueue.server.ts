@@ -63,9 +63,10 @@ export async function enqueueDbEmail(input: EnqueueEmailInput): Promise<{ queued
     }
   }
 
-  // Unsubscribe token (reuse or create)
+  // Unsubscribe token — always issued; the send API rejects transactional
+  // messages without one (400 missing_unsubscribe).
   let unsubscribeToken = "";
-  if (!skipUnsubscribe) {
+  {
     const { data: existing } = await supabaseAdmin
       .from("email_unsubscribe_tokens")
       .select("token, used_at")
@@ -73,7 +74,12 @@ export async function enqueueDbEmail(input: EnqueueEmailInput): Promise<{ queued
       .maybeSingle();
     if (existing && !existing.used_at) {
       unsubscribeToken = existing.token;
-    } else if (!existing) {
+    } else if (existing && existing.used_at) {
+      unsubscribeToken = generateToken();
+      await supabaseAdmin
+        .from("email_unsubscribe_tokens")
+        .upsert({ token: unsubscribeToken, email: normalizedEmail, used_at: null }, { onConflict: "email" });
+    } else {
       unsubscribeToken = generateToken();
       await supabaseAdmin
         .from("email_unsubscribe_tokens")

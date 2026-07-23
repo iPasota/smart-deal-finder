@@ -26,6 +26,7 @@ import { Route as KategorieParentIndexRouteImport } from './routes/kategorie.$pa
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as KategorieParentChildRouteImport } from './routes/kategorie.$parent.$child'
 import { Route as ApiPublicTrackClickRouteImport } from './routes/api/public/track-click'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminPagesRouteImport } from './routes/_authenticated/admin.pages'
 import { Route as AuthenticatedAdminEmailTemplatesRouteImport } from './routes/_authenticated/admin.email-templates'
@@ -124,6 +125,11 @@ const ApiPublicTrackClickRoute = ApiPublicTrackClickRouteImport.update({
   id: '/api/public/track-click',
   path: '/api/public/track-click',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminSubscribersRoute =
   AuthenticatedAdminSubscribersRouteImport.update({
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/email-templates': typeof AuthenticatedAdminEmailTemplatesRoute
   '/_authenticated/admin/pages': typeof AuthenticatedAdminPagesRoute
   '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/public/track-click': typeof ApiPublicTrackClickRoute
   '/kategorie/$parent/$child': typeof KategorieParentChildRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -322,6 +331,7 @@ export interface FileRouteTypes {
     | '/admin/email-templates'
     | '/admin/pages'
     | '/admin/subscribers'
+    | '/admin/users'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/lovable/email/suppression'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/admin/email-templates'
     | '/admin/pages'
     | '/admin/subscribers'
+    | '/admin/users'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/lovable/email/suppression'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/email-templates'
     | '/_authenticated/admin/pages'
     | '/_authenticated/admin/subscribers'
+    | '/_authenticated/admin/users'
     | '/api/public/track-click'
     | '/kategorie/$parent/$child'
     | '/lovable/email/suppression'
@@ -547,6 +559,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackClickRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/subscribers': {
       id: '/_authenticated/admin/subscribers'
       path: '/admin/subscribers'
@@ -654,6 +673,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEmailTemplatesRoute: typeof AuthenticatedAdminEmailTemplatesRoute
   AuthenticatedAdminPagesRoute: typeof AuthenticatedAdminPagesRoute
   AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -662,6 +682,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminEmailTemplatesRoute: AuthenticatedAdminEmailTemplatesRoute,
   AuthenticatedAdminPagesRoute: AuthenticatedAdminPagesRoute,
   AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
